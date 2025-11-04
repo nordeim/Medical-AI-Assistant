@@ -1,0 +1,53 @@
+# Medical AI Assistant - Optimization Framework Requirements
+
+# Core dependencies
+torch>=1.10.0
+torchvision>=0.11.0
+numpy>=1.21.0
+psutil>=5.8.0
+
+# Quantization support
+bitsandbytes>=0.39.0  # Advanced quantization (optional but recommended)
+
+# GPU monitoring and management
+pynvml>=11.5.0        # NVIDIA GPU monitoring (optional)
+
+# Performance optimization
+accelerate>=0.20.0    # Distributed training support (optional)
+tensorrt>=8.5.0       # High-performance inference (optional)
+
+# Medical AI specific
+transformers>=4.20.0  # Hugging Face models (optional)
+datasets>=2.0.0       # Dataset handling (optional)
+
+# Validation and testing
+matplotlib>=3.5.0     # Visualization and plotting
+seaborn>=0.11.0       # Statistical visualization (optional)
+
+# Utilities
+tqdm>=4.64.0          # Progress bars
+pyyaml>=6.0           # Configuration files
+click>=8.0.0          # Command line interface (optional)
+
+# System information
+platform               # Built-in Python module
+subprocess            # Built-in Python module
+shutil               # Built-in Python module
+
+# Async support (built-in)
+asyncio              # Built-in Python module
+
+# Development and testing (optional)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+black>=22.0.0
+flake8>=5.0.0
+mypy>=0.950
+
+# Jupyter for examples (optional)
+jupyter>=1.0.0
+ipython>=8.0.0
+
+# Note: This framework is designed to work with minimal dependencies.
+# Many features are optional and will gracefully degrade if dependencies
+# are not available.

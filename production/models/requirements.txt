@@ -1,0 +1,146 @@
+# Production Medical AI Model Serving Infrastructure
+# Python Dependencies
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+
+# Model Serving and ML
+scikit-learn==1.3.2
+torch==2.1.0
+transformers==4.36.0
+onnx==1.14.1
+onnxruntime==1.16.3
+joblib==1.3.2
+mlflow==2.8.1
+
+# Data Processing
+numpy==1.24.4
+pandas==2.1.4
+scipy==1.11.4
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# Database and Caching
+asyncpg==0.29.0
+aioredis==2.0.1
+redis==5.0.1
+sqlalchemy[asyncio]==2.0.23
+
+# Monitoring and Observability
+prometheus-client==0.19.0
+psutil==5.9.6
+structlog==23.2.0
+opentelemetry-api==1.21.0
+opentelemetry-sdk==1.21.0
+
+# Security and Authentication
+pyjwt==2.8.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.6
+
+# Configuration and Utils
+pydantic==2.5.0
+pydantic-settings==2.1.0
+pyyaml==6.0.1
+click==8.1.7
+rich==13.7.0
+tqdm==4.66.1
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2
+
+# Development and Analysis
+jupyter==1.0.0
+ipython==8.17.2
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# API Documentation
+redoc==2.1.0
+swagger-ui-bundle==0.0.9
+
+# Deployment
+docker==6.1.3
+kubernetes==28.1.0
+
+# Healthcare Specific
+fhir-py==0.5.0
+hl7apy==1.3.4
+
+# Version Management
+semantic-version==2.10.0
+
+# HTTP Clients
+aiohttp==3.9.1
+requests==2.31.0
+
+# Serialization
+orjson==3.9.10
+cachetools==5.3.2
+
+# Background Tasks
+celery==5.3.4
+apscheduler==3.10.4
+
+# Image Processing (if needed)
+opencv-python==4.8.1.78
+
+# Additional Utilities
+python-dotenv==1.0.0
+colorlog==6.8.0
+tabulate==0.9.0
+jsonschema==4.20.0
+
+# Production specific
+sentry-sdk[fastapi]==1.38.0
+newrelic==9.2.0
+datadog==0.47.0
+
+# Model Optimization
+optuna==3.5.0
+nvidia-ml-py==12.535.133
+
+# Graph Processing (for model dependencies)
+networkx==3.2.1
+
+# Time and Date Handling
+python-dateutil==2.8.2
+zoneinfo==0.2.1
+
+# File Handling
+pathlib2==2.3.7.post1
+watchdog==3.0.0
+
+# Cryptography
+cryptography==41.0.7
+bcrypt==4.1.2
+
+# Memory Optimization
+memory-profiler==0.61.0
+psutil==5.9.6
+
+# Concurrency
+asyncio-throttle==1.0.2
+aioredis==2.0.1
+
+# API Rate Limiting
+slowapi==0.1.9
+
+# Response Compression
+brotli==1.1.0
+gzip-stream==0.1.0
+
+# Model Interpretability
+shap==0.43.0
+lime==0.2.0.1
+
+# Clinical Standards
+hl7apy==1.3.4
+fhir.resources==6.5.0

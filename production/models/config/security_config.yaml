@@ -1,0 +1,138 @@
+# Security Configuration for Production Medical AI Models
+
+# API Key Management
+api_key_management:
+  required: true
+  key_rotation_days: 90
+  max_keys_per_user: 5
+  key_length: 32
+  prefix: "med_ai_"
+
+# Authentication
+authentication:
+  jwt:
+    enabled: true
+    secret_key: "production-secret-key-change-in-deployment"
+    algorithm: "HS256"
+    expiration_hours: 24
+    refresh_threshold: 3600  # 1 hour
+  oauth2:
+    enabled: false
+    provider: "google"
+    client_id: "your-client-id"
+    client_secret: "your-client-secret"
+
+# Authorization
+authorization:
+  rbac:
+    enabled: true
+    roles:
+      - name: "admin"
+        permissions: ["read", "write", "admin", "model_management"]
+      - name: "clinician"
+        permissions: ["read", "predict", "batch_predict"]
+      - name: "researcher"
+        permissions: ["read", "predict", "model_metrics"]
+      - name: "viewer"
+        permissions: ["read"]
+  policy_enforcement: "strict"
+
+# Rate Limiting
+rate_limiting:
+  enabled: true
+  default_limit: 100  # requests per minute
+  burst_limit: 200
+  window_minutes: 1
+  per_endpoint_limits:
+    "/predict": 60
+    "/batch_predict": 20
+    "/health": 1000
+    "/metrics": 100
+
+# CORS and Headers
+cors:
+  enabled: true
+  origins: ["*"]
+  methods: ["GET", "POST", "PUT", "DELETE"]
+  headers: ["*"]
+  credentials: true
+
+security_headers:
+  - name: "X-Content-Type-Options"
+    value: "nosniff"
+  - name: "X-Frame-Options"
+    value: "DENY"
+  - name: "X-XSS-Protection"
+    value: "1; mode=block"
+  - name: "Strict-Transport-Security"
+    value: "max-age=31536000; includeSubDomains"
+  - name: "Content-Security-Policy"
+    value: "default-src 'self'"
+
+# Input Validation
+input_validation:
+  max_request_size: 10485760  # 10MB
+  content_type_validation: true
+  schema_validation: true
+  sql_injection_protection: true
+  xss_protection: true
+
+# Audit Logging
+audit_logging:
+  enabled: true
+  log_level: "INFO"
+  log_format: "json"
+  retention_days: 2555  # 7 years for HIPAA compliance
+  encryption: true
+  log_to_file: true
+  log_to_elasticsearch: false
+  sensitive_data_redaction: true
+
+# Encryption
+encryption:
+  data_at_rest: true
+  algorithm: "AES-256-GCM"
+  key_rotation_days: 365
+  data_in_transit: true
+  tls_version: "1.3"
+  certificate_path: "/etc/ssl/certs/medical_ai.crt"
+  private_key_path: "/etc/ssl/private/medical_ai.key"
+
+# Access Control
+access_control:
+  ip_whitelist: []
+  ip_blacklist: []
+  geo_blocking: false
+  vpn_detection: false
+  device_fingerprinting: true
+
+# Session Management
+session_management:
+  timeout_minutes: 30
+  max_concurrent_sessions: 3
+  session_fixation_protection: true
+  csrf_protection: true
+
+# Vulnerability Scanning
+vulnerability_scanning:
+  enabled: true
+  scan_interval_hours: 24
+  auto_remediation: false
+  severity_threshold: "medium"
+
+# Compliance
+compliance:
+  hipaa:
+    enabled: true
+    baa_required: true
+    audit_trail_mandatory: true
+    encryption_mandatory: true
+  gdpr:
+    enabled: true
+    data_minimization: true
+    right_to_be_forgotten: true
+    data_portability: true
+  fda_510k:
+    enabled: true
+    documentation_required: true
+    clinical_validation_required: true

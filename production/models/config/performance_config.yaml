@@ -1,0 +1,82 @@
+# Performance Monitoring Configuration
+metrics_interval: 60
+
+thresholds:
+  latency_p95: 2000  # 2 seconds
+  latency_p99: 5000  # 5 seconds
+  throughput_min: 10  # QPS
+  memory_usage_max: 80  # percentage
+  cpu_usage_max: 80  # percentage
+  accuracy_min: 0.85
+  error_rate_max: 0.01
+
+latency_window_size: 100
+throughput_window_size: 1000
+
+drift_threshold: 0.1
+
+enable_distributed_monitoring: true
+
+redis_host: "localhost"
+redis_port: 6379
+
+# Performance Baselines
+baselines:
+  medical-diagnosis-v1:
+    latency_ms: 150
+    accuracy: 0.89
+    throughput: 50
+  clinical-risk-v1:
+    latency_ms: 50
+    accuracy: 0.92
+    throughput: 100
+  drug-interaction-v1:
+    latency_ms: 200
+    accuracy: 0.95
+    throughput: 30
+
+# Alert Rules
+alert_rules:
+  - name: "high_latency"
+    condition: "latency_p95 > 2000"
+    severity: "warning"
+    duration: 300  # 5 minutes
+  - name: "low_accuracy"
+    condition: "accuracy < 0.8"
+    severity: "critical"
+    duration: 60   # 1 minute
+  - name: "high_error_rate"
+    condition: "error_rate > 0.05"
+    severity: "critical"
+    duration: 120  # 2 minutes
+  - name: "memory_leak"
+    condition: "memory_usage > 90"
+    severity: "warning"
+    duration: 600  # 10 minutes
+
+# Clinical Outcome Tracking
+clinical_outcomes:
+  validation_frequency: 86400  # daily
+  minimum_samples: 50
+  accuracy_thresholds:
+    excellent: 0.9
+    good: 0.8
+    fair: 0.7
+    poor: 0.6
+
+# Performance Optimization Settings
+optimization:
+  auto_scaling:
+    enabled: true
+    min_replicas: 2
+    max_replicas: 10
+    cpu_threshold: 70
+    memory_threshold: 80
+  batching:
+    max_batch_size: 32
+    batch_timeout_ms: 50
+    dynamic_batching: true
+  caching:
+    prediction_cache_ttl: 3600
+    feature_cache_ttl: 1800
+    model_cache_ttl: 7200

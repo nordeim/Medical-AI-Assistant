@@ -1,0 +1,59 @@
+# Health Monitoring Configuration
+check_interval: 30
+timeout: 10
+
+alert_thresholds:
+  response_time: 5.0
+  memory_usage: 80.0
+  cpu_usage: 80.0
+  disk_usage: 85.0
+  error_rate: 0.05
+
+services:
+  redis:
+    host: "localhost"
+    port: 6379
+    timeout: 5
+  model_server:
+    host: "localhost"
+    port: 8000
+    endpoint: "/health"
+  mlflow:
+    host: "localhost"
+    port: 5000
+    endpoint: "/api/2.0/mlflow/experiments/list"
+  database:
+    host: "localhost"
+    port: 5432
+    database: "medical_ai"
+    user: "postgres"
+    password: "password"
+    timeout: 10
+
+notification_channels:
+  email:
+    enabled: false
+    smtp_server: "smtp.example.com"
+    smtp_port: 587
+    username: "alerts@example.com"
+    password: "password"
+    recipients: ["admin@example.com"]
+  slack:
+    enabled: false
+    webhook_url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+    channel: "#alerts"
+  pagerduty:
+    enabled: false
+    integration_key: "your-pagerduty-integration-key"
+
+health_scoring:
+  weights:
+    response_time: 0.3
+    memory_usage: 0.25
+    cpu_usage: 0.25
+    disk_usage: 0.2
+  thresholds:
+    excellent: 0.9
+    good: 0.7
+    warning: 0.5
+    critical: 0.3

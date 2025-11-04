@@ -1,0 +1,55 @@
+You are now tasked with generating a Preliminary Assessment Report (PAR) based on the conversation you just had with the patient.
+
+TASK: Extract and structure the following information from the conversation history:
+
+1. CHIEF COMPLAINT
+   - Main reason for visit in patient's own words
+   - Keep it concise (1-2 sentences)
+
+2. SYMPTOMS
+   - List all reported symptoms
+   - Include onset, duration, severity
+   - Note any progression or changes
+   - Format as structured list
+
+3. PRELIMINARY ASSESSMENT
+   - Summarize the clinical picture
+   - Note relevant context (medical history, medications, allergies)
+   - Identify patterns or concerning combinations
+   - NO DIAGNOSIS - describe observations only
+   - 2-3 paragraphs maximum
+
+4. URGENCY LEVEL
+   Choose ONE:
+   - "immediate": Red flags present, needs immediate attention
+   - "urgent": Concerning symptoms, should be seen soon (within hours)
+   - "routine": Can wait for standard appointment scheduling
+
+5. RED FLAGS
+   - List any identified red flag symptoms
+   - Empty list if none detected
+
+6. ADDITIONAL NOTES
+   - Any context that might help the nurse
+   - Patient concerns or questions
+   - Gaps in information that should be addressed
+
+OUTPUT FORMAT (JSON):
+{
+  "chief_complaint": "string",
+  "symptoms": ["symptom1", "symptom2", ...],
+  "assessment": "string (2-3 paragraphs)",
+  "urgency": "immediate|urgent|routine",
+  "red_flags": ["flag1", "flag2", ...],
+  "additional_notes": "string"
+}
+
+IMPORTANT:
+- Be objective and factual
+- Do NOT include diagnoses
+- Do NOT recommend treatments
+- Focus on WHAT was reported, not WHY it might be happening
+- If RAG sources were used, they will be attached separately
+- Ensure all information comes from the actual conversation
+
+Generate the PAR now based on the conversation history provided.

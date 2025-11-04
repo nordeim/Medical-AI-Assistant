@@ -1,0 +1,198 @@
+# Production Medical AI Model Serving
+# Main Configuration File
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  max_concurrent_requests: 100
+  request_timeout: 300
+  enable_cors: true
+  cors_origins: ["*"]
+  
+# Model Configuration
+models:
+  default_model: "medical-diagnosis-v1"
+  auto_scaling: true
+  load_balancing: true
+  model_cache_size: 10
+  model_cache_ttl: 3600
+  
+# Cache Configuration
+cache:
+  redis_host: "localhost"
+  redis_port: 6379
+  cache_ttl: 3600
+  max_cache_size: 10000
+  enable_compression: true
+  connection_pool_size: 10
+  memory_cache_size: 1000
+
+# Monitoring Configuration
+monitoring:
+  metrics_interval: 60
+  health_check_interval: 30
+  drift_detection_interval: 300
+  alert_thresholds:
+    latency: 5.0
+    error_rate: 0.01
+    memory_usage: 0.8
+    accuracy_degradation: 0.05
+
+# Security Configuration
+security:
+  api_key_required: true
+  rate_limiting: true
+  default_rate_limit: 100
+  jwt_secret: "production-secret-key-change-in-deployment"
+  jwt_expiration_hours: 24
+  audit_logging: true
+
+# A/B Testing Configuration
+ab_testing:
+  significance_threshold: 0.05
+  min_sample_size: 100
+  min_test_duration_hours: 24
+  auto_stop_conditions:
+    max_duration_hours: 168
+    min_improvement_threshold: 0.02
+  clinical_validation:
+    require_clinical_outcomes: true
+    min_clinical_samples: 50
+
+# Model Optimization Configuration
+optimization:
+  quantization:
+    enabled: true
+    method: "dynamic"
+    precision: "int8"
+  pruning:
+    enabled: true
+    sparsity: 0.5
+  graph_optimization:
+    enabled: true
+    optimization_level: "O2"
+  batch_optimization:
+    max_batch_size: 32
+    dynamic_batching: true
+
+# Retraining Pipeline Configuration
+retraining:
+  trigger_thresholds:
+    accuracy_degradation: 0.05
+    drift_score_threshold: 0.3
+  schedule:
+    enabled: true
+    frequency_hours: 168
+    max_queue_size: 5
+    concurrent_jobs: 2
+  validation_criteria:
+    min_accuracy_improvement: 0.02
+    max_training_time_hours: 24
+
+# Model Versioning Configuration
+versioning:
+  auto_increment_patch: true
+  require_compatibility_testing: true
+  backward_compatibility_threshold: 0.95
+  deprecation_notice_days: 90
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "json"
+  output_file: "/var/log/medical_ai.log"
+  max_file_size: "100MB"
+  backup_count: 5
+  enable_structured_logging: true
+
+# Database Configuration
+database:
+  url: "postgresql://user:password@localhost/medical_ai"
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+  pool_recycle: 3600
+
+# MLflow Configuration
+mlflow:
+  tracking_uri: "sqlite:///mlflow.db"
+  registry_uri: "sqlite:///mlflow.db"
+  experiment_name: "medical_ai_models"
+  artifact_location: "/mlflow/artifacts"
+
+# Load Balancer Configuration
+load_balancer:
+  type: "nginx"
+  health_check_path: "/health"
+  upstream_timeout: 30
+  max_connections: 1000
+  enable_ssl: true
+  ssl_cert_path: "/etc/ssl/certs/medical_ai.crt"
+  ssl_key_path: "/etc/ssl/private/medical_ai.key"
+
+# Kubernetes Configuration
+kubernetes:
+  namespace: "medical-ai"
+  replicas: 3
+  cpu_request: "1000m"
+  memory_request: "2Gi"
+  cpu_limit: "2000m"
+  memory_limit: "4Gi"
+  enable_horizontal_pod_autoscaling: true
+  hpa_metrics:
+    - type: "Resource"
+      resource:
+        name: "cpu"
+        target:
+          type: "Utilization"
+          averageUtilization: 70
+    - type: "Resource"
+      resource:
+        name: "memory"
+        target:
+          type: "Utilization"
+          averageUtilization: 80
+
+# Metrics and Observability
+observability:
+  prometheus:
+    enabled: true
+    port: 9090
+    scrape_interval: 15s
+  grafana:
+    enabled: true
+    port: 3000
+    admin_password: "change-me-in-production"
+  jaeger:
+    enabled: true
+    port: 14268
+  elasticsearch:
+    enabled: false  # Set to true for production logging
+    host: "elasticsearch"
+    port: 9200
+
+# Compliance and Audit
+compliance:
+  hipaa:
+    enabled: true
+    audit_retention_days: 2555  # 7 years
+    encryption_at_rest: true
+    encryption_in_transit: true
+  gdpr:
+    enabled: true
+    data_retention_days: 365
+    right_to_be_forgotten: true
+  fda_510k:
+    enabled: true
+    clinical_validation_required: true
+    documentation_retention_years: 7
+
+# Feature Flags
+feature_flags:
+  enable_ab_testing: true
+  enable_model_drift_detection: true
+  enable_auto_retraining: true
+  enable_model_hot_swap: true
+  enable_performance_benchmarking: true

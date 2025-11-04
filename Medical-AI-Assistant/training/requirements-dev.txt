@@ -1,0 +1,28 @@
+# Testing dependencies for data validation utilities
+
+# Core testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-xdist>=3.0.0
+
+# Code quality
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.0.0
+
+# Type checking
+mypy>=1.0.0
+
+# Coverage analysis
+coverage>=7.0.0
+
+# Development utilities
+pre-commit>=3.0.0
+
+# Optional performance testing
+memory-profiler>=0.60.0
+psutil>=5.0.0
+
+# For Jupyter notebook testing (if needed)
+nbformat>=5.0.0
+nbconvert>=7.0.0

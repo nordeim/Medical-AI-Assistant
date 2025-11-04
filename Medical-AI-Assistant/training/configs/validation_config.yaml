@@ -1,0 +1,75 @@
+# Data Validation Configuration
+
+# Data integrity checks
+required_fields:
+  - conversation_id
+  - user_input
+  - assistant_response
+  - timestamp
+  - age
+  - gender
+  - triage_level
+  - symptoms
+
+# Medical data specific
+valid_triage_levels:
+  - emergency
+  - urgent
+  - non-urgent
+  - advisory
+
+age_range:
+  min: 0
+  max: 150
+
+# PHI detection patterns (regex)
+phi_patterns:
+  - SSN: "\\b\\d{3}-\\d{2}-\\d{4}\\b"
+  - Phone: "\\b\\d{10,11}\\b"
+  - Email: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+  - Address: "\\b\\d{1,5}\\s+\\w+\\s+(Street|St|Avenue|Ave|Road|Rd|Drive|Dr)\\b"
+  - Credit Card: "\\b\\d{4}\\s?\\d{4}\\s?\\d{4}\\s?\\d{4}\\b"
+
+# Medical terminology
+medical_terms:
+  - pain
+  - fever
+  - nausea
+  - vomiting
+  - diarrhea
+  - headache
+  - chest pain
+  - shortness of breath
+  - dizziness
+  - fatigue
+  - cough
+  - sore throat
+  - congestion
+  - rash
+  - swelling
+  - bleeding
+  - fracture
+  - injury
+  - infection
+  - inflammation
+
+# Text quality thresholds
+text_quality:
+  min_length: 10
+  max_length: 5000
+  min_readability: 5.0
+
+# Statistical thresholds
+statistical:
+  outlier_std_multiplier: 3.0
+  duplicate_similarity_threshold: 0.95
+  max_missing_data_percentage: 20.0
+
+# Reporting options
+reporting:
+  output_directory: "validation_reports"
+  generate_html: true
+  generate_json: true
+  generate_csv: true
+  include_charts: true
+  include_recommendations: true

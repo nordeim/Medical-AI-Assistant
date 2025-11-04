@@ -1,0 +1,670 @@
+# Model Registry Configuration
+# This file defines the configuration for the model registry system
+
+# Registry Settings
+registry:
+  # Registry path (where models and metadata are stored)
+  path: "./model_registry"
+  
+  # Registry name
+  name: "Medical AI Model Registry"
+  
+  # Registry description
+  description: "Registry for medical AI assistant models with versioning and lineage tracking"
+  
+  # Default model stage for new registrations
+  default_stage: "development"
+  
+  # Maximum number of models to keep (0 for unlimited)
+  max_models: 0
+  
+  # Auto-archive models older than this many days (0 to disable)
+  auto_archive_days: 365
+
+# Storage Settings
+storage:
+  # Backend storage type
+  backend: "local"  # Options: local, s3, gcs, azure
+  
+  # Local storage settings
+  local:
+    # Directory structure for artifacts
+    artifact_structure: "flat"  # Options: flat, hierarchical
+    
+    # File compression for large models
+    compression: true
+    
+    # Encryption settings
+    encryption:
+      enabled: false
+      algorithm: "AES-256"
+      key_rotation_days: 90
+  
+  # Cloud storage settings (for S3/GCS/Azure)
+  cloud:
+    # S3 settings
+    s3:
+      bucket: null
+      region: "us-east-1"
+      prefix: "models/"
+      access_key: null  # Use environment variable
+      secret_key: null  # Use environment variable
+      
+    # GCS settings
+    gcs:
+      bucket: null
+      prefix: "models/"
+      project_id: null
+      
+    # Azure Blob settings
+    azure:
+      container: null
+      prefix: "models/"
+      account_name: null
+      account_key: null  # Use environment variable
+
+# Database Settings
+database:
+  # Database type
+  type: "sqlite"  # Options: sqlite, postgresql, mysql
+  
+  # SQLite settings
+  sqlite:
+    path: "./model_registry/registry.db"
+    
+  # PostgreSQL settings (uncomment if using PostgreSQL)
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "model_registry"
+    username: "registry_user"
+    password: null  # Use environment variable
+    pool_size: 10
+    max_overflow: 20
+    
+  # MySQL settings (uncomment if using MySQL)
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "model_registry"
+    username: "registry_user"
+    password: null  # Use environment variable
+    pool_size: 10
+
+# Versioning Settings
+versioning:
+  # Default versioning strategy
+  strategy: "semantic"  # Options: semantic, timestamp, hash
+  
+  # Semantic versioning settings
+  semantic:
+    # Initial version for new models
+    initial_version: "0.1.0"
+    
+    # Auto-increment rules
+    auto_increment:
+      # Files changed in these paths trigger patch increment
+      patch_paths: ["models/", "src/"]
+      # Files changed in these paths trigger minor increment
+      minor_paths: ["src/"]
+      # Files changed in these paths trigger major increment
+      major_paths: ["api/", "config/"]
+    
+    # Pre-release identifier templates
+    prerelease_templates:
+      dev: "dev-{short_commit}"
+      staging: "rc-{build_number}"
+      feature: "alpha-{feature_name}"
+  
+  # Git integration settings
+  git:
+    enabled: true
+    auto_tag: true
+    tag_template: "model-{name}-v{version}"
+    include_commit_in_version: true
+    include_branch_in_prerelease: true
+    
+  # Version validation rules
+  validation:
+    # Require semantic versioning
+    require_semantic: false
+    
+    # Allow pre-releases in production
+    allow_prerelease_in_prod: false
+    
+    # Minimum version compatibility
+    min_version: "0.1.0"
+
+# MLflow Integration
+mlflow:
+  # Enable MLflow integration
+  enabled: true
+  
+  # MLflow tracking URI
+  tracking_uri: "sqlite:///model_registry/mlflow.db"
+  
+  # Default experiment name
+  experiment_name: "model_registry"
+  
+  # Auto-logging settings
+  auto_logging:
+    # Auto-log parameters
+    params: true
+    # Auto-log metrics
+    metrics: true
+    # Auto-log model
+    model: true
+    # Auto-log tags
+    tags: true
+  
+  # Model registry integration
+  model_registry:
+    # Register models in MLflow registry
+    enabled: true
+    # Default stage in MLflow
+    default_stage: "Staging"
+    # Tag prefix for model registry integration
+    tag_prefix: "registry_"
+
+# Weights & Biases Integration
+wandb:
+  # Enable wandb integration
+  enabled: true
+  
+  # Default project name
+  project: "medical-ai-registry"
+  
+  # Entity/team name
+  entity: null
+  
+  # Auto-logging settings
+  auto_logging:
+    # Log parameters
+    params: true
+    # Log metrics
+    metrics: true
+    # Log model artifacts
+    artifacts: true
+    # Log code
+    code: false
+  
+  # Model artifact settings
+  artifacts:
+    # Artifact type
+    type: "model"
+    # Metadata to include
+    metadata:
+      - framework
+      - stage
+      - version
+      - performance_metrics
+  
+  # Offline mode (no network)
+  offline: false
+
+# Model Promotion and Validation
+promotion:
+  # Validation requirements for stage promotion
+  requirements:
+    # Development to Staging
+    dev_to_staging:
+      min_accuracy: null  # Minimum accuracy required
+      min_f1: null       # Minimum F1 score required
+      min_precision: null
+      min_recall: null
+      validation_required: true
+      tests_passed: true
+      documentation_complete: true
+    
+    # Staging to Production
+    staging_to_prod:
+      min_accuracy: 0.8
+      min_f1: 0.75
+      min_precision: 0.75
+      min_recall: 0.75
+      validation_required: true
+      tests_passed: true
+      documentation_complete: true
+      security_review: true
+      compliance_check: true
+      a_b_testing_required: false
+  
+  # Automated promotion rules
+  auto_promotion:
+    # Enable automatic promotion
+    enabled: false
+    
+    # Promotion conditions
+    conditions:
+      # Accuracy improvement threshold
+      accuracy_improvement: 0.01
+      # Performance consistency (std dev threshold)
+      performance_consistency: 0.05
+      # Number of successful validations
+      min_validations: 3
+  
+  # A/B Testing configuration
+  ab_testing:
+    # Enable A/B testing support
+    enabled: true
+    
+    # Default traffic split (percentage for new model)
+    default_split: 10
+    
+    # Minimum test duration (days)
+    min_duration: 7
+    
+    # Success criteria
+    success_criteria:
+      # Minimum improvement required
+      min_improvement: 0.02
+      # Statistical significance threshold
+      confidence_level: 0.95
+      # Minimum sample size
+      min_samples: 1000
+
+# Security and Access Control
+security:
+  # Authentication settings
+  authentication:
+    # Enable authentication
+    enabled: false
+    # Authentication method
+    method: "token"  # Options: token, jwt, oauth
+    
+  # Authorization settings
+  authorization:
+    # Enable authorization
+    enabled: false
+    # Default role for new users
+    default_role: "viewer"
+    
+  # Encryption settings
+  encryption:
+    # Encrypt model artifacts
+    artifacts: false
+    # Encrypt metadata
+    metadata: false
+    # Algorithm to use
+    algorithm: "AES-256"
+    
+  # Audit logging
+  audit_logging:
+    # Enable audit logging
+    enabled: true
+    # Log all registry operations
+    log_all_operations: true
+    # Log level
+    level: "INFO"
+    # Log retention (days)
+    retention_days: 90
+
+# Notification Settings
+notifications:
+  # Enable notifications
+  enabled: true
+  
+  # Notification channels
+  channels:
+    # Email notifications
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: null  # Use environment variable
+      password: null  # Use environment variable
+      from_address: "registry@example.com"
+      
+      # Notification triggers
+      triggers:
+        model_registered: true
+        model_promoted: true
+        model_failed: true
+        model_archived: true
+        weekly_summary: true
+        
+      # Recipients
+      recipients:
+        - "admin@example.com"
+        - "ml-team@example.com"
+    
+    # Slack notifications
+    slack:
+      enabled: false
+      webhook_url: null  # Use environment variable
+      channel: "#ml-alerts"
+      
+      # Notification triggers
+      triggers:
+        model_promoted: true
+        model_failed: true
+        critical_errors: true
+        
+    # Webhook notifications
+    webhook:
+      enabled: false
+      url: null
+      headers: {}
+      
+      # Retry settings
+      retry:
+        max_attempts: 3
+        backoff_seconds: 5
+      
+      # Notification triggers
+      triggers:
+        model_registered: true
+        model_promoted: true
+        model_failed: true
+
+# Monitoring and Metrics
+monitoring:
+  # Enable monitoring
+  enabled: true
+  
+  # Metrics collection
+  metrics:
+    # Collect registry metrics
+    registry_metrics: true
+    # Collect model performance metrics
+    model_metrics: true
+    # Collect usage metrics
+    usage_metrics: true
+    
+    # Metrics endpoints
+    prometheus:
+      enabled: false
+      port: 8080
+      path: "/metrics"
+    
+  # Health checks
+  health_checks:
+    # Enable health checks
+    enabled: true
+    # Check interval (seconds)
+    interval: 30
+    
+    # Health check endpoints
+    endpoints:
+      - "health"
+      - "ready"
+      - "metrics"
+  
+  # Alerting
+  alerting:
+    # Enable alerting
+    enabled: false
+    
+    # Alert conditions
+    conditions:
+      # High error rate
+      high_error_rate:
+        threshold: 0.05  # 5%
+        window_minutes: 15
+        
+      # Low disk space
+      low_disk_space:
+        threshold: 0.90  # 90%
+        
+      # Model failure rate
+      model_failure_rate:
+        threshold: 0.10  # 10%
+        window_minutes: 60
+
+# API Settings
+api:
+  # Enable REST API
+  enabled: false
+  host: "0.0.0.0"
+  port: 8000
+  
+  # CORS settings
+  cors:
+    enabled: false
+    origins: ["*"]
+    methods: ["GET", "POST", "PUT", "DELETE"]
+    headers: ["Content-Type", "Authorization"]
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: false
+    requests_per_minute: 1000
+    
+  # Authentication for API
+  auth:
+    required: false
+    token_header: "Authorization"
+    
+  # API versioning
+  versioning:
+    enabled: false
+    default_version: "v1"
+    supported_versions: ["v1"]
+
+# Backup and Recovery
+backup:
+  # Enable automatic backups
+  enabled: false
+  
+  # Backup schedule (cron expression)
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  
+  # Backup retention (days)
+  retention_days: 30
+  
+  # Backup destinations
+  destinations:
+    # Local backup
+    local:
+      enabled: true
+      path: "./backups"
+      
+    # S3 backup
+    s3:
+      enabled: false
+      bucket: null
+      prefix: "backups/"
+      
+    # Remote backup
+    remote:
+      enabled: false
+      url: null
+      credentials: null
+
+# Environment-specific settings
+environments:
+  # Development environment
+  development:
+    overrides:
+      mlflow:
+        tracking_uri: "sqlite:///./mlflow.db"
+      notifications:
+        enabled: false
+      security:
+        audit_logging:
+          enabled: false
+  
+  # Staging environment
+  staging:
+    overrides:
+      mlflow:
+        tracking_uri: "sqlite:///staging_mlflow.db"
+      notifications:
+        email:
+          enabled: true
+          recipients: ["staging-team@example.com"]
+      
+  # Production environment
+  production:
+    overrides:
+      database:
+        type: "postgresql"
+      storage:
+        backend: "s3"
+      security:
+        authentication:
+          enabled: true
+        authorization:
+          enabled: true
+        encryption:
+          artifacts: true
+      notifications:
+        enabled: true
+      monitoring:
+        enabled: true
+      backup:
+        enabled: true
+
+# Logging Configuration
+logging:
+  # Log level
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Log handlers
+  handlers:
+    # Console logging
+    console:
+      enabled: true
+      level: "INFO"
+      
+    # File logging
+    file:
+      enabled: true
+      level: "DEBUG"
+      filename: "./logs/registry.log"
+      max_size_mb: 100
+      backup_count: 5
+      
+    # Structured logging (JSON)
+    json:
+      enabled: false
+      level: "INFO"
+      filename: "./logs/registry.json"
+      
+  # Logger-specific settings
+  loggers:
+    model_registry:
+      level: "DEBUG"
+    versioning:
+      level: "DEBUG"
+    mlflow_integration:
+      level: "INFO"
+    wandb_integration:
+      level: "INFO"
+
+# Feature Flags
+features:
+  # Experimental features
+  experimental:
+    # GitOps integration
+    gitops: false
+    
+    # Kubernetes deployment integration
+    kubernetes: false
+    
+    # Model explainability tracking
+    explainability: false
+    
+    # Model bias detection
+    bias_detection: false
+  
+  # Beta features
+  beta:
+    # Advanced model comparison
+    advanced_comparison: true
+    
+    # Model lineage visualization
+    lineage_visualization: true
+    
+    # Automated model optimization
+    auto_optimization: false
+
+# Performance Settings
+performance:
+  # Cache settings
+  cache:
+    # Enable caching
+    enabled: true
+    
+    # Cache TTL (seconds)
+    ttl: 300
+    
+    # Cache size
+    max_size: 1000
+    
+    # Cache backend
+    backend: "memory"  # Options: memory, redis
+  
+  # Database connection pooling
+  connection_pool:
+    # Enable connection pooling
+    enabled: true
+    
+    # Pool size
+    pool_size: 10
+    
+    # Max overflow
+    max_overflow: 20
+    
+    # Pool timeout
+    timeout: 30
+  
+  # Batch operations
+  batch_operations:
+    # Default batch size
+    default_batch_size: 100
+    
+    # Enable async operations
+    async_enabled: false
+    
+    # Thread pool size
+    thread_pool_size: 4
+
+# Model Schema and Metadata
+model_schema:
+  # Required fields for model registration
+  required_fields:
+    - "name"
+    - "framework"
+    - "created_by"
+  
+  # Optional fields with defaults
+  optional_fields:
+    description: ""
+    tags: {}
+    hyperparams: {}
+    performance_metrics: {}
+    data_lineage: {}
+  
+  # Field validation rules
+  validation:
+    name:
+      min_length: 3
+      max_length: 100
+      pattern: "^[a-zA-Z0-9_-]+$"
+    
+    version:
+      pattern: "semantic"  # or "timestamp" or "hash"
+    
+    tags:
+      max_count: 10
+      max_key_length: 50
+      max_value_length: 100
+  
+  # Metadata extraction from models
+  auto_extract:
+    # Extract framework from model type
+    framework: true
+    
+    # Extract feature names (for sklearn)
+    sklearn_features: true
+    
+    # Extract input/output shapes (for neural networks)
+    tensorflow_shapes: false
+    pytorch_shapes: false
+    
+    # Extract model parameters
+    model_params: true

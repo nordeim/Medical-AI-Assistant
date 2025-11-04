@@ -1,0 +1,75 @@
+# A/B Testing Configuration
+significance_threshold: 0.05
+min_sample_size: 100
+min_test_duration_hours: 24
+traffic_routing_cache_ttl: 24
+metrics_collection_interval: 60
+
+auto_stop_conditions:
+  max_duration_hours: 168  # 1 week
+  min_improvement_threshold: 0.02
+  max_sample_size: 10000
+
+clinical_validation:
+  require_clinical_outcomes: true
+  min_clinical_samples: 50
+  clinical_significance_threshold: 0.1
+
+# Traffic Splitting Configuration
+traffic_splitting:
+  default_split: 0.5  # 50/50 split
+  minimum_split: 0.1   # 10%
+  maximum_split: 0.9   # 90%
+  granularity: 0.05    # 5% increments
+
+# Statistical Analysis Configuration
+statistical_analysis:
+  test_types:
+    - "t-test"
+    - "chi-square"
+    - "mann-whitney"
+  confidence_level: 0.95
+  power_analysis: true
+  effect_size_calculation: true
+
+# Clinical Outcome Validation
+clinical_validation_rules:
+  accuracy_threshold: 0.85
+  precision_threshold: 0.80
+  recall_threshold: 0.75
+  auc_threshold: 0.80
+  clinical_significance_score: 0.1
+
+# Test Management
+test_management:
+  max_concurrent_tests: 5
+  test_approval_required: true
+  auto_deployment: false
+  rollback_on_failure: true
+
+# Notification Configuration
+notifications:
+  email:
+    enabled: false
+    recipients: ["ml-ops@example.com"]
+  slack:
+    enabled: false
+    webhook_url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+    channel: "#model-testing"
+  pagerduty:
+    enabled: false
+    integration_key: "your-pagerduty-integration-key"
+
+# Test Data Collection
+data_collection:
+  prediction_logging: true
+  outcome_collection: true
+  performance_metrics: true
+  patient_feedback: true
+
+# A/B Testing Storage
+storage:
+  redis_host: "localhost"
+  redis_port: 6379
+  database_url: "postgresql://user:password@localhost/ab_testing"
+  backup_interval: 3600  # 1 hour

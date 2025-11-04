@@ -1,0 +1,63 @@
+# Cache Configuration for Production Medical AI Models
+
+redis_host: "localhost"
+redis_port: 6379
+default_ttl: 3600
+max_cache_size: 10000
+enable_compression: true
+
+connection_pool_size: 10
+connection_timeout: 5
+
+memory_cache_size: 1000
+compression_threshold: 1000
+
+cache_namespaces:
+  predictions: "medical_ai:predictions"
+  models: "medical_ai:models"
+  features: "medical_ai:features"
+  metadata: "medical_ai:metadata"
+
+# Cache Strategies
+cache_strategies:
+  prediction_cache:
+    ttl: 3600  # 1 hour
+    max_size: 5000
+    eviction_policy: "LRU"
+  model_cache:
+    ttl: 7200  # 2 hours
+    max_size: 100
+    eviction_policy: "LFU"
+  feature_cache:
+    ttl: 1800  # 30 minutes
+    max_size: 10000
+    eviction_policy: "TTL"
+
+# Cache Warming
+cache_warming:
+  enabled: true
+  schedule: "0 */6 * * *"  # Every 6 hours
+  hot_predictions: 100
+  critical_models: ["medical-diagnosis-v1", "clinical-risk-v1"]
+
+# Cache Performance Targets
+performance_targets:
+  hit_rate_minimum: 0.8
+  cache_get_latency_ms: 1
+  cache_set_latency_ms: 2
+  memory_usage_limit: 1024  # MB
+
+# Cache Security
+security:
+  encrypt_cache: true
+  cache_key_rotation_hours: 24
+  audit_cache_access: true
+
+# Cache Health Monitoring
+health_monitoring:
+  check_interval: 60
+  alert_thresholds:
+    hit_rate_critical: 0.5
+    hit_rate_warning: 0.7
+    memory_usage_critical: 90
+    memory_usage_warning: 80

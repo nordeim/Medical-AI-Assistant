@@ -1,0 +1,82 @@
+# Medical AI Model Registry Configuration
+
+# Registry Settings
+registry_settings:
+  tracking_uri: "sqlite:///models.db"
+  registry_uri: "sqlite:///models.db"
+  experiment_name: "medical_ai_models"
+  artifact_location: "/mlflow/artifacts"
+  registry_backend_store_uri: "sqlite:///models.db"
+
+# Model Registration
+model_registration:
+  default_stage: "staging"
+  required_tags:
+    - "model_type"
+    - "framework"
+    - "version"
+    - "accuracy"
+  auto_version: true
+  version_format: "major.minor.patch"
+
+# A/B Testing Integration
+ab_testing_integration:
+  auto_create_tests: false
+  default_test_duration_hours: 24
+  min_sample_size: 100
+  significance_threshold: 0.05
+
+# Model Deployment
+deployment:
+  staging_deployment_timeout: 300  # 5 minutes
+  production_deployment_timeout: 600  # 10 minutes
+  rollback_timeout: 300
+  health_check_retries: 3
+  health_check_interval: 10  # seconds
+
+# Model Lifecycle Management
+lifecycle:
+  retention_days: 2555  # 7 years for medical data
+  auto_archival: true
+  archival_stage: "archived"
+  deletion_policy: "never"  # Medical data should never be deleted
+
+# Validation and Testing
+validation:
+  required_tests:
+    - "accuracy_validation"
+    - "performance_benchmark"
+    - "security_scan"
+  automated_validation: true
+  validation_timeout: 1800  # 30 minutes
+
+# Model Metadata
+metadata:
+  required_fields:
+    - "model_name"
+    - "version"
+    - "framework"
+    - "accuracy"
+    - "latency_ms"
+    - "memory_usage_mb"
+    - "created_by"
+  custom_tags:
+    department: "AI/ML"
+    application: "medical_diagnosis"
+    compliance_level: "HIPAA"
+
+# Backup and Recovery
+backup:
+  enabled: true
+  backup_interval: 3600  # 1 hour
+  backup_retention_days: 30
+  backup_location: "/backups/models"
+  compression: true
+  encryption: true
+
+# Cross-Model Dependencies
+dependencies:
+  track_dependencies: true
+  dependency_check: true
+  circular_dependency_detection: true
+  version_compatibility_matrix: true
