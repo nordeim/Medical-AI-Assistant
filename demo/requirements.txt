@@ -1,0 +1,42 @@
+# Demo Environment Requirements
+# Additional dependencies needed for demo functionality
+
+# Core demo functionality
+faker>=15.3.4
+python-jose[cryptography]>=3.3.0
+python-multipart>=0.0.6
+PyJWT>=2.6.0
+
+# Database dependencies
+sqlite3  # Built into Python
+
+# FastAPI and web framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+
+# Data processing and analytics
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Utilities
+python-dateutil>=2.8.2
+pytz>=2023.3
+click>=8.1.0
+colorama>=0.4.6
+
+# Development and testing
+pytest>=7.3.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0
+
+# Monitoring and logging
+psutil>=5.9.0
+rich>=13.0.0
+
+# Optional dependencies for advanced features
+# redis>=4.5.0  # For caching (optional)
+# prometheus-client>=0.16.0  # For metrics (optional)

@@ -1,0 +1,98 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      timeInterval: "5s"
+      queryTimeout: "60s"
+      httpMethod: "POST"
+    secureJsonData:
+      httpHeaderValue1: "prometheus"
+
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: true
+    jsonData:
+      tracesToLogs:
+        datasourceUid: 'loki'
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [
+          {
+            key: 'service.name',
+            value: 'service'
+          }
+        ]
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: false
+        filterBySpanID: false
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - name: TraceID
+          matcherRegex: "(?:traceID|trace_id)=(\\w+)"
+          url: "$${__value.raw}"
+
+  - name: Medical AI Database
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    database: medical_ai_monitoring
+    user: grafana
+    secureJsonData:
+      password: "grafana_password"
+    editable: true
+    jsonData:
+      sslmode: "disable"
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+
+  - name: Clinical Outcomes Database
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    database: clinical_outcomes
+    user: grafana
+    secureJsonData:
+      password: "grafana_password"
+    editable: true
+    jsonData:
+      sslmode: "disable"
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+
+  - name: ELK Stack
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    database: "[medical-ai-]YYYY.MM.DD"
+    editable: true
+    jsonData:
+      interval: "Daily"
+      timeField: "@timestamp"
+      esVersion: "7.0.0"
+      logMessageField: "message"
+      logLevelField: "level"
+
+  - name: AlertManager
+    type: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: true
+    jsonData:
+      implementation: "prometheus"

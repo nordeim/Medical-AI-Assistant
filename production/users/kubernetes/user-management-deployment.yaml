@@ -1,0 +1,610 @@
+# Healthcare User Management - Kubernetes Deployment
+# Production-ready Kubernetes manifests for user management system
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: healthcare-users
+  labels:
+    name: healthcare-users
+    environment: production
+    component: user-management
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-management-config
+  namespace: healthcare-users
+data:
+  # Database Configuration
+  DB_HOST: "postgres-cluster"
+  DB_PORT: "5432"
+  DB_NAME: "healthcare_users"
+  DB_USER: "healthcare_app"
+  
+  # Supabase Configuration
+  SUPABASE_URL: "https://your-project.supabase.co"
+  SUPABASE_ANON_KEY: "your-anon-key"
+  SUPABASE_SERVICE_ROLE_KEY: "your-service-role-key"
+  
+  # Authentication Configuration
+  JWT_SECRET: "your-jwt-secret"
+  ENCRYPTION_KEY: "your-encryption-key"
+  PATIENT_SALT_KEY: "your-patient-salt-key"
+  
+  # Email Configuration
+  SMTP_HOST: "smtp.healthcare.com"
+  SMTP_PORT: "587"
+  SMTP_SECURE: "false"
+  SMTP_USER: "notifications@healthcare.com"
+  SMTP_PASS: "smtp-password"
+  DEFAULT_NOTIFICATIONS_EMAIL: "noreply@healthcare.com"
+  MEDICAL_NOTIFICATIONS_EMAIL: "medical-alerts@healthcare.com"
+  
+  # SMS Configuration (Twilio)
+  TWILIO_ACCOUNT_SID: "your-twilio-sid"
+  TWILIO_AUTH_TOKEN: "your-twilio-token"
+  TWILIO_PHONE_NUMBER: "+1234567890"
+  SMS_WEBHOOK_URL: "https://your-domain.com/webhooks/sms"
+  
+  # Notification Channels
+  SLACK_SECURITY_WEBHOOK: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+  TEAMS_SECURITY_WEBHOOK: "https://outlook.office.com/webhook/YOUR/TEAMS/WEBHOOK"
+  PUSH_SERVICE_CONFIG: "firebase-config"
+  
+  # Security Configuration
+  ENABLE_INTRUSION_DETECTION: "true"
+  ENABLE_RATE_LIMITING: "true"
+  ENABLE_CORS: "true"
+  CORS_ORIGIN: "https://healthcare.app"
+  
+  # Monitoring Configuration
+  ENABLE_AUDIT_LOGGING: "true"
+  ENABLE_ANOMALY_DETECTION: "true"
+  ENABLE_REAL_TIME_MONITORING: "true"
+  
+  # Compliance Configuration
+  HIPAA_COMPLIANCE: "true"
+  GDPR_COMPLIANCE: "true"
+  SOX_COMPLIANCE: "true"
+  
+  # Performance Configuration
+  SESSION_TIMEOUT: "3600"
+  MAX_LOGIN_ATTEMPTS: "3"
+  LOCKOUT_DURATION: "1800"
+  PASSWORD_MIN_LENGTH: "12"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-management-secrets
+  namespace: healthcare-users
+type: Opaque
+stringData:
+  DB_PASSWORD: "secure-db-password"
+  JWT_SECRET: "super-secure-jwt-secret"
+  ENCRYPTION_KEY: "32-character-encryption-key"
+  PATIENT_SALT_KEY: "secure-patient-salt-key"
+  SMTP_PASS: "secure-smtp-password"
+  TWILIO_AUTH_TOKEN: "your-twilio-auth-token"
+  SUPABASE_SERVICE_ROLE_KEY: "your-service-role-key"
+---
+# Healthcare User Management Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcare-user-management
+  namespace: healthcare-users
+  labels:
+    app: healthcare-user-management
+    component: user-management
+    environment: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: healthcare-user-management
+  template:
+    metadata:
+      labels:
+        app: healthcare-user-management
+        component: user-management
+    spec:
+      serviceAccountName: healthcare-user-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: user-management-api
+        image: healthcare/user-management:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 3001
+          name: metrics
+        envFrom:
+        - configMapRef:
+            name: user-management-config
+        - secretRef:
+            name: user-management-secrets
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        - name: METRICS_PORT
+          value: "3001"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthcare-user-management-service
+  namespace: healthcare-users
+  labels:
+    app: healthcare-user-management
+spec:
+  type: ClusterIP
+  selector:
+    app: healthcare-user-management
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 3001
+    targetPort: metrics
+    protocol: TCP
+---
+# Healthcare Authentication Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcare-auth-service
+  namespace: healthcare-users
+  labels:
+    app: healthcare-auth-service
+    component: authentication
+    environment: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: healthcare-auth-service
+  template:
+    metadata:
+      labels:
+        app: healthcare-auth-service
+        component: authentication
+    spec:
+      serviceAccountName: healthcare-user-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+      containers:
+      - name: auth-service
+        image: healthcare/auth-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3002
+          name: auth-http
+        envFrom:
+        - configMapRef:
+            name: user-management-config
+        - secretRef:
+            name: user-management-secrets
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: AUTH_PORT
+          value: "3002"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /auth/health
+            port: auth-http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /auth/ready
+            port: auth-http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthcare-auth-service
+  namespace: healthcare-users
+  labels:
+    app: healthcare-auth-service
+spec:
+  type: ClusterIP
+  selector:
+    app: healthcare-auth-service
+  ports:
+  - name: auth-http
+    port: 3002
+    targetPort: auth-http
+    protocol: TCP
+---
+# Healthcare Monitoring Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcare-monitoring-service
+  namespace: healthcare-users
+  labels:
+    app: healthcare-monitoring-service
+    component: monitoring
+    environment: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: healthcare-monitoring-service
+  template:
+    metadata:
+      labels:
+        app: healthcare-monitoring-service
+        component: monitoring
+    spec:
+      serviceAccountName: healthcare-user-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1002
+      containers:
+      - name: monitoring-service
+        image: healthcare/monitoring-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3003
+          name: monitor-http
+        envFrom:
+        - configMapRef:
+            name: user-management-config
+        - secretRef:
+            name: user-management-secrets
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MONITOR_PORT
+          value: "3003"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /monitor/health
+            port: monitor-http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthcare-monitoring-service
+  namespace: healthcare-users
+  labels:
+    app: healthcare-monitoring-service
+spec:
+  type: ClusterIP
+  selector:
+    app: healthcare-monitoring-service
+  ports:
+  - name: monitor-http
+    port: 3003
+    targetPort: monitor-http
+    protocol: TCP
+---
+# Redis for Session Management and Caching
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cache
+  namespace: healthcare-users
+  labels:
+    app: redis-cache
+    component: cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-cache
+  template:
+    metadata:
+      labels:
+        app: redis-cache
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+        args:
+        - --requirepass
+        - "redis-secure-password"
+        - --maxmemory
+        - "256mb"
+        - --maxmemory-policy
+        - "allkeys-lru"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cache-service
+  namespace: healthcare-users
+  labels:
+    app: redis-cache
+spec:
+  type: ClusterIP
+  selector:
+    app: redis-cache
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: redis
+    protocol: TCP
+---
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: healthcare-user-sa
+  namespace: healthcare-users
+---
+# Role-based Access Control
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: healthcare-user-role
+  namespace: healthcare-users
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: healthcare-user-binding
+  namespace: healthcare-users
+subjects:
+- kind: ServiceAccount
+  name: healthcare-user-sa
+  namespace: healthcare-users
+roleRef:
+  kind: Role
+  name: healthcare-user-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: healthcare-user-management-hpa
+  namespace: healthcare-users
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: healthcare-user-management
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+# Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: healthcare-user-network-policy
+  namespace: healthcare-users
+spec:
+  podSelector:
+    matchLabels:
+      app: healthcare-user-management
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: database
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 5432
+    - protocol: TCP
+      port: 6379
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: healthcare-user-pdb
+  namespace: healthcare-users
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: healthcare-user-management
+---
+# Ingress Configuration
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: healthcare-user-ingress
+  namespace: healthcare-users
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://healthcare.app"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - api.healthcare.app
+    secretName: healthcare-user-tls
+  rules:
+  - host: api.healthcare.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: healthcare-user-management-service
+            port:
+              number: 80
+---
+# ConfigMap for Environment-specific Settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-management-monitoring-config
+  namespace: healthcare-users
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+    - job_name: 'healthcare-user-management'
+      static_configs:
+      - targets: ['healthcare-user-management-service:3001']
+    - job_name: 'healthcare-auth-service'
+      static_configs:
+      - targets: ['healthcare-auth-service:3002']
+    - job_name: 'healthcare-monitoring-service'
+      static_configs:
+      - targets: ['healthcare-monitoring-service:3003']
+  grafana.ini: |
+    [server]
+    protocol = http
+    http_port = 3000
+    domain = monitoring.healthcare.app
+    [security]
+    admin_user = admin
+    admin_password = secure-grafana-password
+    [auth.anonymous]
+    enabled = false

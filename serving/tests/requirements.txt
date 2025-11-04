@@ -1,0 +1,54 @@
+# Core testing framework
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-html>=3.1.0
+pytest-xdist>=3.0.0
+pytest-cov>=4.0.0
+pytest-timeout>=2.1.0
+pytest-mock>=3.10.0
+pytest-benchmark>=4.0.0
+
+# HTTP testing
+httpx>=0.24.0
+requests>=2.31.0
+fastapi>=0.100.0
+
+# Data handling and analysis
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+
+# Security and encryption testing
+cryptography>=40.0.0
+bcrypt>=4.0.0
+
+# System monitoring
+psutil>=5.9.0
+memory-profiler>=0.60.0
+
+# Mock and fixtures
+factory-boy>=3.2.0
+responses>=0.23.0
+freezegun>=1.2.0
+
+# Performance testing
+locust>=2.14.0
+aiohttp>=3.8.0
+
+# Medical data processing
+fhir.resources>=6.5.0
+hl7apy>=1.3.0
+
+# Compliance and auditing
+audit-python>=0.1.0
+pyyaml>=6.0
+
+# Documentation
+sphinx>=7.0.0
+sphinx-rtd-theme>=1.2.0
+
+# Additional utilities
+click>=8.1.0
+rich>=13.0.0
+tabulate>=0.9.0
+colorama>=0.4.0

@@ -1,0 +1,819 @@
+# Load Balancing and Auto-Scaling Configuration for Medical AI Healthcare Workloads
+# Multi-cloud load balancing with healthcare compliance and high availability
+---
+# AWS Application Load Balancer Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-alb-config
+  namespace: medical-ai-prod
+data:
+  aws-load-balancer-controller.yaml: |
+    # Install AWS Load Balancer Controller
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: aws-load-balancer-controller
+      namespace: kube-system
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: aws-load-balancer-controller
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: aws-load-balancer-controller
+        spec:
+          containers:
+          - name: aws-load-balancer-controller
+            image: public.ecr.aws/eks/aws-load-balancer-controller:v2.6.2
+            args:
+            - --cluster-name=medical-ai-prod
+            - --ingress-class=alb
+            - --enable-waf=false
+            - --enable-wafv2=false
+            - --feature-gates=waf=false
+            - --watch-namepace=medical-ai-prod
+            env:
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: AWS_STACK_NAME
+              value: "medical-ai-prod"
+            - name: AWS_VPC_ID
+              value: "vpc-xxxxxxxxx"
+            - name: AWS_MAX_RETRIES
+              value: "3"
+            - name: AWS_RETRY_MODE
+              value: "adaptive"
+            resources:
+              limits:
+                cpu: 500m
+                memory: 500Mi
+              requests:
+                cpu: 200m
+                memory: 200Mi
+
+---
+# Ingress with AWS Application Load Balancer
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medical-ai-ingress
+  namespace: medical-ai-prod
+  annotations:
+    # AWS Load Balancer Controller annotations
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/healthcheck-path: "/health"
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "10"
+    alb.ingress.kubernetes.io/healthcheck-healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/healthcheck-unhealthy-threshold-count: "3"
+    
+    # SSL/TLS Configuration
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:ACCOUNT:certificate/CERT-ID"
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+    
+    # Security Headers for HIPAA Compliance
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": {"Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    
+    # Load balancer attributes
+    alb.ingress.kubernetes.io/load-balancer-attributes: "idle_timeout.timeout_seconds=60,connection_logs.s3.enabled=true,connection_logs.s3.bucket=medical-ai-alb-logs,access_logs.s3.enabled=true,access_logs.s3.bucket=medical-ai-alb-logs"
+    
+    # WAF Integration for additional security
+    alb.ingress.kubernetes.io/wafv2-acl-arn: "arn:aws:wafv2:us-east-1:ACCOUNT:regional/webacl/medical-ai-waf"
+    
+    # Healthcare-specific routing rules
+    alb.ingress.kubernetes.io/group.name: "medical-ai"
+    alb.ingress.kubernetes.io/group.order: "1"
+    
+    # Session affinity for clinical workflows
+    alb.ingress.kubernetes.io/target-group-attributes: "deregistration_delay.timeout_seconds=300,stickiness.enabled=true,stickiness.type=lb_cookie,stickiness.cookie_duration=86400"
+    
+    # Circuit breaker configuration
+    alb.ingress.kubernetes.io/target-group-attributes: "load_balancing.algorithm.type=least_outstanding_requests,load_balancing.algorithm.warmup=60"
+    
+    # HIPAA-compliant logging
+    alb.ingress.kubernetes.io/access-logs-s3-bucket: "medical-ai-alb-logs"
+    alb.ingress.kubernetes.io/access-logs-s3-prefix: "medical-ai-prod"
+  labels:
+    app: medical-ai
+    compliance: hipaa
+    environment: production
+spec:
+  tls:
+  - hosts:
+    - medical-ai.example.com
+    - api.medical-ai.example.com
+    secretName: medical-ai-tls-secret
+  rules:
+  - host: medical-ai.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: medical-ai-frontend
+            port:
+              number: 8080
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: medical-ai-backend
+            port:
+              number: 8000
+  - host: api.medical-ai.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: medical-ai-backend
+            port:
+              number: 8000
+      - path: /serving
+        pathType: Prefix
+        backend:
+          service:
+            name: medical-ai-serving
+            port:
+              number: 8081
+
+---
+# GCP Load Balancer Configuration
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: medical-ai-ssl-cert
+  namespace: medical-ai-prod
+spec:
+  domains:
+    - medical-ai.example.com
+    - api.medical-ai.example.com
+---
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeGlobalAddress
+metadata:
+  name: medical-ai-external-ip
+  namespace: medical-ai-prod
+spec:
+  description: "External IP for Medical AI Load Balancer"
+  region: "us-central1"
+---
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeBackendService
+metadata:
+  name: medical-ai-backend-service
+  namespace: medical-ai-prod
+spec:
+  description: "Backend service for Medical AI"
+  timeoutSec: 60
+  connectionDrainingTimeoutSec: 300
+  sessionAffinity: "CLIENT_IP"
+  affinityCookieTtlSec: 86400
+  loadBalancingScheme: "EXTERNAL_MANAGED"
+  securityPolicyRef:
+    policyRef:
+      name: medical-ai-security-policy
+  logConfig:
+    enable: true
+    sampleRate: 1.0
+  healthChecks:
+    - healthCheckRef:
+        name: medical-ai-health-check
+  backend:
+    - groupRef:
+        instanceGroupRef:
+          name: medical-ai-frontend-ig
+      balancingMode: "UTILIZATION"
+      maxUtilization: 0.8
+    - groupRef:
+        instanceGroupRef:
+          name: medical-ai-backend-ig
+      balancingMode: "UTILIZATION"
+      maxUtilization: 0.8
+---
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeURLMap
+metadata:
+  name: medical-ai-url-map
+  namespace: medical-ai-prod
+spec:
+  description: "URL map for Medical AI"
+  defaultService:
+    backendServiceRef:
+      name: medical-ai-backend-service
+  pathMatchers:
+  - name: "medical-ai-path-matcher"
+    defaultService:
+      backendServiceRef:
+        name: medical-ai-backend-service
+    pathRules:
+    - paths: ["/api/*"]
+      service:
+        backendServiceRef:
+          name: medical-ai-backend-service
+    - paths: ["/serving/*"]
+      service:
+        backendServiceRef:
+          name: medical-ai-serving-service
+---
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeTargetHTTPSProxy
+metadata:
+  name: medical-ai-https-proxy
+  namespace: medical-ai-prod
+spec:
+  description: "HTTPS proxy for Medical AI"
+  urlMapRef:
+    name: medical-ai-url-map
+  sslCertificates:
+  - sslCertificateRef:
+      name: medical-ai-ssl-cert
+  quicOverride: "ENABLE"
+  mutualTLS: false
+---
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeGlobalForwardingRule
+metadata:
+  name: medical-ai-forwarding-rule
+  namespace: medical-ai-prod
+spec:
+  description: "Forwarding rule for Medical AI"
+  target:
+    targetHTTPSProxyRef:
+      name: medical-ai-https-proxy
+  portRange: "443"
+  ipAddressRef:
+    name: medical-ai-external-ip
+  loadBalancingScheme: "EXTERNAL_MANAGED"
+  connectionTrackingPolicy:
+    connectionTrackingPolicyRef:
+      name: medical-ai-connection-tracking
+
+---
+# Azure Application Gateway Configuration
+apiVersion: networking.azure.com/v1
+kind: ApplicationGateway
+metadata:
+  name: medical-ai-app-gateway
+  namespace: medical-ai-prod
+  annotations:
+    service.beta.kubernetes.io/azure-pip-name: "medical-ai-pip"
+    service.beta.kubernetes.io/azure-load-balancer-sku: "Standard_v2"
+spec:
+  sku:
+    name: "WAF_v2"
+    tier: "WAF_v2"
+    capacity: 3
+  gatewayIPConfigurations:
+  - name: "app-gateway-ip-config"
+    subnetRef:
+      name: "app-gateway-subnet"
+  frontendIPConfigurations:
+  - name: "frontend-ip-config"
+    publicIPAddress:
+      name: "medical-ai-pip"
+  frontendPorts:
+  - name: "port-80"
+    port: 80
+  - name: "port-443"
+    port: 443
+  sslCertificates:
+  - name: "medical-ai-ssl-cert"
+    data: <base64-encoded-cert>
+    password: ""
+  httpListeners:
+  - name: "http-listener"
+    protocol: "Http"
+    frontendIPConfiguration:
+      name: "frontend-ip-config"
+    frontendPort:
+      name: "port-80"
+  - name: "https-listener"
+    protocol: "Https"
+    frontendIPConfiguration:
+      name: "frontend-ip-config"
+    frontendPort:
+      name: "port-443"
+    sslCertificate:
+      name: "medical-ai-ssl-cert"
+    requireServerNameIndication: false
+  backendAddressPools:
+  - name: "backend-pool-frontend"
+    backendAddresses:
+    - fqdn: "medical-ai-frontend.medical-ai-prod.svc.cluster.local"
+  - name: "backend-pool-backend"
+    backendAddresses:
+    - fqdn: "medical-ai-backend.medical-ai-prod.svc.cluster.local"
+  - name: "backend-pool-serving"
+    backendAddresses:
+    - fqdn: "medical-ai-serving.medical-ai-prod.svc.cluster.local"
+  backendHttpSettingsCollection:
+  - name: "backend-http-settings"
+    port: 80
+    protocol: "Http"
+    cookieBasedAffinity: "Enabled"
+    affinityCookieName: "ApplicationGatewayAffinity"
+    requestTimeout: 60
+    connectionDraining:
+      enabled: true
+      drainTimeout: 60
+  urlPathMaps:
+  - name: "url-path-map"
+    defaultBackendAddressPool:
+      name: "backend-pool-frontend"
+    defaultBackendHttpSettings:
+      name: "backend-http-settings"
+    pathRules:
+    - name: "api-rule"
+      paths: ["/api/*"]
+      backendAddressPool:
+        name: "backend-pool-backend"
+      backendHttpSettings:
+        name: "backend-http-settings"
+    - name: "serving-rule"
+      paths: ["/serving/*"]
+      backendAddressPool:
+        name: "backend-pool-serving"
+      backendHttpSettings:
+        name: "backend-http-settings"
+  requestRoutingRules:
+  - name: "request-routing-rule"
+    ruleType: "PathBasedRouting"
+    httpListener:
+      name: "https-listener"
+    urlPathMap:
+      name: "url-path-map"
+  webApplicationFirewallConfiguration:
+    enabled: true
+    firewallMode: "Detection"
+    ruleSetType: "OWASP"
+    ruleSetVersion: "3.2"
+    disabledRuleGroups:
+    - ruleGroupName: "REQUEST-942-APPLICATION-ATTACK-SQLI"
+    - ruleGroupName: "REQUEST-944-APPLICATION-ATTACK-JAVA"
+    requestBodyCheck: true
+    maxRequestBodySize: 128
+    maxRequestBodySizeInKb: 128
+    fileUploadLimitInMb: 100
+
+---
+# Horizontal Pod Autoscaler with Healthcare Optimizations
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medical-ai-frontend-hpa
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: frontend
+    compliance: hipaa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-frontend
+  minReplicas: 3
+  maxReplicas: 10
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 3
+        periodSeconds: 60
+      selectPolicy: Max
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: nginx_http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "100"
+  - type: Object
+    object:
+      metric:
+        name: active_user_sessions
+      describedObject:
+        apiVersion: v1
+        kind: Service
+        name: medical-ai-frontend
+      target:
+        type: AverageValue
+        averageValue: "500"
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medical-ai-backend-hpa
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backend
+    compliance: hipaa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-backend
+  minReplicas: 3
+  maxReplicas: 20
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 25
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 3
+        periodSeconds: 60
+      selectPolicy: Max
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "50"
+  - type: Pods
+    pods:
+      metric:
+        name: active_database_connections
+      target:
+        type: AverageValue
+        averageValue: "100"
+  - type: Pods
+    pods:
+      metric:
+        name: api_latency_p95_seconds
+      target:
+        type: AverageValue
+        averageValue: "2"
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medical-ai-serving-hpa
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: serving
+    compliance: fda
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-serving
+  minReplicas: 2
+  maxReplicas: 10
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 25
+        periodSeconds: 120
+      - type: Pods
+        value: 1
+        periodSeconds: 120
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 120
+      - type: Pods
+        value: 1
+        periodSeconds: 120
+      selectPolicy: Max
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Resource
+    resource:
+      name: nvidia.com/gpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: inference_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "20"
+  - type: Pods
+    pods:
+      metric:
+        name: average_inference_time_seconds
+      target:
+        type: AverageValue
+        averageValue: "2"
+
+---
+# Vertical Pod Autoscaler for intelligent resource management
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: medical-ai-backend-vpa
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backend
+    compliance: hipaa
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-backend
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: backend
+      minAllowed:
+        cpu: 100m
+        memory: 256Mi
+      maxAllowed:
+        cpu: 4
+        memory: 8Gi
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits
+
+---
+# Cluster Autoscaler Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-autoscaler-status
+  namespace: kube-system
+data:
+  scale-down-enabled: "true"
+  scale-down-delay-after-add: "10m"
+  scale-down-unneeded-time: "10m"
+  scale-down-utilization-threshold: "0.5"
+  max-node-provision-time: "15m"
+  balance-similar-node-groups: "true"
+  expander: "priority"
+  skip-nodes-with-local-storage: "false"
+  skip-nodes-with-system-pods: "false"
+---
+# Service Monitor for Load Balancer Metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: load-balancer-metrics
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: load-balancer
+spec:
+  selector:
+    matchLabels:
+      component: nginx-ingress
+  endpoints:
+  - port: metrics
+    path: "/metrics"
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - ingress-nginx
+
+---
+# Healthcare-specific Service Mesh Configuration (Istio)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: medical-ai-traffic-management
+  namespace: medical-ai-prod
+  annotations:
+    sidecar.istio.io/inject: "true"
+spec:
+  hosts:
+  - medical-ai.example.com
+  - api.medical-ai.example.com
+  gateways:
+  - medical-ai-gateway
+  - medical-ai-api-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/api"
+    route:
+    - destination:
+        host: medical-ai-backend
+        port:
+          number: 8000
+    timeout: 60s
+    retries:
+      attempts: 3
+      perTryTimeout: 20s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+  - match:
+    - uri:
+        prefix: "/serving"
+    route:
+    - destination:
+        host: medical-ai-serving
+        port:
+          number: 8081
+    timeout: 300s
+    retries:
+      attempts: 2
+      perTryTimeout: 60s
+      retryOn: 5xx,reset,connect-failure
+  - route:
+    - destination:
+        host: medical-ai-frontend
+        port:
+          number: 8080
+    timeout: 30s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: medical-ai-backend-dr
+  namespace: medical-ai-prod
+spec:
+  host: medical-ai-backend
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+    loadBalancer:
+      simple: LEAST_CONN
+    outlierDetection:
+      consecutiveGatewayErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    circuitBreaker:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    tls:
+      mode: ISTIO_MUTUAL
+  portLevelSettings:
+  - port:
+      number: 8000
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 25
+        maxRequestsPerConnection: 5
+
+---
+# Healthcare Workload Priority Classes
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: medical-ai-critical
+  value: 1000
+  globalDefault: false
+  description: "Critical medical AI workloads - highest priority"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: medical-ai-high
+  value: 900
+  globalDefault: false
+  description: "High priority medical AI workloads"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: medical-ai-normal
+  value: 800
+  globalDefault: true
+  description: "Normal priority medical AI workloads"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: medical-ai-background
+  value: 700
+  globalDefault: false
+  description: "Background medical AI workloads"
+
+---
+# Healthcare-specific Node Labels and Taints
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-config
+  namespace: medical-ai-prod
+data:
+  node-labels: |
+    # For healthcare compliance
+    compliance=hipaa
+    healthcare-system=true
+    data-classification=phi
+    
+    # For workload types
+    workload-type=general
+    workload-type=backend
+    workload-type=frontend
+    workload-type=gpu
+    
+    # For performance characteristics
+    performance-tier=high
+    performance-tier=standard
+    performance-tier=low-latency
+    
+    # For availability zones
+    topology.kubernetes.io/zone=us-east-1a
+    topology.kubernetes.io/zone=us-east-1b
+    topology.kubernetes.io/zone=us-east-1c
+
+  node-taints: |
+    # For dedicated healthcare nodes
+    medical-ai-dedicated=general:NoSchedule
+    medical-ai-dedicated=backend:NoSchedule
+    medical-ai-dedicated=frontend:NoSchedule
+    
+    # For GPU nodes
+    nvidia.com/gpu=true:NoSchedule
+    
+    # For high-performance nodes
+    performance-tier=high:PreferNoSchedule

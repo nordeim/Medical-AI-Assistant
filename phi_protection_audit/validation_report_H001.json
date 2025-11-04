@@ -1,0 +1,36 @@
+{
+  "validation_metadata": {
+    "timestamp": "2025-11-04T05:35:07.646450",
+    "validator_version": "1.0.0",
+    "original_timestamp": "2025-11-04T05:35:07.568349"
+  },
+  "validation_result": {
+    "is_valid": false,
+    "residual_phi_count": 9,
+    "pseudonym_consistency": 1.0,
+    "compliance_score": 0.3,
+    "issues": [
+      "HIGH: 1 high-risk PHI elements remain (Names, Addresses, Dates)",
+      "RESIDUAL_potential_name: 6 instances detected",
+      "PHI_INDICATOR_DATE_INDICATORS: 1 instances detected",
+      "PHI_INDICATOR_CONTACT_INDICATORS: 2 instances detected",
+      "LOW_COMPLIANCE_SCORE: Original de-identification has low compliance score"
+    ],
+    "recommendations": [
+      "Review remaining PHI and consider enhanced detection methods",
+      "Review de-identification method and patterns",
+      "Consider implementing additional validation layers",
+      "Document any acceptable PHI omissions for compliance review"
+    ]
+  },
+  "original_deidentification": {
+    "compliance_score": 0.3076923076923077,
+    "detections_count": 13,
+    "pseudonym_mapping_size": 13
+  },
+  "summary": {
+    "is_valid": false,
+    "record_id": "H001"
+  },
+  "redacted_text_sample": "\n            Person_003 Person_002 admitted to Springfield General Hospital_00115, 2023.\n            Contact: (Phone_002, Email_001\n            Address: Address_001, Address_001\n            SSN_001, MRN_001\n            Attending physician: Provider_001 Doe\n            Insurance: Policy # ABC123456789\n            Emergency contact: Person_001 - (Phone_001\n            Discharge date: [DISCHARGE_DATE]\n            "
+}

@@ -1,0 +1,94 @@
+# Advanced Analytics and Business Intelligence Platform
+# Core requirements for the comprehensive analytics platform
+
+# Data Processing and Analysis
+pandas>=1.5.0
+numpy>=1.21.0
+scipy>=1.9.0
+
+# Machine Learning and Analytics
+scikit-learn>=1.1.0
+statsmodels>=0.13.0
+
+# Data Visualization (for future dashboard integration)
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.10.0
+
+# Database and Storage
+sqlalchemy>=1.4.0
+sqlite3  # Built-in, included for clarity
+
+# Configuration and Environment
+python-dotenv>=0.19.0
+pyyaml>=6.0
+
+# Date and Time Handling
+python-dateutil>=2.8.0
+
+# HTTP Requests (for API integrations)
+requests>=2.28.0
+
+# Asynchronous Programming
+asyncio  # Built-in, included for clarity
+concurrent-futures>=3.1.1
+
+# JSON and Data Serialization
+orjson>=3.8.0  # Fast JSON processing
+
+# Logging and Monitoring
+structlog>=22.1.0
+
+# Testing Framework
+pytest>=7.2.0
+pytest-cov>=4.0.0
+pytest-asyncio>=0.21.0
+
+# Performance and Profiling
+memory-profiler>=0.60.0
+line-profiler>=4.0.0
+
+# Security and Encryption
+cryptography>=38.0.0
+
+# API Framework (for future REST API integration)
+fastapi>=0.85.0
+uvicorn>=0.18.0
+pydantic>=1.10.0
+
+# Development Tools
+black>=22.10.0
+flake8>=5.0.0
+mypy>=1.0.0
+
+# Documentation
+sphinx>=5.2.0
+sphinx-rtd-theme>=1.2.0
+
+# Optional: Advanced Analytics Libraries
+# Uncomment if advanced analytics features are needed
+# tensorflow>=2.11.0
+# torch>=1.13.0
+# nltk>=3.8.0  # Natural language processing
+# networkx>=2.8.0  # Network analysis
+# openpyxl>=3.0.0  # Excel file support
+
+# Optional: Cloud and Big Data Integration
+# Uncomment for cloud/big data features
+# boto3>=1.26.0  # AWS integration
+# google-cloud-storage>=2.7.0  # Google Cloud integration
+# azure-storage-blob>=12.14.0  # Azure integration
+# pyarrow>=10.0.0  # Arrow integration for performance
+
+# Optional: Additional Analytics Libraries
+# Uncomment for extended analytics capabilities
+# xgboost>=1.6.0
+# lightgbm>=3.3.0
+# catboost>=1.0.6
+
+# Development and Deployment
+# Uncomment for production deployment
+# gunicorn>=20.1.0
+# celery>=5.2.0  # Task queue for background jobs
+# redis>=4.3.0  # Caching and message broker
+# docker>=6.1.0  # Containerization support

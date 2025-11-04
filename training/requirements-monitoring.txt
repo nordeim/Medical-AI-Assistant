@@ -1,0 +1,39 @@
+# Performance Monitoring System Requirements
+
+# Core monitoring and metrics
+numpy>=1.21.0
+pandas>=1.3.0
+psutil>=5.8.0
+torch>=1.10.0
+torchvision>=0.11.0
+
+# Visualization and plotting
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.0.0
+
+# Web dashboard
+flask>=2.0.0
+flask-socketio>=5.0.0
+
+# GPU monitoring (optional)
+pynvml>=11.0.0
+
+# Configuration
+pyyaml>=6.0
+
+# Async support
+aiofiles>=0.7.0
+
+# Data serialization
+orjson>=3.6.0
+
+# Development and testing (optional)
+pytest>=6.0.0
+pytest-asyncio>=0.21.0
+black>=21.0.0
+flake8>=4.0.0
+
+# Documentation (optional)
+sphinx>=4.0.0
+sphinx-rtd-theme>=0.5.0

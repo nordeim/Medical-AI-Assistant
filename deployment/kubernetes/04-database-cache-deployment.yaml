@@ -1,0 +1,431 @@
+# Database and Cache Production Deployment for Kubernetes
+# HIPAA-compliant PostgreSQL and Redis with encryption
+---
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: medical-ai-database
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: database
+    environment: production
+    compliance: hipaa
+spec:
+  serviceName: medical-ai-database
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medical-ai
+      component: database
+  template:
+    metadata:
+      labels:
+        app: medical-ai
+        component: database
+        environment: production
+        compliance: hipaa
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        audit.kubernetes.io/allow-privilege-escalation: "false"
+        audit.kubernetes.io/readonly-root-filesystem: "false"
+    spec:
+      serviceAccountName: medical-ai-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP
+        env:
+        - name: POSTGRES_DB
+          value: "medical_ai"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-database-secret
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-database-secret
+              key: password
+        - name: POSTGRES_INITDB_ARGS
+          value: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: "scram-sha-256"
+        - name: POSTGRES_INITDB_WALDIR
+          value: "/var/lib/postgresql/wal"
+        - name: POSTGRES_INITDB_LOGGING
+          value: "true"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2Gi
+            storage: 100Gi
+          limits:
+            cpu: 2
+            memory: 8Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 999
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-wal
+          mountPath: /var/lib/postgresql/wal
+        - name: postgres-config
+          mountPath: /etc/postgresql
+          readOnly: true
+        - name: postgres-init
+          mountPath: /docker-entrypoint-initdb.d
+          readOnly: true
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - $(POSTGRES_USER)
+            - -d
+            - $(POSTGRES_DB)
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - $(POSTGRES_USER)
+            - -d
+            - $(POSTGRES_DB)
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - $(POSTGRES_USER)
+            - -d
+            - $(POSTGRES_DB)
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+      volumes:
+      - name: postgres-config
+        configMap:
+          name: medical-ai-database-config
+      - name: postgres-init
+        configMap:
+          name: medical-ai-database-init
+          defaultMode: 0755
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "fast-ssd"
+      resources:
+        requests:
+          storage: 500Gi
+  - metadata:
+      name: postgres-wal
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "fast-ssd"
+      resources:
+        requests:
+          storage: 100Gi
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: medical-ai-database
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: database
+    environment: production
+  annotations:
+    service.beta.kubernetes.io/aws-rds-proxy: "true"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgresql
+  selector:
+    app: medical-ai
+    component: database
+---
+# Redis StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: medical-ai-redis
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: cache
+    environment: production
+    compliance: hipaa
+spec:
+  serviceName: medical-ai-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medical-ai
+      component: cache
+  template:
+    metadata:
+      labels:
+        app: medical-ai
+        component: cache
+        environment: production
+        compliance: hipaa
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+        audit.kubernetes.io/allow-privilege-escalation: "false"
+        audit.kubernetes.io/readonly-root-filesystem: "false"
+    spec:
+      serviceAccountName: medical-ai-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        command:
+        - redis-server
+        - /etc/redis/redis.conf
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-redis-secret
+              key: password
+        resources:
+          requests:
+            cpu: 200m
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 4Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 999
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        - name: redis-config
+          mountPath: /etc/redis
+          readOnly: true
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - --raw
+            - -a
+            - $(REDIS_PASSWORD)
+            - incr
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - --raw
+            - -a
+            - $(REDIS_PASSWORD)
+            - ping
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          exec:
+            command:
+            - redis-cli
+            - --raw
+            - -a
+            - $(REDIS_PASSWORD)
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+      volumes:
+      - name: redis-config
+        configMap:
+          name: medical-ai-redis-config
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "fast-ssd"
+      resources:
+        requests:
+          storage: 50Gi
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: medical-ai-redis
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: cache
+    environment: production
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  selector:
+    app: medical-ai
+    component: cache
+---
+# HorizontalPodAutoscaler for Database (if using cloud database)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medical-ai-database-hpa
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: database
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: medical-ai-database
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
+---
+# Database Backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: medical-ai-database-backup
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: database
+    backup: "true"
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: medical-ai
+            component: database
+            backup: "true"
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: medical-ai-sa
+          containers:
+          - name: postgres-backup
+            image: postgres:15-alpine
+            command:
+            - /bin/bash
+            - -c
+            - |
+              # Create backup
+              pg_dump -h medical-ai-database -U $(DB_USER) -d $(DB_NAME) | gzip > /backup/backup-$(date +%Y%m%d-%H%M%S).sql.gz
+              
+              # Upload to secure storage
+              aws s3 cp /backup/backup-*.sql.gz s3://medical-ai-backups/database/$(date +%Y%m%d)/ --server-side-encryption AES256
+              
+              # Clean up old local backups
+              find /backup -name "backup-*.sql.gz" -mtime +7 -delete
+            env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: username
+            - name: DB_NAME
+              value: "medical_ai"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: password
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: medical-ai-backup-pvc

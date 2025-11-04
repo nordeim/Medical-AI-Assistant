@@ -1,0 +1,62 @@
+{
+  "prototyping": {
+    "rapid_iteration": true,
+    "max_iteration_time": 24,
+    "automated_testing": true,
+    "continuous_deployment": true,
+    "devops_integration": true,
+    "max_concurrent_prototypes": 5,
+    "scaffold_generation": true,
+    "template_engine": "jinja2"
+  },
+  "deployment": {
+    "environments": ["development", "staging", "production", "testing", "demo"],
+    "auto_scaling": true,
+    "load_balancing": true,
+    "monitoring": true,
+    "rollback_strategy": "automatic",
+    "deployment_timeout": 600,
+    "health_check_retries": 3
+  },
+  "testing": {
+    "test_automation": true,
+    "coverage_threshold": 80,
+    "performance_testing": true,
+    "security_testing": true,
+    "accessibility_testing": true,
+    "test_frameworks": ["pytest", "jest", "cypress"],
+    "test_types": ["unit", "integration", "functional", "e2e", "performance"]
+  },
+  "ab_testing": {
+    "enabled": true,
+    "default_allocation": 0.5,
+    "min_sample_size": 100,
+    "confidence_level": 0.95,
+    "statistical_power": 0.8,
+    "test_duration_limit": 30,
+    "winner_threshold": 0.95
+  },
+  "infrastructure": {
+    "containerization": "docker",
+    "orchestration": "kubernetes",
+    "cloud_provider": "multi_cloud",
+    "auto_provisioning": true,
+    "resource_monitoring": true,
+    "cost_optimization": true
+  },
+  "version_control": {
+    "git_integration": true,
+    "branch_strategy": "gitflow",
+    "commit_hooks": true,
+    "code_review_required": true,
+    "merge_strategy": "squash"
+  },
+  "ci_cd": {
+    "pipeline_automation": true,
+    "build_optimization": true,
+    "artifact_management": true,
+    "rollback_capability": true,
+    "blue_green_deployment": true,
+    "canary_deployment": true
+  }
+}

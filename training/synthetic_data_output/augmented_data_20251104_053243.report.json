@@ -1,0 +1,17 @@
+{
+  "augmentation_summary": {
+    "original_conversations": 50,
+    "total_augmented": 93,
+    "augmentation_ratio": 1.86,
+    "adversarial_examples": 4
+  },
+  "quality_metrics": {
+    "diversity_score": 0.19029850746268656,
+    "semantic_similarity": 0.1261717822872881,
+    "medical_accuracy": 0.9
+  },
+  "recommendations": [
+    "Consider increasing synonym and paraphrase probabilities for better diversity"
+  ],
+  "generation_timestamp": "2025-11-04T05:32:43.181939"
+}

@@ -1,0 +1,376 @@
+# Kong API Gateway Production Configuration
+# HIPAA-compliant healthcare API gateway with rate limiting and security
+
+_format_version: "3.0"
+_transform: true
+
+services:
+  # Healthcare AI Assistant API Service
+  - name: healthcare-ai-api
+    url: http://healthcare-backend:8000
+    protocol: https
+    host_header: localhost
+    routes:
+      - name: healthcare-api-routes
+        paths:
+          - /api/v1
+          - /api/v2
+        strip_path: false
+        preserve_host: true
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - https://healthcare-frontend.app
+                - https://nurse-dashboard.app
+              methods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+              headers:
+                - Accept
+                - Authorization
+                - Content-Type
+                - X-Forwarded-For
+              exposed_headers:
+                - X-Auth-Token
+              credentials: true
+              max_age: 3600
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 5000
+              day: 100000
+              policy: local
+              fault_tolerant: true
+              hide_client_headers: false
+          - name: request-size-limiting
+            config:
+              allowed_payload_size: 10
+          - name: bot-detection
+            config:
+              allow:
+                - healthcare-provider-ips
+              deny:
+                - malicious-user-agents
+    plugins:
+      - name: correlation-id
+        config:
+          header_name: X-Correlation-ID
+          generator: uuid
+          echo_downstream: true
+      - name: http-log
+        config:
+          http_endpoint: https://healthcare-logs.com/api/logs
+          method: POST
+          content_type: application/json
+          timeout: 5000
+          keepalive: 10
+      - name: prometheus
+        config:
+          per_consumer: true
+          status_code_metrics: true
+          latency_metrics: true
+          bandwidth_metrics: true
+          upstream_health_metrics: true
+
+  # FHIR EHR Integration Service
+  - name: fhir-ehr-service
+    url: http://fhir-adapter:8001
+    protocol: https
+    routes:
+      - name: fhir-routes
+        paths:
+          - /fhir
+          - /fhir/v1
+        strip_path: false
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - https://ehr-systems.com
+                - https://hospital-management.app
+              methods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+              headers:
+                - Accept
+                - Authorization
+                - Content-Type
+                - X-FHIR-Version
+              credentials: true
+          - name: rate-limiting
+            config:
+              minute: 50
+              hour: 2000
+              day: 50000
+              policy: redis
+              redis_host: redis-cluster
+              redis_port: 6379
+          - name: request-transformer
+            config:
+              add:
+                headers:
+                  - X-FHIR-Version:R4
+                  - X-Resource-Type:All
+    plugins:
+      - name: oauth2
+        config:
+          scopes:
+            - patient:read
+            - patient:write
+            - observation:read
+            - observation:write
+          mandatory_scope: true
+          enable_client_credentials: true
+          enable_authorization_code: true
+          enable_password_grant: true
+          token_expiration: 3600
+          refresh_token_ttl: 1209600
+      - name: azure-ad
+        config:
+          client_id: 12345678-1234-1234-1234-123456789abc
+          client_secret: your-client-secret
+          tenant_id: 87654321-4321-4321-4321-cba987654321
+          domain: healthcare-organization.com
+          active_directory: https://login.microsoftonline.com
+      - name: bot-detection
+        config:
+          allow:
+            - ehr-integration-ips
+          deny:
+            - suspicious-patterns
+
+consumers:
+  # Healthcare Applications
+  - username: nurse-dashboard
+    custom_id: nurse-dashboard-001
+    credentials:
+      - key: nurse_dashboard_api_key_123
+        secret: nurse_dashboard_secret_456
+        name: Nurse Dashboard API Key
+        tags:
+          - production
+          - nurse-workflow
+          - read-only
+    plugins:
+      - name: acl
+        config:
+          whitelist:
+            - clinical-api
+            - patient-data
+            - care-plans
+
+  - username: physician-workstation
+    custom_id: physician-ws-001
+    credentials:
+      - key: physician_ws_api_key_789
+        secret: physician_ws_secret_012
+        name: Physician Workstation API Key
+        tags:
+          - production
+          - physician-access
+          - full-access
+    plugins:
+      - name: acl
+        config:
+          whitelist:
+            - clinical-api
+            - patient-data
+            - care-plans
+            - clinical-decisions
+            - medications
+            - procedures
+
+  # EHR System Integrations
+  - username: epic-integration
+    custom_id: epic-ehr-001
+    credentials:
+      - key: epic_client_id
+        secret: epic_client_secret
+        name: Epic EHR Integration
+        tags:
+          - ehr-integration
+          - epic-systems
+    plugins:
+      - name: acl
+        config:
+          whitelist:
+            - fhir-api
+            - ehr-sync
+
+  - username: cerner-integration
+    custom_id: cerner-ehr-001
+    credentials:
+      - key: cerner_client_id
+        secret: cerner_client_secret
+        name: Cerner EHR Integration
+        tags:
+          - ehr-integration
+          - cerner-systems
+    plugins:
+      - name: acl
+        config:
+          whitelist:
+            - fhir-api
+            - ehr-sync
+
+  # Analytics and Monitoring Applications
+  - username: analytics-service
+    custom_id: analytics-001
+    credentials:
+      - key: analytics_api_key
+        secret: analytics_api_secret
+        name: Analytics Service
+        tags:
+          - analytics
+          - reporting
+          - aggregated-data
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 200
+          hour: 10000
+          day: 200000
+      - name: acl
+        config:
+          whitelist:
+            - analytics-api
+            - aggregated-metrics
+
+plugins:
+  # Security Plugins
+  - name: ssl
+    config:
+      cert: /etc/kong/ssl/healthcare-cert.pem
+      key: /etc/kong/ssl/healthcare-key.pem
+      redirect_http_to_https: true
+
+  # HIPAA Compliance Logging
+  - name: syslog
+    config:
+      successful_severity: notice
+      client_errors_severity: error
+      server_errors_severity: critical
+      custom_fields_by_lua:
+        user_id: kong.request.get_header("X-User-ID")
+        patient_id: kong.request.get_header("X-Patient-ID")
+        hipaa_audit: "true"
+
+  # Performance Monitoring
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - X-Response-Time:$upstream_response_time
+          - X-Request-ID:$request_id
+          - X-Kong-Proxy-Latency:$proxy_latency
+          - X-Kong-Upstream-Latency:$upstream_latency
+
+  # Error Handling
+  - name: error-handler
+    config:
+      stylesheet: /etc/kong/custom-error.css
+
+upstreams:
+  # Backend Upstream
+  - name: healthcare-backend
+    algorithm: consistent-hashing
+    hash_on: header
+    hash_fallback: consumer
+    hash_header: X-Session-ID
+    slots: 100
+    health_checks:
+      active:
+        http_path: /health
+        timeout: 10
+        concurrency: 10
+        healthy:
+          http_statuses:
+            - 200
+          interval: 5
+          successes: 3
+        unhealthy:
+          http_statuses:
+            - 400
+            - 500
+            - 503
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+          successes: 5
+        unhealthy:
+          http_statuses:
+            - 400
+            - 401
+            - 403
+            - 404
+            - 429
+            - 500
+            - 502
+            - 503
+            - 504
+          http_failures: 5
+          timeouts: 5
+    targets:
+      - target: healthcare-backend-1:8000
+        weight: 100
+      - target: healthcare-backend-2:8000
+        weight: 100
+      - target: healthcare-backend-3:8000
+        weight: 100
+
+  # FHIR Adapter Upstream
+  - name: fhir-adapter
+    algorithm: round-robin
+    health_checks:
+      active:
+        http_path: /health
+        timeout: 5
+        healthy:
+          interval: 5
+          successes: 3
+        unhealthy:
+          interval: 5
+          http_failures: 3
+    targets:
+      - target: fhir-adapter-1:8001
+        weight: 100
+      - target: fhir-adapter-2:8001
+        weight: 100
+
+# Certificate Management
+certificates:
+  - id: healthcare-ssl-cert
+    cert: |
+      -----BEGIN CERTIFICATE-----
+      # Production SSL certificate
+      -----END CERTIFICATE-----
+    key: |
+      -----BEGIN PRIVATE KEY-----
+      # Production SSL private key
+      -----END PRIVATE KEY-----
+    snis:
+      - healthcare-api.app
+      - fhir-api.healthcare.org
+      - nurse-dashboard.app

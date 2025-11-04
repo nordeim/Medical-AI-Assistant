@@ -1,0 +1,19 @@
+{
+  "test_run": "2025-11-04T11:34:32.585401",
+  "results": {
+    "ticketing": "PASSED",
+    "feedback": "PASSED",
+    "monitoring": "FAILED: mean requires at least one data point",
+    "incidents": "PASSED",
+    "success": "PASSED",
+    "knowledge": "PASSED",
+    "training": "FAILED: No module named 'torch'",
+    "automation": "FAILED: 'str' object has no attribute 'value'",
+    "integration": "PASSED"
+  },
+  "summary": {
+    "total": 9,
+    "passed": 6,
+    "success_rate": 66.66666666666666
+  }
+}

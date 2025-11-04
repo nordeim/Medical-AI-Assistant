@@ -1,0 +1,26 @@
+{
+  "timestamp": "20251104_092725",
+  "overall_status": "failed",
+  "total_duration": 0.40093517303466797,
+  "total_tests": 8,
+  "passed_tests": 7,
+  "failed_tests": 1,
+  "categories": {
+    "system_integration": {
+      "status": "failed",
+      "duration": 0.3409433364868164,
+      "tests": 4,
+      "passed": 3,
+      "failed": 1,
+      "success_rate": 0.75
+    },
+    "patient_chat_flow": {
+      "status": "passed",
+      "duration": 0.05972790718078613,
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "success_rate": 1.0
+    }
+  }
+}

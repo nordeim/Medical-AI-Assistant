@@ -1,0 +1,9 @@
+{
+  "export_timestamp": "2025-11-03T21:57:17.791043+00:00",
+  "registry_path": "test_registry",
+  "models": [
+    {
+      "model_id": "medical_lr_high_dim_0.9.0_20251104_055717",
+      "name": "medical_lr_high_dim",
+      "version": "0.9.0",
+      "stage": 

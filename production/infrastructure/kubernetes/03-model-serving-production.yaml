@@ -1,0 +1,288 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medical-ai-model-serving
+  namespace: medical-ai-production
+  labels:
+    app: medical-ai-model-serving
+    component: model-serving
+    version: v2.0.0
+    environment: production
+    compliance: hipaa,fda,iso27001
+    accelerator: nvidia-tesla-v100
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: medical-ai-model-serving
+  template:
+    metadata:
+      labels:
+        app: medical-ai-model-serving
+        component: model-serving
+        version: v2.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        hipaa.audit/enabled: "true"
+        hipaa.audit/model-version: "true"
+        fda.compliance/model-version: "mandatory"
+    spec:
+      serviceAccountName: medical-ai-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: model-serving
+        image: medical-ai/model-serving:v2.0.0-production-gpu
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: grpc
+          protocol: TCP
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        env:
+        - name: MODEL_SERVER_NAME
+          value: "medical-ai-torchserve"
+        - name: MODEL_STORE
+          value: "/opt/ml/model-store"
+        - name: ENABLE_METRICS_API
+          value: "true"
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: TORCH_SERVE_OPTIONS
+          value: "--model-store=/opt/ml/model-store --ts-config=config.properties"
+        - name: MODEL_REGISTRY_URL
+          value: "http://model-registry:8080"
+        - name: HIPAA_AUDIT_MODEL_VERSION
+          value: "true"
+        - name: FDA_MODEL_VERSION_TRACKING
+          value: "mandatory"
+        - name: MODEL_CACHE_SIZE
+          value: "10"
+        - name: GPU_MEMORY_UTILIZATION
+          value: "0.9"
+        - name: INFERENCE_TIMEOUT
+          value: "30"
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+            cpu: "2"
+            memory: "16Gi"
+          limits:
+            nvidia.com/gpu: 1
+            cpu: "8"
+            memory: "32Gi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        livenessProbe:
+          httpGet:
+            path: "/ping"
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: "/predictions/medical-ai-model"
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+          failureThreshold: 10
+        startupProbe:
+          httpGet:
+            path: "/ping"
+            port: 8080
+          initialDelaySeconds: 180
+          periodSeconds: 30
+          timeoutSeconds: 15
+          failureThreshold: 40
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: model-store
+          mountPath: /opt/ml/model-store
+        - name: config-volume
+          mountPath: /opt/ml/config
+          readOnly: true
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: model-store
+        persistentVolumeClaim:
+          claimName: model-store-pvc
+          readOnly: false
+      - name: config-volume
+        configMap:
+          name: model-serving-config
+          defaultMode: 0444
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 90
+      nodeSelector:
+        accelerator: nvidia-tesla-v100
+        node-type: gpu
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      - key: "gpu-node"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - medical-ai-model-serving
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medical-ai-model-serving-service
+  namespace: medical-ai-production
+  labels:
+    app: medical-ai-model-serving
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/ping"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "30"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "5"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "3"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: grpc
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: metrics
+  selector:
+    app: medical-ai-model-serving
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medical-ai-model-serving-hpa
+  namespace: medical-ai-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-model-serving
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: model_inference_latency
+      target:
+        type: AverageValue
+        averageValue: "2s"
+  - type: Pods
+    pods:
+      metric:
+        name: active_model_requests
+      target:
+        type: AverageValue
+        averageValue: "100"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 120
+      - type: Pods
+        value: 1
+        periodSeconds: 120
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 300
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: medical-ai-model-serving-vpa
+  namespace: medical-ai-production
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-model-serving
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: model-serving
+      maxAllowed:
+        cpu: "16"
+        memory: "64Gi"
+      minAllowed:
+        cpu: "1"
+        memory: "8Gi"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-store-pvc
+  namespace: medical-ai-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2  # AWS
+  resources:
+    requests:
+      storage: 500Gi

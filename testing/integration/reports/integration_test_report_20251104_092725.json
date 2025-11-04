@@ -1,0 +1,179 @@
+{
+  "test_execution": {
+    "start_time": "2025-11-04T01:27:25.583033",
+    "end_time": "2025-11-04T01:27:25.983997",
+    "total_duration": 0.40093517303466797,
+    "overall_status": "failed"
+  },
+  "execution_summary": {
+    "start_time": "2025-11-04T01:27:25.583033",
+    "end_time": "2025-11-04T01:27:25.983997",
+    "total_duration": 0.40093517303466797,
+    "test_categories": {
+      "system_integration": {
+        "total": 4,
+        "passed": 3,
+        "failed": 1,
+        "errors": 0,
+        "success_rate": 0.75
+      },
+      "patient_chat_flow": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "success_rate": 1.0
+      }
+    },
+    "overall_status": "failed",
+    "metrics": {
+      "average_duration": {
+        "average": 1.3139879735740976,
+        "median": 1.3139879735740976,
+        "min": 1.259316464351358,
+        "max": 1.3686594827968372,
+        "count": 2
+      },
+      "median_duration": {
+        "average": 1.2823047915177774,
+        "median": 1.2823047915177774,
+        "min": 1.2618747400023156,
+        "max": 1.3027348430332395,
+        "count": 2
+      },
+      "max_duration": {
+        "average": 2.1491762016304983,
+        "median": 2.1491762016304983,
+        "min": 1.8488633154364447,
+        "max": 2.449489087824552,
+        "count": 2
+      },
+      "min_duration": {
+        "average": 0.5421661096303367,
+        "median": 0.5421661096303367,
+        "min": 0.5013993633581657,
+        "max": 0.5829328559025078,
+        "count": 2
+      }
+    }
+  },
+  "test_results": {
+    "system_integration": {
+      "category": "system_integration",
+      "description": "Complete System Integration Tests",
+      "status": "failed",
+      "start_time": "2025-11-04T01:27:25.583078",
+      "end_time": "2025-11-04T01:27:25.924017",
+      "duration": 0.3409433364868164,
+      "test_files": [
+        "test_complete_system_integration.py"
+      ],
+      "summary": {
+        "total": 4,
+        "passed": 3,
+        "failed": 1,
+        "errors": 0,
+        "success_rate": 0.75
+      },
+      "metrics": {
+        "average_duration": 1.259316464351358,
+        "median_duration": 1.3027348430332395,
+        "max_duration": 1.8488633154364447,
+        "min_duration": 0.5829328559025078
+      },
+      "errors": [],
+      "test_count": 4,
+      "test_results": [
+        {
+          "name": "test_frontend_backend_integration",
+          "status": "passed",
+          "duration": 1.0544791594713234,
+          "location": "test_complete_system_integration.py::test_frontend_backend_integration"
+        },
+        {
+          "name": "test_training_serving_integration",
+          "status": "failed",
+          "duration": 1.8488633154364447,
+          "location": "test_complete_system_integration.py::test_training_serving_integration"
+        },
+        {
+          "name": "test_database_integration",
+          "status": "passed",
+          "duration": 1.5509905265951556,
+          "location": "test_complete_system_integration.py::test_database_integration"
+        },
+        {
+          "name": "test_security_integration",
+          "status": "passed",
+          "duration": 0.5829328559025078,
+          "location": "test_complete_system_integration.py::test_security_integration"
+        }
+      ]
+    },
+    "patient_chat_flow": {
+      "category": "patient_chat_flow",
+      "description": "Patient Chat Flow Integration Tests",
+      "status": "passed",
+      "start_time": "2025-11-04T01:27:25.924148",
+      "end_time": "2025-11-04T01:27:25.983874",
+      "duration": 0.05972790718078613,
+      "test_files": [
+        "test_patient_chat_flow.py"
+      ],
+      "summary": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "success_rate": 1.0
+      },
+      "metrics": {
+        "average_duration": 1.3686594827968372,
+        "median_duration": 1.2618747400023156,
+        "max_duration": 2.449489087824552,
+        "min_duration": 0.5013993633581657
+      },
+      "errors": [],
+      "test_count": 4,
+      "test_results": [
+        {
+          "name": "test_normal_chat_flow",
+          "status": "passed",
+          "duration": 2.449489087824552,
+          "location": "test_patient_chat_flow.py::test_normal_chat_flow"
+        },
+        {
+          "name": "test_emergency_chat_flow",
+          "status": "passed",
+          "duration": 0.5013993633581657,
+          "location": "test_patient_chat_flow.py::test_emergency_chat_flow"
+        },
+        {
+          "name": "test_chat_session_persistence",
+          "status": "passed",
+          "duration": 1.6333501226207368,
+          "location": "test_patient_chat_flow.py::test_chat_session_persistence"
+        },
+        {
+          "name": "test_chat_error_handling",
+          "status": "passed",
+          "duration": 0.8903993573838946,
+          "location": "test_patient_chat_flow.py::test_chat_error_handling"
+        }
+      ]
+    }
+  },
+  "configuration": {
+    "base_url": "http://localhost:8000",
+    "test_timeout": 60,
+    "parallel_execution": false,
+    "max_workers": 4,
+    "output_dir": "/workspace/testing/integration/reports",
+    "log_level": "INFO"
+  },
+  "environment": {
+    "python_version": "3.12.5 (main, Sep  5 2024, 00:16:34) [GCC 12.2.0]",
+    "platform": "linux",
+    "test_directory": "/workspace/testing/integration"
+  }
+}

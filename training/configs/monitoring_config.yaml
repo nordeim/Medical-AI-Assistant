@@ -1,0 +1,274 @@
+# Performance Monitoring Configuration
+# This file contains all configuration options for the ML training performance monitoring system
+
+# Directory settings
+save_dir: "./monitoring_logs"
+tensorboard_dir: "./tensorboard_logs"
+visualization_dir: "./visualizations"
+
+# Dashboard settings
+dashboard:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8080
+  title: "ML Training Performance Dashboard"
+  refresh_interval: 5  # seconds
+
+# Performance monitoring settings
+performance_monitor:
+  enabled: true
+  monitor_system: true
+  track_gradients: true
+  save_interval: 100  # Save metrics every N steps
+
+# Metrics collection settings
+metrics_collection:
+  enabled: true
+  buffer_size: 1000
+  flush_interval: 10.0  # seconds
+  compression_enabled: true
+  auto_cleanup: true
+  max_database_size_gb: 10.0
+
+# Alert system settings
+alert_system:
+  enabled: true
+  notification_channels:
+    - type: "webhook"
+      enabled: false
+      config:
+        url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+    - type: "email"
+      enabled: false
+      config:
+        smtp_server: "smtp.gmail.com"
+        smtp_port: 587
+        username: "your-email@gmail.com"
+        password: "your-app-password"
+        to_emails: ["admin@company.com", "team@company.com"]
+
+  # Alert thresholds
+  thresholds:
+    cpu_usage_percent: 90.0
+    memory_usage_percent: 85.0
+    gpu_memory_usage_percent: 90.0
+    gpu_temperature_celsius: 80.0
+    disk_usage_percent: 90.0
+    gradient_norm_exploded: 10.0
+    learning_rate_too_low: 1e-8
+    training_loss_spike: 10.0
+    
+  # Custom alert rules
+  custom_rules:
+    - name: "High Validation Loss"
+      condition: "training.phase == 'val' and training.loss > 5.0"
+      severity: "warning"
+      message: "High validation loss detected: {loss:.2f}"
+      cooldown_seconds: 300
+    
+    - name: "Slow Training"
+      condition: "training.batch_time > 10.0"
+      severity: "info"
+      message: "Training step taking longer than expected: {batch_time:.1f}s"
+      cooldown_seconds: 600
+    
+    - name: "Memory Leak"
+      condition: "system.memory_usage_percent > 95.0"
+      severity: "critical"
+      message: "Potential memory leak detected: {memory_usage:.1f}%"
+      cooldown_seconds: 120
+
+# Visualization settings
+visualization:
+  enabled: true
+  chart_types:
+    - "training_progress"
+    - "system_monitoring"
+    - "performance_comparison"
+    - "interactive_dashboard"
+  
+  plot_settings:
+    figure_size: [15, 10]
+    dpi: 300
+    style: "seaborn"
+    color_palette: "husl"
+    save_format: "png"
+    
+  interactive_dashboard:
+    enabled: true
+    auto_refresh: true
+    refresh_interval: 10  # seconds
+    max_data_points: 1000
+
+# Model profiling settings
+model_profiling:
+  enabled: true
+  benchmark_settings:
+    num_runs: 100
+    warmup_runs: 10
+    measure_memory: true
+    measure_quantization_impact: false
+  
+  profiling_metrics:
+    - "latency"
+    - "throughput"
+    - "memory_usage"
+    - "model_size"
+    - "quantization_impact"
+
+# Data export settings
+data_export:
+  enabled: true
+  formats: ["json", "csv"]
+  auto_export_interval_hours: 24
+  export_compression: true
+  
+  export_settings:
+    include_system_info: true
+    include_model_info: true
+    include_hyperparameters: true
+    max_export_size_mb: 500
+
+# System resource monitoring
+system_monitoring:
+  enabled: true
+  update_interval: 1.0  # seconds
+  monitor_gpu: true
+  monitor_network: true
+  monitor_disk_io: true
+  monitor_process_info: true
+  
+  gpu_settings:
+    monitor_temperature: true
+    monitor_power: true
+    monitor_memory_clock: false  # More expensive
+    device_ids: null  # null = all devices
+
+# Training specific monitoring
+training_monitoring:
+  track_lr_schedule: true
+  track_gradient_stats: true
+  track_batch_timing: true
+  track_data_loading_time: true
+  
+  gradient_monitoring:
+    track_layers: ["encoder", "decoder", "classifier"]
+    compute_layer_stats: true
+    detect_gradient_explosion: true
+    
+  timing_monitoring:
+    measure_data_load_time: true
+    measure_forward_pass: true
+    measure_backward_pass: true
+    measure_optimization_step: true
+
+# Performance optimization recommendations
+optimization_recommendations:
+  enabled: true
+  recommendation_frequency: "epoch"  # "step", "epoch", "manual"
+  
+  rules:
+    - name: "Low CPU Usage"
+      condition: "avg_cpu_usage < 50"
+      recommendation: "Consider increasing batch size or using more data loading workers"
+      
+    - name: "High Memory Usage"
+      condition: "avg_memory_usage > 80"
+      recommendation: "Consider gradient accumulation, reducing batch size, or using gradient checkpointing"
+      
+    - name: "High GPU Utilization"
+      condition: "avg_gpu_utilization > 90"
+      recommendation: "System is well optimized for GPU training"
+      
+    - name: "Low GPU Utilization"
+      condition: "avg_gpu_utilization < 50"
+      recommendation: "Consider increasing batch size or optimizing data loading pipeline"
+      
+    - name: "High Gradient Norms"
+      condition: "avg_grad_norm > 5.0"
+      recommendation: "Consider gradient clipping, reducing learning rate, or checking model initialization"
+      
+    - name: "Slow Training"
+      condition: "avg_batch_time > 5.0"
+      recommendation: "Consider optimizing data loading, using mixed precision, or enabling compiler optimizations"
+
+# Logging settings
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  file_logging:
+    enabled: true
+    max_file_size_mb: 100
+    backup_count: 5
+    
+  console_logging:
+    enabled: true
+    format: "%(levelname)s - %(message)s"
+    
+  log_files:
+    main_log: "training_monitor.log"
+    metrics_log: "metrics.log"
+    alerts_log: "alerts.log"
+    errors_log: "errors.log"
+
+# Security and compliance
+security:
+  encrypt_sensitive_data: false
+  redact_pii_in_logs: true
+  secure_web_dashboard: false  # Enable for production
+  allowed_ips: []  # Empty = allow all (development only)
+
+# Integration settings
+integration:
+  tensorboard:
+    enabled: true
+    log_dir: "./tensorboard_logs"
+    flush_secs: 30
+    
+  wandb:
+    enabled: false
+    project_name: null
+    entity: null
+    api_key: null
+    
+  mlflow:
+    enabled: false
+    tracking_uri: "http://localhost:5000"
+    experiment_name: "ml_training_monitoring"
+
+# Performance tuning for high-frequency monitoring
+performance_tuning:
+  high_frequency_mode: false  # For very fast training loops
+  max_events_per_second: 1000
+  batch_metrics_collection: true
+  use_memory_maps: false  # For very large datasets
+  
+  threading:
+    use_background_threads: true
+    max_worker_threads: 4
+    thread_pool_size: 8
+
+# Development and debugging
+development:
+  debug_mode: false
+  verbose_logging: false
+  profile_code: false
+  save_intermediate_results: false
+  
+  testing:
+    mock_data_generation: false
+    simulate_load: false
+    test_mode: false
+
+# Production deployment settings
+production:
+  high_availability: false
+  distributed_monitoring: false
+  cluster_mode: false
+  auto_scaling: false
+  
+  resource_limits:
+    max_memory_usage_gb: 50.0
+    max_disk_usage_gb: 100.0
+    max_cpu_usage_percent: 80.0

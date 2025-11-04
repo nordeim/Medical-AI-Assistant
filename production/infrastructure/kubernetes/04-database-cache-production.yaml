@@ -1,0 +1,480 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresql-primary
+  namespace: medical-ai-production
+  labels:
+    app: postgresql
+    component: database
+    tier: primary
+    environment: production
+    compliance: hipaa,fda,iso27001
+spec:
+  serviceName: postgresql-cluster
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+      component: database
+      tier: primary
+  template:
+    metadata:
+      labels:
+        app: postgresql
+        component: database
+        tier: primary
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: postgres-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: postgresql
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP
+        - containerPort: 9187
+          name: metrics
+          protocol: TCP
+        env:
+        - name: POSTGRES_DB
+          value: "medical_ai"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-credentials
+              key: password
+        - name: POSTGRES_INITDB_ARGS
+          value: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: "scram-sha-256"
+        - name: POSTGRES_HOST_AUTH_SCRAM_SHA_256
+          value: "md5"
+        - name: POSTGRES_SHARED_BUFFERS
+          value: "2GB"
+        - name: POSTGRES_EFFECTIVE_CACHE_SIZE
+          value: "6GB"
+        - name: POSTGRES_MAINTENANCE_WORK_MEM
+          value: "512MB"
+        - name: POSTGRES_WAL_LEVEL
+          value: "replica"
+        - name: POSTGRES_MAX_WAL_SIZE
+          value: "2GB"
+        - name: POSTGRES_MIN_WAL_SIZE
+          value: "1GB"
+        - name: POSTGRES_CHECKPOINT_COMPLETION_TARGET
+          value: "0.9"
+        - name: POSTGRES_WAL_COMPRESSION
+          value: "on"
+        - name: POSTGRES_MAX_CONNECTIONS
+          value: "200"
+        - name: POSTGRES_SHARED_PRELOAD_LIBRARIES
+          value: "pgaudit,pg_stat_statements"
+        resources:
+          requests:
+            cpu: "4"
+            memory: "16Gi"
+          limits:
+            cpu: "8"
+            memory: "32Gi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - postgres
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - postgres
+            - -d
+            - medical_ai
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: postgresql-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgresql-config
+          mountPath: /etc/postgresql
+          readOnly: true
+        - name: postgresql-logs
+          mountPath: /var/log/postgresql
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: postgresql-config
+        configMap:
+          name: postgresql-config
+      - name: postgresql-logs
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: postgresql-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "gp2-encrypted"  # Encrypted storage class
+      resources:
+        requests:
+          storage: 1Ti
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresql-replica
+  namespace: medical-ai-production
+  labels:
+    app: postgresql
+    component: database
+    tier: replica
+    environment: production
+    compliance: hipaa,fda,iso27001
+spec:
+  serviceName: postgresql-cluster
+  replicas: 2
+  selector:
+    matchLabels:
+      app: postgresql
+      component: database
+      tier: replica
+  template:
+    metadata:
+      labels:
+        app: postgresql
+        component: database
+        tier: replica
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: postgres-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: postgresql-replica
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP
+        - containerPort: 9187
+          name: metrics
+          protocol: TCP
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-credentials
+              key: password
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+        - name: POSTGRES_MODE
+          value: "replica"
+        - name: POSTGRES_MASTER_SERVICE
+          value: "postgresql-cluster"
+        - name: POSTGRES_REPLICA_MODE
+          value: "async"
+        - name: POSTGRES_SHARED_BUFFERS
+          value: "2GB"
+        - name: POSTGRES_MAX_CONNECTIONS
+          value: "200"
+        - name: POSTGRES_SHARED_PRELOAD_LIBRARIES
+          value: "pgaudit,pg_stat_statements"
+        resources:
+          requests:
+            cpu: "2"
+            memory: "8Gi"
+          limits:
+            cpu: "4"
+            memory: "16Gi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ALL]
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - postgres
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - postgres
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: postgresql-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgresql-logs
+          mountPath: /var/log/postgresql
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: postgresql-logs
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: postgresql-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "gp2-encrypted"
+      resources:
+        requests:
+          storage: 1Ti
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-cluster
+  namespace: medical-ai-production
+  labels:
+    app: postgresql
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9187"
+spec:
+  clusterIP: None
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgresql
+  - port: 9187
+    targetPort: 9187
+    name: metrics
+  selector:
+    app: postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-primary-service
+  namespace: medical-ai-production
+  labels:
+    app: postgresql
+    tier: primary
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgresql
+    protocol: TCP
+  - port: 9187
+    targetPort: 9187
+    name: metrics
+    protocol: TCP
+  selector:
+    app: postgresql
+    tier: primary
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cluster
+  namespace: medical-ai-production
+  labels:
+    app: redis
+    component: cache
+    environment: production
+    compliance: hipaa,fda,iso27001
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: redis-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        - containerPort: 9121
+          name: metrics
+          protocol: TCP
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: password
+        - name: REDIS_MAXMEMORY
+          value: "6gb"
+        - name: REDIS_MAXMEMORY_POLICY
+          value: "allkeys-lru"
+        - name: REDIS_TLS_AUTH_CACERTS
+          value: "/etc/redis/certs/ca.crt"
+        - name: REDIS_TLS_CERT_FILE
+          value: "/etc/redis/certs/redis.crt"
+        - name: REDIS_TLS_KEY_FILE
+          value: "/etc/redis/certs/redis.key"
+        - name: REDIS_TLS_ENABLED
+          value: "true"
+        command:
+        - redis-server
+        - /etc/redis/redis.conf
+        resources:
+          requests:
+            cpu: "1"
+            memory: "4Gi"
+          limits:
+            cpu: "2"
+            memory: "8Gi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: redis-config
+          mountPath: /etc/redis
+          readOnly: true
+        - name: redis-certs
+          mountPath: /etc/redis/certs
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+      - name: redis-exporter
+        image: oliver006/redis_exporter:v1.52.0
+        ports:
+        - containerPort: 9121
+          name: metrics
+          protocol: TCP
+        env:
+        - name: REDIS_ADDR
+          value: "redis://localhost:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: password
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redis-config
+      - name: redis-certs
+        secret:
+          secretName: redis-tls-certs
+      - name: tmp
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cluster-service
+  namespace: medical-ai-production
+  labels:
+    app: redis
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+    protocol: TCP
+  - port: 9121
+    targetPort: 9121
+    name: metrics
+    protocol: TCP
+  selector:
+    app: redis

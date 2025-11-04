@@ -1,0 +1,260 @@
+# Test Configuration for Medical AI Training System
+# This file defines test execution parameters and quality gates
+
+# Test Categories Configuration
+test_categories:
+  unit_tests:
+    enabled: true
+    timeout_minutes: 10
+    parallel: true
+    files:
+      - "test_lora_training.py"
+      - "test_model_utils.py"
+    
+  integration_tests:
+    enabled: true
+    timeout_minutes: 15
+    parallel: false
+    files:
+      - "comprehensive_test_suite.py::TestIntegrationWorkflows"
+    
+  performance_tests:
+    enabled: true
+    timeout_minutes: 20
+    parallel: true
+    files:
+      - "performance_benchmarks.py"
+    
+  data_quality_tests:
+    enabled: true
+    timeout_minutes: 5
+    parallel: true
+    files:
+      - "test_data_quality.py"
+    
+  stress_tests:
+    enabled: true
+    timeout_minutes: 15
+    parallel: false
+    files:
+      - "comprehensive_test_suite.py::TestStressConditions"
+    
+  regression_tests:
+    enabled: true
+    timeout_minutes: 10
+    parallel: true
+    files:
+      - "comprehensive_test_suite.py::TestRegressionScenarios"
+
+# Quality Gate Thresholds
+quality_gates:
+  min_test_coverage: 80.0        # Minimum test coverage percentage
+  max_failure_rate: 5.0          # Maximum test failure rate percentage
+  min_performance_score: 70.0    # Minimum performance score
+  max_memory_usage_mb: 8192      # Maximum memory usage in MB
+  max_execution_time_minutes: 30 # Maximum test execution time
+  
+  # Data Quality Thresholds
+  data_quality:
+    min_completeness_rate: 0.9    # Minimum data completeness rate
+    max_duplicate_rate: 0.05      # Maximum duplicate record rate
+    min_phi_compliance: 0.99      # Minimum PHI compliance rate
+    min_medical_accuracy: 0.7     # Minimum medical accuracy rate
+
+# Performance Benchmarks
+performance_benchmarks:
+  training_speed:
+    batch_sizes: [1, 2, 4, 8, 16, 32]
+    lora_ranks: [1, 4, 8, 16, 32, 64]
+    model_sizes: [7, 13, 30, 70]  # billions of parameters
+    seq_length: 512
+    hidden_size: 768
+    num_layers: 12
+  
+  inference_latency:
+    batch_sizes: [1, 4, 16, 64, 256]
+    warmup_runs: 10
+    benchmark_runs: 100
+  
+  memory_usage:
+    monitoring_interval_seconds: 0.1
+    stress_test_duration_seconds: 60
+    memory_efficiency_configs:
+      - gradient_checkpointing: false
+        mixed_precision: false
+      - gradient_checkpointing: true
+        mixed_precision: false
+      - gradient_checkpointing: false
+        mixed_precision: true
+      - gradient_checkpointing: true
+        mixed_precision: true
+
+# Data Quality Validation
+data_quality:
+  required_fields: ["text", "id"]
+  schema:
+    text: str
+    id: str
+    medical_category: str
+    created_at: str
+  
+  key_fields_for_duplicates: ["text"]
+  consistency_fields: ["medical_category"]
+  
+  phi_patterns:
+    - name: "ssn"
+      pattern: "\\b\\d{3}-?\\d{2}-?\\d{4}\\b"
+    - name: "phone"
+      pattern: "\\b\\d{3}-?\\d{3}-?\\d{4}\\b"
+    - name: "email"
+      pattern: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+  
+  medical_terminology:
+    medications: ["metformin", "lisinopril", "amlodipine", "atorvastatin"]
+    conditions: ["diabetes", "hypertension", "asthma", "pneumonia"]
+    procedures: ["physical examination", "blood test", "X-ray", "ECG"]
+
+# Reporting Configuration
+reporting:
+  formats: ["json", "html", "xml", "junit"]
+  output_dir: "test_results"
+  include_logs: true
+  include_performance_metrics: true
+  include_code_coverage: true
+  
+  # Dashboard Integration
+  dashboard:
+    enabled: false
+    url: "http://localhost:8080"
+    api_key: null
+
+# Test Data Generation
+test_data_generation:
+  basic_dialogues: 500
+  phi_test_records: 100
+  edge_cases: 50
+  performance_sizes:
+    small: 1000
+    medium: 10000
+    large: 50000
+    xlarge: 100000
+  
+  # Medical data categories
+  medical_categories:
+    - cardiology
+    - neurology
+    - endocrinology
+    - pulmonology
+    - internal_medicine
+    - psychiatry
+    - rheumatology
+
+# CI/CD Integration
+ci_cd:
+  # GitHub Actions
+  github_actions:
+    enabled: true
+    python_versions: ["3.8", "3.9", "3.10", "3.11"]
+    operating_systems: ["ubuntu-latest", "windows-latest", "macos-latest"]
+    coverage_threshold: 80
+  
+  # Jenkins
+  jenkins:
+    enabled: true
+    parallel_execution: true
+    timeout_hours: 2
+  
+  # Notification Settings
+  notifications:
+    slack:
+      enabled: false
+      webhook_url: null
+      channel: "#qa-testing"
+    
+    email:
+      enabled: false
+      smtp_server: null
+      recipients: ["qa-team@company.com"]
+  
+  # Quality Gate Integration
+  quality_gates_integration:
+    sonar:
+      enabled: false
+      project_key: "medical-ai-training"
+    
+    codeclimate:
+      enabled: false
+      repo_token: null
+
+# Security and Compliance Testing
+security_testing:
+  phi_compliance:
+    enabled: true
+    strict_mode: true
+    violation_tolerance: 0  # Zero tolerance for PHI violations
+  
+  security_scanning:
+    bandit:
+      enabled: true
+      severity_level: "medium"
+    
+    safety:
+      enabled: true
+      ignore_vulnerabilities: []
+  
+  access_control:
+    test_role_permissions: true
+    validate_authentication: true
+    check_authorization: true
+
+# Environment-Specific Settings
+environments:
+  development:
+    test_timeout_multiplier: 0.5  # Faster tests in dev
+    parallel_execution: true
+    detailed_logging: true
+  
+  staging:
+    test_timeout_multiplier: 1.0
+    parallel_execution: true
+    detailed_logging: false
+  
+  production:
+    test_timeout_multiplier: 1.5  # More conservative in prod
+    parallel_execution: false
+    detailed_logging: false
+    comprehensive_testing: true
+
+# Monitoring and Alerting
+monitoring:
+  test_execution_monitoring:
+    enabled: true
+    metrics_retention_days: 30
+  
+  alerting:
+    enabled: true
+    alert_thresholds:
+      test_failure_rate: 0.1      # Alert if >10% test failures
+      performance_regression: 0.2  # Alert if >20% performance degradation
+      coverage_drop: 0.05          # Alert if >5% coverage drop
+  
+  logging:
+    level: "INFO"
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file: "test_execution.log"
+
+# Resource Allocation
+resources:
+  cpu_limit: 4
+  memory_limit: "8GB"
+  disk_space_limit: "10GB"
+  
+  # Parallel execution settings
+  max_parallel_jobs: 4
+  max_concurrent_tests: 8
+  
+  # Timeout settings (in minutes)
+  default_test_timeout: 10
+  integration_test_timeout: 20
+  performance_test_timeout: 30
+  stress_test_timeout: 15

@@ -1,0 +1,480 @@
+# Automated Backup and Disaster Recovery Procedures for Medical AI
+# HIPAA-compliant backup with encryption and validation
+---
+# Database Backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: medical-ai-database-backup
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backup
+    compliance: hipaa
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: medical-ai
+            component: backup
+            compliance: hipaa
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: medical-ai-backup-sa
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+          containers:
+          - name: database-backup
+            image: postgres:15-alpine
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              
+              # Configuration
+              BACKUP_DIR="/backup"
+              S3_BUCKET="${BACKUP_S3_BUCKET}"
+              BACKUP_PREFIX="database/$(date +%Y%m%d)"
+              RETENTION_DAYS=2555  # 7 years for HIPAA compliance
+              
+              echo "Starting database backup at $(date)"
+              
+              # Create backup filename with timestamp
+              BACKUP_FILENAME="medical-ai-db-backup-$(date +%Y%m%d-%H%M%S).sql"
+              BACKUP_PATH="${BACKUP_DIR}/${BACKUP_FILENAME}"
+              
+              # Create encrypted backup
+              echo "Creating database backup..."
+              PGPASSWORD="${DB_PASSWORD}" pg_dump \
+                -h "${DB_HOST}" \
+                -U "${DB_USER}" \
+                -d "${DB_NAME}" \
+                -v \
+                --clean \
+                --create \
+                --if-exists \
+                --no-owner \
+                --no-privileges \
+                --format=custom \
+                | gzip > "${BACKUP_PATH}.gz"
+              
+              echo "Backup created: ${BACKUP_PATH}.gz"
+              
+              # Calculate checksum for integrity verification
+              sha256sum "${BACKUP_PATH}.gz" > "${BACKUP_PATH}.gz.sha256"
+              
+              # Encrypt the backup file
+              echo "Encrypting backup file..."
+              gpg --cipher-algo AES256 --compress-algo 1 \
+                --symmetric --no-greeting \
+                --passphrase "${ENCRYPTION_KEY}" \
+                --output "${BACKUP_PATH}.gz.gpg" \
+                "${BACKUP_PATH}.gz"
+              
+              # Upload to cloud storage with encryption
+              echo "Uploading backup to cloud storage..."
+              if command -v aws >/dev/null 2>&1; then
+                aws s3 cp "${BACKUP_PATH}.gz.gpg" \
+                  "s3://${S3_BUCKET}/${BACKUP_PREFIX}/${BACKUP_FILENAME}.gz.gpg" \
+                  --server-side-encryption AES256 \
+                  --metadata "backup-date=$(date +%Y%m%d),compliance=hipaa,retention-days=${RETENTION_DAYS}"
+              elif command -v gcloud >/dev/null 2>&1; then
+                gsutil cp "${BACKUP_PATH}.gz.gpg" \
+                  "gs://${S3_BUCKET}/${BACKUP_PREFIX}/${BACKUP_FILENAME}.gz.gpg" \
+                  --encryption-key="${ENCRYPTION_KEY}"
+              elif command -v az >/dev/null 2>&1; then
+                az storage blob upload \
+                  --account-name "${AZURE_STORAGE_ACCOUNT}" \
+                  --account-key "${AZURE_STORAGE_KEY}" \
+                  --container-name "${AZURE_CONTAINER}" \
+                  --name "${BACKUP_PREFIX}/${BACKUP_FILENAME}.gz.gpg" \
+                  --file "${BACKUP_PATH}.gz.gpg" \
+                  --encryption-scope "${AZURE_ENCRYPTION_SCOPE}"
+              fi
+              
+              # Upload checksum file
+              if command -v aws >/dev/null 2>&1; then
+                aws s3 cp "${BACKUP_PATH}.gz.sha256" \
+                  "s3://${S3_BUCKET}/${BACKUP_PREFIX}/${BACKUP_FILENAME}.sha256" \
+                  --server-side-encryption AES256
+              elif command -v gcloud >/dev/null 2>&1; then
+                gsutil cp "${BACKUP_PATH}.gz.sha256" \
+                  "gs://${S3_BUCKET}/${BACKUP_PREFIX}/${BACKUP_FILENAME}.sha256"
+              elif command -v az >/dev/null 2>&1; then
+                az storage blob upload \
+                  --account-name "${AZURE_STORAGE_ACCOUNT}" \
+                  --account-key "${AZURE_STORAGE_KEY}" \
+                  --container-name "${AZURE_CONTAINER}" \
+                  --name "${BACKUP_PREFIX}/${BACKUP_FILENAME}.sha256" \
+                  --file "${BACKUP_PATH}.gz.sha256"
+              fi
+              
+              # Cleanup old backups (retention policy)
+              echo "Cleaning up old backups..."
+              if command -v aws >/dev/null 2>&1; then
+                aws s3 ls "s3://${S3_BUCKET}/database/" | while read -r line; do
+                  backup_date=$(echo "$line" | awk '{print $1}')
+                  if [[ "$backup_date" < "$(date -d "${RETENTION_DAYS} days ago" +%Y-%m-%d)" ]]; then
+                    backup_file=$(echo "$line" | awk '{print $4}')
+                    echo "Deleting old backup: $backup_file"
+                    aws s3 rm "s3://${S3_BUCKET}/database/$backup_file"
+                  fi
+                done
+              fi
+              
+              # Verify backup integrity
+              echo "Verifying backup integrity..."
+              if command -v aws >/dev/null 2>&1; then
+                downloaded_checksum=$(aws s3 cp "s3://${S3_BUCKET}/${BACKUP_PREFIX}/${BACKUP_FILENAME}.sha256" -)
+                local_checksum=$(cat "${BACKUP_PATH}.gz.sha256")
+                if [[ "$downloaded_checksum" == "$local_checksum" ]]; then
+                  echo "Backup integrity verified successfully"
+                else
+                  echo "Backup integrity check failed"
+                  exit 1
+                fi
+              fi
+              
+              echo "Database backup completed at $(date)"
+            env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: host
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: password
+            - name: DB_NAME
+              value: "medical_ai"
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-backup-secret
+                  key: encryption-key
+            - name: BACKUP_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: medical-ai-backup-config
+                  key: s3-bucket
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            - name: aws-credentials
+              mountPath: /root/.aws
+              readOnly: true
+            - name: backup-keys
+              mountPath: /backup-keys
+              readOnly: true
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: medical-ai-backup-pvc
+          - name: aws-credentials
+            secret:
+              secretName: medical-ai-aws-credentials
+          - name: backup-keys
+            secret:
+              secretName: medical-ai-backup-secret
+---
+# Model Files Backup
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: medical-ai-model-backup
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backup
+    compliance: hipaa
+spec:
+  schedule: "0 4 * * 0"  # Weekly on Sunday at 4 AM
+  successfulJobsHistoryLimit: 4
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: medical-ai
+            component: backup
+            compliance: hipaa
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: medical-ai-backup-sa
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+          containers:
+          - name: model-backup
+            image: alpine:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              
+              apk add --no-cache tar gzip aws-cli
+              
+              BACKUP_DIR="/backup/models"
+              S3_BUCKET="${BACKUP_S3_BUCKET}"
+              TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+              
+              echo "Starting model backup at $(date)"
+              
+              # Create encrypted backup of model files
+              tar czf - /app/models | \
+                gpg --cipher-algo AES256 --symmetric --passphrase "${ENCRYPTION_KEY}" | \
+                aws s3 cp - \
+                  "s3://${S3_BUCKET}/models/models-backup-${TIMESTAMP}.tar.gz.gpg" \
+                  --server-side-encryption AES256 \
+                  --metadata "backup-date=$(date +%Y%m%d),backup-type=models,compliance=hipaa"
+              
+              echo "Model backup completed at $(date)"
+            env:
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-backup-secret
+                  key: encryption-key
+            - name: BACKUP_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: medical-ai-backup-config
+                  key: s3-bucket
+            volumeMounts:
+            - name: models-storage
+              mountPath: /app/models
+            - name: aws-credentials
+              mountPath: /root/.aws
+              readOnly: true
+          volumes:
+          - name: models-storage
+            persistentVolumeClaim:
+              claimName: medical-ai-models-pvc
+          - name: aws-credentials
+            secret:
+              secretName: medical-ai-aws-credentials
+---
+# Disaster Recovery Plan
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: medical-ai-dr-test
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: disaster-recovery
+    compliance: hipaa
+spec:
+  schedule: "0 6 1 * *"  # Monthly on 1st at 6 AM
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: medical-ai
+            component: disaster-recovery
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: medical-ai-backup-sa
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+          containers:
+          - name: dr-test
+            image: postgres:15-alpine
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              
+              echo "Starting disaster recovery test at $(date)"
+              
+              # Test database restore in isolated environment
+              DR_DB_NAME="medical_ai_dr_test"
+              
+              # Create isolated database for testing
+              PGPASSWORD="${DB_PASSWORD}" createdb \
+                -h "${DB_HOST}" \
+                -U "${DB_USER}" \
+                "${DR_DB_NAME}" || true
+              
+              # Download latest backup
+              echo "Downloading latest backup..."
+              aws s3 cp "s3://${BACKUP_S3_BUCKET}/database/" \
+                /tmp/backup_list.txt || true
+              
+              # If backup exists, test restore
+              if [[ -f /tmp/backup_list.txt ]] && [[ -s /tmp/backup_list.txt ]]; then
+                LATEST_BACKUP=$(grep "medical-ai-db-backup-.*\.gz\.gpg$" /tmp/backup_list.txt | tail -n 1 | awk '{print $4}')
+                if [[ -n "$LATEST_BACKUP" ]]; then
+                  echo "Testing restore from: $LATEST_BACKUP"
+                  
+                  # Download and decrypt backup
+                  aws s3 cp "s3://${BACKUP_S3_BUCKET}/database/${LATEST_BACKUP}" \
+                    /tmp/latest_backup.gz.gpg
+                  
+                  gpg --decrypt --passphrase "${ENCRYPTION_KEY}" \
+                    /tmp/latest_backup.gz.gpg | \
+                    gunzip | \
+                    PGPASSWORD="${DB_PASSWORD}" psql \
+                    -h "${DB_HOST}" \
+                    -U "${DB_USER}" \
+                    -d "${DR_DB_NAME}"
+                  
+                  echo "Disaster recovery test completed successfully"
+                else
+                  echo "No backup found for testing"
+                fi
+              else
+                echo "Backup list unavailable"
+              fi
+              
+              # Cleanup test database
+              PGPASSWORD="${DB_PASSWORD}" dropdb \
+                -h "${DB_HOST}" \
+                -U "${DB_USER}" \
+                "${DR_DB_NAME}" || true
+              
+              echo "Disaster recovery test completed at $(date)"
+            env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: host
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-database-secret
+                  key: password
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: medical-ai-backup-secret
+                  key: encryption-key
+            - name: BACKUP_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: medical-ai-backup-config
+                  key: s3-bucket
+            volumeMounts:
+            - name: aws-credentials
+              mountPath: /root/.aws
+              readOnly: true
+          volumes:
+          - name: aws-credentials
+            secret:
+              secretName: medical-ai-aws-credentials
+---
+# Backup ServiceAccount with appropriate permissions
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: medical-ai-backup-sa
+  namespace: medical-ai-prod
+automountServiceAccountToken: true
+---
+# Role for backup operations
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: medical-ai-backup-role
+  namespace: medical-ai-prod
+rules:
+- apiGroups: [""]
+  resources: ["pods", "persistentvolumeclaims"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["persistentvolumes"]
+  verbs: ["get", "list", "create"]
+---
+# RoleBinding for backup service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: medical-ai-backup-binding
+  namespace: medical-ai-prod
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: medical-ai-backup-role
+subjects:
+- kind: ServiceAccount
+  name: medical-ai-backup-sa
+  namespace: medical-ai-prod
+---
+# Backup storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: medical-ai-backup-pvc
+  namespace: medical-ai-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd
+---
+# Backup Configuration ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: medical-ai-backup-config
+  namespace: medical-ai-prod
+data:
+  s3-bucket: "medical-ai-backups-production"
+  retention-days: "2555"
+  backup-schedule-database: "0 2 * * *"
+  backup-schedule-models: "0 4 * * 0"
+  dr-test-schedule: "0 6 1 * *"
+---
+# Backup Secrets
+apiVersion: v1
+kind: Secret
+metadata:
+  name: medical-ai-backup-secret
+  namespace: medical-ai-prod
+  labels:
+    compliance: hipaa
+type: Opaque
+data:
+  encryption-key: <base64-encoded-encryption-key>
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: medical-ai-aws-credentials
+  namespace: medical-ai-prod
+type: Opaque
+data:
+  access-key-id: <base64-encoded-access-key>
+  secret-access-key: <base64-encoded-secret-key>

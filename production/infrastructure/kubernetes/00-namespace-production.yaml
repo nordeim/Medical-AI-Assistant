@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: medical-ai-production
+  labels:
+    name: medical-ai-production
+    environment: production
+    compliance: "hipaa,fda,iso27001"
+    managed-by: terraform
+    cost-center: healthcare-ml
+    data-classification: phi
+spec:
+  finalizers:
+  - kubernetes
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: production-quota
+  namespace: medical-ai-production
+spec:
+  hard:
+    requests.cpu: "200"
+    requests.memory: 800Gi
+    limits.cpu: "400"
+    limits.memory: 1.5Ti
+    persistentvolumeclaims: "50"
+    services.loadbalancers: "10"
+    secrets: "100"
+    configmaps: "50"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: production-limits
+  namespace: medical-ai-production
+spec:
+  limits:
+  - type: Container
+    default:
+      cpu: "4"
+      memory: 16Gi
+    defaultRequest:
+      cpu: "1"
+      memory: 2Gi
+    max:
+      cpu: "16"
+      memory: 64Gi
+    min:
+      cpu: "100m"
+      memory: 256Mi
+  - type: Pod
+    max:
+      cpu: "32"
+      memory: 128Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: medical-ai-production
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+# RBAC for medical AI production
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: medical-ai-service-account
+  namespace: medical-ai-production
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/medical-ai-production-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: medical-ai-production
+  name: medical-ai-role
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: medical-ai-rolebinding
+  namespace: medical-ai-production
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: medical-ai-role
+subjects:
+- kind: ServiceAccount
+  name: medical-ai-service-account
+  namespace: medical-ai-production

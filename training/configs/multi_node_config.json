@@ -1,0 +1,76 @@
+{
+    "zero_optimization": {
+        "stage": 2,
+        "offload_optimizer": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "allgather_partitions": true,
+        "allgather_bucket_size": 2e8,
+        "reduce_scatter": true,
+        "reduce_bucket_size": 2e8,
+        "contiguous_gradients": true,
+        "sub_group_size": 1e8,
+        "elastic_checkpoint": false
+    },
+    "bf16": {
+        "enabled": true
+    },
+    "gradient_accumulation_steps": 2,
+    "gradient_clipping": 1.0,
+    "steps_per_print": 50,
+    "train_batch_size": "auto",
+    "train_micro_batch_size_per_gpu": 4,
+    "wall_clock_breakdown": true,
+    "communication_backend": {
+        "name": "nccl",
+        "timeout": 600
+    },
+    "communication": {
+        "compression": {
+            "method": "none",
+            "config": {
+                "enabled": true
+            }
+        },
+        "allreduce_post_accumulation": false,
+        "post_scale_tensor": [],
+        "dataloader_drop_last": false
+    },
+    "monitoring": {
+        "enabled": true,
+        "tensorboard": {
+            "enabled": true,
+            "output_path": "logs/tensorboard_multi_node"
+        },
+        "wandb": {
+            "enabled": false,
+            "project": "deepspeed_training",
+            "group": "multi_node_distributed"
+        }
+    },
+    "checkpointing": {
+        "enabled": true,
+        "save_for_backward": true,
+        "save_global_step": true,
+        "save_optimizer_state": true,
+        "load_optimizer_state": true,
+        "save_checkpoint_limit": 5
+    },
+    "memory_efficient": {
+        "enabled": true,
+        "checkpoint_tagging_policy": "memory_efficient"
+    },
+    "load_balancing": {
+        "enabled": true,
+        "cpu": true,
+        "memory_compression": true,
+        "gradient_summarization": true
+    },
+    "timeout": {
+        "init_timeout": 600,
+        "grad_sync_timeout": 600,
+        "param_sync_timeout": 600,
+        "checkpoint_timeout": 1800
+    }
+}

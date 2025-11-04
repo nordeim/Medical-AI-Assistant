@@ -1,0 +1,45 @@
+{
+    "zero_optimization": {
+        "stage": 1,
+        "allgather_partitions": true,
+        "allgather_bucket_size": 5e8,
+        "reduce_scatter": true,
+        "reduce_bucket_size": 5e8,
+        "cpu_offload": false,
+        "contiguous_gradients": true,
+        "sub_group_size": 1e9
+    },
+    "bf16": {
+        "enabled": true
+    },
+    "gradient_accumulation_steps": 1,
+    "gradient_clipping": 1.0,
+    "steps_per_print": 10,
+    "train_batch_size": "auto",
+    "train_micro_batch_size_per_gpu": 8,
+    "wall_clock_breakdown": false,
+    "communication_backend": {
+        "name": "nccl",
+        "timeout": 300
+    },
+    "monitoring": {
+        "enabled": true,
+        "tensorboard": {
+            "enabled": true,
+            "output_path": "logs/tensorboard_single_node"
+        }
+    },
+    "checkpointing": {
+        "enabled": true,
+        "save_for_backward": true,
+        "save_global_step": true,
+        "save_optimizer_state": true,
+        "load_optimizer_state": true,
+        "save_checkpoint_limit": 3
+    },
+    "timeout": {
+        "init_timeout": 300,
+        "grad_sync_timeout": 300,
+        "param_sync_timeout": 300
+    }
+}

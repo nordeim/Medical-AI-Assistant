@@ -1,0 +1,116 @@
+{
+    "zero_optimization": {
+        "stage": 3,
+        "offload_optimizer": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "offload_param": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "allgather_partitions": true,
+        "allgather_bucket_size": 1e8,
+        "reduce_scatter": true,
+        "reduce_bucket_size": 1e8,
+        "gather_16bit_weights_on_model_save": true,
+        "sub_group_size": 5e7,
+        "elastic_checkpoint": false,
+        "stage3_max_live_parameters": 5e7,
+        "stage3_max_reuse_distance": 5e7,
+        "gather_state": true,
+        "override_module_apply": true
+    },
+    "bf16": {
+        "enabled": true
+    },
+    "fp16": {
+        "enabled": true,
+        "auto_cast": true,
+        "loss_scale": 0,
+        "loss_scale_window": 1000,
+        "initial_scale_power": 16,
+        "loss_scale_policy": "dynamic",
+        "hysteresis": 2,
+        "consecutive_hysteresis": false,
+        "min_loss_scale": 1
+    },
+    "gradient_accumulation_steps": 4,
+    "gradient_clipping": 1.0,
+    "steps_per_print": 100,
+    "train_batch_size": "auto",
+    "train_micro_batch_size_per_gpu": 2,
+    "wall_clock_breakdown": true,
+    "dump_state": false,
+    "communication_backend": {
+        "name": "nccl",
+        "timeout": 1200
+    },
+    "communication": {
+        "compression": {
+            "method": "fp16",
+            "config": {
+                "enabled": true
+            }
+        },
+        "allreduce_post_accumulation": true,
+        "post_scale_tensor": [],
+        "dataloader_drop_last": false
+    },
+    "monitoring": {
+        "enabled": true,
+        "tensorboard": {
+            "enabled": true,
+            "output_path": "logs/tensorboard_stage3"
+        },
+        "wandb": {
+            "enabled": true,
+            "project": "large_model_training",
+            "group": "zero_stage3"
+        }
+    },
+    "checkpointing": {
+        "enabled": true,
+        "save_for_backward": true,
+        "save_global_step": true,
+        "save_optimizer_state": true,
+        "load_optimizer_state": true,
+        "save_checkpoint_limit": 10
+    },
+    "memory_efficient": {
+        "enabled": true,
+        "checkpoint_tagging_policy": "memory_efficient",
+        "memory_efficient_adam": true
+    },
+    "activation_checkpointing": {
+        "enabled": true,
+        "checkpoints": [],
+        "partition_activations": true,
+        "contiguous_memory_optimization": true,
+        "cpu_checkpointer": true
+    },
+    "load_balancing": {
+        "enabled": true,
+        "cpu": true,
+        "memory_compression": true,
+        "gradient_summarization": true
+    },
+    "rotation": {
+        "enabled": false
+    },
+    "timeout": {
+        "init_timeout": 1200,
+        "grad_sync_timeout": 1200,
+        "param_sync_timeout": 1200,
+        "checkpoint_timeout": 3600
+    },
+    "logging": {
+        "level": "DEBUG",
+        "version": 1,
+        "disable_existing_loggers": false
+    },
+    "shared_weights": {
+        "use": true,
+        "max_shared_weights": 512
+    }
+}

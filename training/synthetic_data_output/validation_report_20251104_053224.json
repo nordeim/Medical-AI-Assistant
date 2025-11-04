@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-11-04T05:32:24.237023",
+  "checks": [
+    {
+      "check_name": "dataset_size",
+      "description": "Check if dataset has adequate number of scenarios",
+      "passed": true,
+      "value": 50,
+      "threshold": 50,
+      "message": "Dataset has 50 scenarios (adequate)"
+    },
+    {
+      "check_name": "conversation_structure",
+      "description": "Check if conversations have proper structure",
+      "passed": true,
+      "value": 1.0,
+      "threshold": 0.8,
+      "message": "100.0% of conversations are well-formed (good)"
+    },
+    {
+      "check_name": "medical_terminology",
+      "description": "Check if conversations contain medical terminology",
+      "passed": true,
+      "value": 0.98,
+      "threshold": 0.6,
+      "message": "98.0% of conversations contain medical terms (good)"
+    },
+    {
+      "check_name": "diversity",
+      "description": "Check diversity of specialties and triage levels",
+      "passed": true,
+      "value": 1.0,
+      "threshold": 0.3,
+      "message": "Diversity score: 100.0% (specialties: 10, triage: 5) (good)"
+    }
+  ],
+  "overall_score": 1.0,
+  "issues": [],
+  "recommendations": [
+    "All validation checks passed. Dataset quality is good!"
+  ]
+}

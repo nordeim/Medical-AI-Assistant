@@ -1,0 +1,140 @@
+academic_medical_center:
+  average_deal_size: 320000
+  base_price: 300000
+  competitive_intensity: 0.7
+  decision_maker_count: 6
+  price_sensitivity: 0.5
+  sales_cycle_days: 240
+  segment_name: Academic Medical Center
+  success_factors:
+  - research_partnership
+  - faculty_engagement
+  - educational_integration
+  typical_budget_range:
+    max: 500000
+    min: 200000
+  value_drivers:
+  - research_capabilities
+  - educational_value
+  - innovation
+  win_rate: 0.3
+clinic:
+  average_deal_size: 85000
+  base_price: 120000
+  competitive_intensity: 0.6
+  decision_maker_count: 3
+  price_sensitivity: 0.8
+  sales_cycle_days: 90
+  segment_name: Clinic
+  success_factors:
+  - quick_implementation
+  - clear_value_proposition
+  - affordable_pricing
+  typical_budget_range:
+    max: 150000
+    min: 80000
+  value_drivers:
+  - efficiency_gains
+  - patient_satisfaction
+  - competitive_advantage
+  win_rate: 0.35
+hospital_system:
+  average_deal_size: 450000
+  base_price: 500000
+  competitive_intensity: 0.8
+  decision_maker_count: 8
+  price_sensitivity: 0.6
+  sales_cycle_days: 180
+  segment_name: Hospital System
+  success_factors:
+  - strong_clinical_champion
+  - clear_roi_demonstration
+  - integration_capabilities
+  typical_budget_range:
+    max: 800000
+    min: 300000
+  value_drivers:
+  - clinical_outcomes
+  - operational_efficiency
+  - quality_metrics
+  win_rate: 0.25
+integrated_delivery_network:
+  average_deal_size: 650000
+  base_price: 650000
+  competitive_intensity: 0.9
+  decision_maker_count: 10
+  price_sensitivity: 0.5
+  sales_cycle_days: 210
+  segment_name: Integrated Delivery Network
+  success_factors:
+  - enterprise_scale
+  - cross_facility_coordination
+  - network_wide_roi
+  typical_budget_range:
+    max: 1200000
+    min: 400000
+  value_drivers:
+  - network_efficiency
+  - population_health
+  - standardization
+  win_rate: 0.22
+regional_hospital:
+  average_deal_size: 180000
+  base_price: 180000
+  competitive_intensity: 0.6
+  decision_maker_count: 5
+  price_sensitivity: 0.7
+  sales_cycle_days: 120
+  segment_name: Regional Hospital
+  success_factors:
+  - regional_focus
+  - support_localization
+  - cost_competitiveness
+  typical_budget_range:
+    max: 350000
+    min: 120000
+  value_drivers:
+  - cost_effectiveness
+  - quality_improvement
+  - operational_efficiency
+  win_rate: 0.28
+rural_hospital:
+  average_deal_size: 65000
+  base_price: 65000
+  competitive_intensity: 0.4
+  decision_maker_count: 2
+  price_sensitivity: 0.9
+  sales_cycle_days: 80
+  segment_name: Rural Hospital
+  success_factors:
+  - affordable_pricing
+  - easy_implementation
+  - strong_support
+  typical_budget_range:
+    max: 120000
+    min: 40000
+  value_drivers:
+  - affordability
+  - simplicity
+  - support
+  win_rate: 0.4
+specialty_clinic:
+  average_deal_size: 120000
+  base_price: 120000
+  competitive_intensity: 0.5
+  decision_maker_count: 4
+  price_sensitivity: 0.7
+  sales_cycle_days: 100
+  segment_name: Specialty Clinic
+  success_factors:
+  - specialty_expertise
+  - workflow_optimization
+  - roi_focus
+  typical_budget_range:
+    max: 200000
+    min: 80000
+  value_drivers:
+  - specialty_workflows
+  - efficiency
+  - patient_outcomes
+  win_rate: 0.32

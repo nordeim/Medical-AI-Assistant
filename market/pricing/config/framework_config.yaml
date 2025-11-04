@@ -1,0 +1,251 @@
+# Healthcare AI Pricing Framework Configuration
+# Default configuration settings for pricing and revenue optimization
+
+framework_settings:
+  default_currency: "USD"
+  default_discount_rate: 0.08
+  default_measurement_period_months: 36
+  default_implementation_risk_factor: 0.9
+  default_tax_rate: 0.08
+  default_roi_benchmark: 2.5
+
+pricing_models:
+  subscription:
+    default_tier: "professional"
+    annual_discount: 0.08
+    minimum_contract_months: 12
+    tiers:
+      starter:
+        base_price_monthly: 1500
+        features: ["Basic AI Analytics", "Standard Reports", "Email Support"]
+        usage_limits:
+          patients_per_month: 1000
+          user_seats: 3
+          api_calls_per_month: 30000
+      
+      professional:
+        base_price_monthly: 3500
+        features: ["Advanced AI Analytics", "Custom Dashboards", "Priority Support"]
+        usage_limits:
+          patients_per_month: 5000
+          user_seats: 10
+          api_calls_per_month: 300000
+      
+      enterprise:
+        base_price_monthly: 7500
+        features: ["Full AI Platform", "Custom Development", "Dedicated Support"]
+        usage_limits:
+          patients_per_month: 25000
+          user_seats: 50
+          api_calls_per_month: 1500000
+
+  enterprise:
+    minimum_facilities: 3
+    default_volume_discount: 0.20
+    support_level: "dedicated"
+    pricing_models:
+      facility_based:
+        first_facility: 50000
+        additional_facilities: 25000
+        volume_discounts:
+          5_9_facilities: 0.15
+          10_19_facilities: 0.25
+          20_plus_facilities: 0.35
+      
+      bed_based:
+        per_bed_annual_fee: 250
+        minimum_annual_fee: 100000
+        maximum_annual_cap: 2000000
+        volume_discounts:
+          100_499_beds: 0.10
+          500_999_beds: 0.20
+          1000_plus_beds: 0.30
+
+  value_based:
+    minimum_outcome_threshold: 0.15
+    default_risk_sharing: [0.6, 0.4]  # [vendor_share, customer_share]
+    measurement_frequency: "quarterly"
+    outcome_tiers:
+      minimum:
+        improvement_threshold: 0.3
+        payment_rate: 0.5
+      target:
+        improvement_threshold: 1.0
+        payment_rate: 1.0
+      excellence:
+        improvement_threshold: 1.5
+        payment_rate: 1.2
+
+market_segments:
+  large_hospital:
+    typical_bed_count: 500
+    typical_patient_volume: 20000
+    decision_timeline_months: 6
+    avg_deal_size: 450000
+    win_rate: 0.25
+    implementation_weeks: 12
+    key_stakeholders: ["CIO", "CMO", "CFO"]
+  
+  academic_medical_center:
+    typical_bed_count: 700
+    typical_patient_volume: 30000
+    decision_timeline_months: 8
+    avg_deal_size: 320000
+    win_rate: 0.30
+    implementation_weeks: 16
+    key_stakeholders: ["CMO", "Chief Research Officer", "CMIO"]
+  
+  community_clinic:
+    typical_bed_count: 50
+    typical_patient_volume: 5000
+    decision_timeline_months: 3
+    avg_deal_size: 85000
+    win_rate: 0.35
+    implementation_weeks: 6
+    key_stakeholders: ["Practice Owner", "Medical Director"]
+  
+  integrated_delivery_network:
+    typical_bed_count: 1500
+    typical_patient_volume: 75000
+    decision_timeline_months: 10
+    avg_deal_size: 650000
+    win_rate: 0.22
+    implementation_weeks: 20
+    key_stakeholders: ["CEO", "CIO", "Chief Clinical Officer"]
+
+roi_benchmarks:
+  target_roi_ratio: 2.5
+  acceptable_roi_ratio: 1.5
+  target_payback_months: 24
+  maximum_payback_months: 36
+  clinical_outcomes:
+    mortality_reduction:
+      value_per_unit_improvement: 50000
+      baseline_rate: 0.06
+      target_improvement: 0.15
+    
+    readmission_reduction:
+      value_per_unit_improvement: 30000
+      baseline_rate: 0.16
+      target_improvement: 0.25
+    
+    length_of_stay_reduction:
+      value_per_unit_improvement: 8000
+      baseline_days: 4.2
+      target_improvement: 0.15
+    
+    diagnostic_accuracy:
+      value_per_unit_improvement: 25000
+      baseline_accuracy: 0.85
+      target_improvement: 0.08
+
+attribution_models:
+  first_touch:
+    name: "First Touch Attribution"
+    weight_first: 1.0
+    weight_intermediate: 0.0
+    weight_last: 0.0
+  
+  last_touch:
+    name: "Last Touch Attribution"
+    weight_first: 0.0
+    weight_intermediate: 0.0
+    weight_last: 1.0
+  
+  linear:
+    name: "Linear Attribution"
+    weight_first: 0.33
+    weight_intermediate: 0.34
+    weight_last: 0.33
+  
+  time_decay:
+    name: "Time Decay Attribution"
+    weight_first: 0.20
+    weight_intermediate: 0.30
+    weight_last: 0.50
+
+competitive_analysis:
+  benchmarks:
+    enterprise_subscription:
+      market_range:
+        25th_percentile: 350000
+        median: 475000
+        75th_percentile: 650000
+        leader: 800000
+    
+    outcome_based:
+      market_range:
+        25th_percentile: 180000
+        median: 280000
+        75th_percentile: 400000
+        leader: 500000
+
+support_levels:
+  standard:
+    response_time: "24 business hours"
+    availability: "business_hours"
+    support_channels: ["email", "ticket"]
+  
+  priority:
+    response_time: "8 business hours"
+    availability: "extended_hours"
+    support_channels: ["email", "phone", "ticket"]
+  
+  dedicated:
+    response_time: "4 business hours"
+    availability: "24_7"
+    support_channels: ["email", "phone", "chat", "ticket"]
+  
+  premium:
+    response_time: "1 business hour"
+    availability: "24_7"
+    support_channels: ["email", "phone", "chat", "ticket", "onsite"]
+
+compliance_requirements:
+  data_security:
+    encryption: "AES-256"
+    certifications: ["SOC2", "HIPAA", "HITRUST"]
+    data_retention_years: 7
+  
+  regulatory:
+    healthcare_regulations: ["HIPAA", "HITECH", "FDA"]
+    international_standards: ["ISO27001", "GDPR"]
+    audit_requirements: "annual_third_party_audit"
+
+performance_targets:
+  accuracy:
+    diagnostic_accuracy_improvement: 0.08
+    false_positive_reduction: 0.20
+    false_negative_reduction: 0.25
+  
+  efficiency:
+    workflow_time_reduction: 0.30
+    administrative_burden_reduction: 0.40
+    decision_support_response_time: "< 2 seconds"
+  
+  quality:
+    patient_satisfaction_improvement: 0.06
+    clinical_outcome_improvement: 0.15
+    quality_score_improvement: 0.12
+
+# Export settings
+export_formats:
+  json:
+    indent: 2
+    default_handler: "str"
+  
+  csv:
+    encoding: "utf-8"
+    include_index: false
+  
+  xlsx:
+    engine: "openpyxl"
+    sheet_name_max_length: 31
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "pricing_framework.log"
+  max_size_mb: 100
+  backup_count: 5

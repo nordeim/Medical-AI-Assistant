@@ -1,0 +1,189 @@
+# AlertManager Configuration for Medical AI Monitoring System
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@medical-ai.local'
+  smtp_auth_username: 'alerts@medical-ai.local'
+  smtp_auth_password: 'password'
+
+# Route configuration for alert routing
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+    # Critical Clinical Safety Alerts
+    - match:
+        severity: critical
+        category: clinical_safety
+      receiver: 'critical-clinical'
+      group_wait: 0s
+      repeat_interval: 15m
+      
+    # HIPAA Compliance Alerts
+    - match:
+        compliance: hipaa
+      receiver: 'hipaa-compliance'
+      group_wait: 30s
+      repeat_interval: 30m
+      
+    # FDA Regulatory Alerts
+    - match:
+        compliance: fda
+      receiver: 'fda-regulatory'
+      group_wait: 1m
+      repeat_interval: 1h
+      
+    # System Health Alerts
+    - match:
+        category: system_health
+      receiver: 'system-admin'
+      group_wait: 5m
+      repeat_interval: 2h
+      
+    # Security Alerts
+    - match:
+        category: security
+      receiver: 'security-team'
+      group_wait: 0s
+      repeat_interval: 30m
+
+# Inhibition rules to prevent alert spam
+inhibit_rules:
+  # Inhibit less severe alerts when critical alerts are firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+    
+  # Inhibit duplicate alerts from the same service
+  - source_match:
+      service: 'medical-ai-backend'
+    target_match:
+      service: 'medical-ai-backend'
+    equal: ['alertname', 'instance']
+
+# Receivers configuration
+receivers:
+  # Webhook receiver for generic notifications
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://monitoring-app:8000/webhook/alerts'
+        send_resolved: true
+        title: '{{ template "medical_ai_alert_title" . }}'
+        text: '{{ template "medical_ai_alert_text" . }}'
+        
+  # Critical Clinical Alerts - Immediate escalation
+  - name: 'critical-clinical'
+    email_configs:
+      - to: 'clinical-team@medical-ai.local'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          CRITICAL ALERT - IMMEDIATE ATTENTION REQUIRED
+          
+          Alert: {{ .GroupLabels.alertname }}
+          Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          
+          Severity: {{ .CommonLabels.severity }}
+          Service: {{ .CommonLabels.service }}
+          Instance: {{ .CommonLabels.instance }}
+          
+          Time: {{ .CommonAnnotations.timestamp }}
+          Runbook: {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+          
+          This is an automated alert from the Medical AI Monitoring System.
+    pagerduty_configs:
+      - routing_key: 'your-pagerduty-integration-key'
+        description: 'Critical Clinical Alert: {{ .GroupLabels.alertname }}'
+        severity: 'critical'
+        component: 'Medical AI Clinical Decision Support'
+        
+  # HIPAA Compliance Team
+  - name: 'hipaa-compliance'
+    email_configs:
+      - to: 'compliance-officer@medical-ai.local, privacy-officer@medical-ai.local'
+        subject: '🔒 HIPAA Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          HIPAA COMPLIANCE ALERT
+          
+          Alert: {{ .GroupLabels.alertname }}
+          Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          
+          Regulatory Impact: HIPAA
+          Severity: {{ .CommonLabels.severity }}
+          Time: {{ .CommonAnnotations.timestamp }}
+          
+          ACTION REQUIRED: Review compliance procedures immediately.
+          
+          This alert requires immediate review due to HIPAA compliance implications.
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#hipaa-compliance'
+        title: 'HIPAA Compliance Alert'
+        text: 'Alert: {{ .GroupLabels.alertname }} - {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  # FDA Regulatory Team
+  - name: 'fda-regulatory'
+    email_configs:
+      - to: 'regulatory-affairs@medical-ai.local, qa-team@medical-ai.local'
+        subject: '📋 FDA Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          FDA 21 CFR PART 11 COMPLIANCE ALERT
+          
+          Alert: {{ .GroupLabels.alertname }}
+          Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          
+          Regulatory Impact: FDA 21 CFR Part 11
+          Severity: {{ .CommonLabels.severity }}
+          Time: {{ .CommonAnnotations.timestamp }}
+          
+          ACTION REQUIRED: Regulatory review and documentation required.
+          
+          This alert requires immediate regulatory review due to FDA compliance implications.
+
+  # System Administration Team
+  - name: 'system-admin'
+    email_configs:
+      - to: 'devops@medical-ai.local, system-admin@medical-ai.local'
+        subject: '⚙️ System Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          SYSTEM ALERT
+          
+          Alert: {{ .GroupLabels.alertname }}
+          Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          
+          Service: {{ .CommonLabels.service }}
+          Instance: {{ .CommonLabels.instance }}
+          Severity: {{ .CommonLabels.severity }}
+          Time: {{ .CommonAnnotations.timestamp }}
+
+  # Security Team
+  - name: 'security-team'
+    email_configs:
+      - to: 'security@medical-ai.local, infosec@medical-ai.local'
+        subject: '🔐 Security Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          SECURITY INCIDENT ALERT
+          
+          Alert: {{ .GroupLabels.alertname }}
+          Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+          
+          Security Impact: HIGH
+          Severity: {{ .CommonLabels.severity }}
+          Source IP: {{ .CommonLabels.source_ip }}
+          Time: {{ .CommonAnnotations.timestamp }}
+          
+          ACTION REQUIRED: Immediate security investigation required.
+          
+          This alert requires immediate security review and potential incident response.
+
+# Templates for alert formatting
+templates:
+  - '/etc/alertmanager/templates/medical_ai_templates.tmpl'

@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 7 Integration Test Report - 20251104_092725</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .status-success { color: #198754; }
+        .status-danger { color: #dc3545; }
+        .status-warning { color: #fd7e14; }
+        .test-failed { background-color: #f8d7da; }
+        .test-passed { background-color: #d1e7dd; }
+        .test-error { background-color: #fff3cd; }
+        .metric-card { 
+            border: 1px solid #dee2e6; 
+            border-radius: 0.375rem; 
+            padding: 0.75rem; 
+            margin: 0.5rem 0;
+        }
+        .progress { height: 20px; }
+        .duration-chart { height: 300px; }
+        .summary-card { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+        }
+        .badge { font-size: 0.8em; }
+        .test-result-item { 
+            margin: 5px 0; 
+            padding: 8px; 
+            border-radius: 4px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h2">
+                        <i class="bi bi-clipboard-check"></i>
+                        Phase 7 Integration Test Report
+                    </h1>
+                    <span class="text-muted">2025-11-04 09:27:25</span>
+                </div>
+                
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card summary-card">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">8</h3>
+                                <p class="card-text">Total Tests</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">7</h3>
+                                <p class="card-text">Passed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">1</h3>
+                                <p class="card-text">Failed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">87.5%</h3>
+                                <p class="card-text">Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Overall Status -->
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">
+                        <i class="bi bi-x-circle"></i>
+                        Overall Status: FAILED
+                    </h4>
+                    <p>Total execution time: 0.40 seconds</p>
+                    <p>Test categories executed: 2</p>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div class='metrics-section'><h6><i class='bi bi-graph-up'></i> Performance Metrics</h6>
+                <div class="metric-card">
+                    <strong>Average Duration:</strong><br>
+                    Avg: 1.314s<br>
+                    Median: 1.314s<br>
+                    Min: 1.259s<br>
+                    Max: 1.369s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Median Duration:</strong><br>
+                    Avg: 1.282s<br>
+                    Median: 1.282s<br>
+                    Min: 1.262s<br>
+                    Max: 1.303s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Max Duration:</strong><br>
+                    Avg: 2.149s<br>
+                    Median: 2.149s<br>
+                    Min: 1.849s<br>
+                    Max: 2.449s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Min Duration:</strong><br>
+                    Avg: 0.542s<br>
+                    Median: 0.542s<br>
+                    Min: 0.501s<br>
+                    Max: 0.583s
+                </div>
+                </div>
+                
+                <!-- Charts Section -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Test Results by Category</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="categoryChart" class="duration-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Test Duration Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="durationChart" class="duration-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Category Details -->
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="mb-3"><i class="bi bi-list-check"></i> Detailed Test Results</h3>
+                        
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <span class="badge bg-danger">FAILED</span>
+                        Complete System Integration Tests
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Duration:</strong> 0.34s</p>
+                            <p><strong>Tests:</strong> 4 | 
+                               <span class="text-success">✅ 3</span> | 
+                               <span class="text-danger">❌ 1</span> | 
+                               <span class="text-warning">⚠️ 0</span>
+                            </p>
+                            <p><strong>Success Rate:</strong> 75.0%</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class='metrics-section'><h6><i class='bi bi-graph-up'></i> Performance Metrics</h6>
+                <div class="metric-card">
+                    <strong>Average Duration:</strong> 
+                    1.259s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Median Duration:</strong> 
+                    1.303s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Max Duration:</strong> 
+                    1.849s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Min Duration:</strong> 
+                    0.583s
+                </div>
+                </div>
+                        </div>
+                    </div>
+                    <h6><i class='bi bi-list-ul'></i> Test Details</h6><div class='test-results'>
+            <div class="test-result-item test-passed">
+                <i class="bi bi-check-circle"></i>
+                <strong>test_frontend_backend_integration</strong> - 
+                <span class="duration">1.05s</span>
+                <span class="status float-end">PASSED</span>
+            </div>
+            
+            <div class="test-result-item test-failed">
+                <i class="bi bi-x-circle"></i>
+                <strong>test_training_serving_integration</strong> - 
+                <span class="duration">1.85s</span>
+                <span class="status float-end">FAILED</span>
+            </div>
+            
+            <div class="test-result-item test-passed">
+                <i class="bi bi-check-circle"></i>
+                <strong>test_database_integration</strong> - 
+                <span class="duration">1.55s</span>
+                <span class="status float-end">PASSED</span>
+            </div>
+            
+            <div class="test-result-item test-passed">
+                <i class="bi bi-check-circle"></i>
+                <strong>test_security_integration</strong> - 
+                <span class="duration">0.58s</span>
+                <span class="status float-end">PASSED</span>
+            </div>
+            </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <span class="badge bg-success">PASSED</span>
+                        Patient Chat Flow Integration Tests
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Duration:</strong> 0.06s</p>
+                            <p><strong>Tests:</strong> 4 | 
+                               <span class="text-success">✅ 4</span> | 
+                               <span class="text-danger">❌ 0</span> | 
+                               <span class="text-warning">⚠️ 0</span>
+                            </p>
+                            <p><strong>Success Rate:</strong> 100.0%</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class='metrics-section'><h6><i class='bi bi-graph-up'></i> Performance Metrics</h6>
+                <div class="metric-card">
+                    <strong>Average Duration:</strong> 
+                    1.369s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Median Duration:</strong> 
+                    1.262s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Max Duration:</strong> 
+                    2.449s
+                </div>
+                
+                <div class="metric-card">
+                    <strong>Min Duration:</strong> 
+                    0.501s
+                </div>
+                </div>
+                        </div>
+                    </div>
+                    <h6><i class='bi bi-list-ul'></i> Test Details</h6><div class='test-results'>
+            <div class="test-result-item test-passed">
+                <i class="bi bi-check-circle"></i>
+                <strong>test_normal_chat_flow</strong> - 
+                <span class="duration">2.45s</span>
+                <span class="status float-end">PASSED</span>
+            </div>
+            
+            <div class="test-result-item test-passed">
+                <i class="bi bi-check-circle"></i>
+                <strong>test_emergency_chat_flow</strong> - 
+                <span class="duration">0.50s</span>
+                <span class="status float-end">PASSED</span>
+            </div>
+            
+            <div class="test-result-item test-passed">
+                <i class="bi bi-check-circle"></i>
+                <strong>test_chat_session_persistence</strong> - 
+                <span class="duration">1.63s</span>
+                <span class="status float-end">PASSED</span>
+            </div>
+            
+            <div class="test-result-item test-passed">
+                <i class="bi bi-check-circle"></i>
+                <strong>test_chat_error_handling</strong> - 
+                <span class="duration">0.89s</span>
+                <span class="status float-end">PASSED</span>
+            </div>
+            </div>
+                </div>
+            </div>
+            
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Category Results Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryData = {"labels": ["System Integration", "Patient Chat Flow"], "passed": [3, 4], "failed": [1, 0], "errors": [0, 0]};
+        
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryData.labels,
+                datasets: [
+                    {
+                        label: 'Passed',
+                        data: categoryData.passed,
+                        backgroundColor: 'rgba(25, 135, 84, 0.8)'
+                    },
+                    {
+                        label: 'Failed', 
+                        data: categoryData.failed,
+                        backgroundColor: 'rgba(220, 53, 69, 0.8)'
+                    },
+                    {
+                        label: 'Errors',
+                        data: categoryData.errors,
+                        backgroundColor: 'rgba(255, 193, 7, 0.8)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Duration Chart
+        const durationCtx = document.getElementById('durationChart').getContext('2d');
+        const durationData = {"labels": ["System Integration", "Patient Chat Flow"], "durations": [0.3409433364868164, 0.05972790718078613]};
+        
+        new Chart(durationCtx, {
+            type: 'line',
+            data: {
+                labels: durationData.labels,
+                datasets: [{
+                    label: 'Duration (seconds)',
+                    data: durationData.durations,
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+        

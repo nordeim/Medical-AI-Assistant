@@ -1,0 +1,328 @@
+# Example Configuration for Medical AI Monitoring System
+# Copy this file to monitoring_config.yaml and customize for your environment
+
+# Environment: development, staging, production
+environment: production
+
+# Database Configuration (for clinical outcomes tracking)
+database:
+  url: "postgresql://user:password@localhost:5432/medical_ai_monitoring"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+  echo: false
+
+# Prometheus Metrics Configuration
+prometheus:
+  # Default port for metrics endpoint
+  metrics_port: 8000
+  # Enable metrics collection
+  enabled: true
+  # Custom namespace for metrics
+  namespace: "medical_ai"
+  # Additional labels to add to all metrics
+  additional_labels:
+    service: "medical_ai_assistant"
+    version: "v1.0"
+    environment: "production"
+
+# Metrics Collection Configuration
+metrics:
+  # Inference metrics collection interval (seconds)
+  inference_interval: 5
+  # Latency percentile buckets for histograms (seconds)
+  latency_buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+  # Memory usage collection interval (seconds)
+  memory_interval: 30
+  # Enable GPU monitoring
+  gpu_monitoring: true
+  # Model accuracy tracking interval (seconds)
+  accuracy_interval: 300
+
+# SLA Tracking Configuration
+sla:
+  # Latency SLA thresholds (milliseconds)
+  latency_p95: 2000  # 95th percentile should be under 2 seconds
+  latency_p99: 5000  # 99th percentile should be under 5 seconds
+  # Availability SLA (percentage)
+  availability: 99.9
+  # Error rate SLA (percentage)
+  error_rate: 0.1
+  # Throughput SLA (requests per second)
+  min_throughput: 100
+
+# Memory Monitoring Configuration
+memory:
+  # CPU memory thresholds (percentage)
+  cpu_memory_warning: 80
+  cpu_memory_critical: 90
+  # GPU memory thresholds (percentage)
+  gpu_memory_warning: 85
+  gpu_memory_critical: 95
+  # System memory thresholds (percentage)
+  system_memory_warning: 85
+  system_memory_critical: 95
+  # Garbage collection optimization
+  gc_optimization: true
+
+# Model Drift Detection Configuration
+drift_detection:
+  # Reference data path (for initial model calibration)
+  reference_data_path: "/data/reference_data/"
+  # Drift detection methods
+  methods:
+    - ks_test        # Kolmogorov-Smirnov test
+    - psi           # Population Stability Index
+    - chi_square    # Chi-square test
+  # Statistical significance level
+  alpha: 0.05
+  # Drift detection interval (seconds)
+  interval: 3600  # 1 hour
+  # Minimum sample size for drift detection
+  min_sample_size: 1000
+  # PSI thresholds
+  psi_warning: 0.2
+  psi_critical: 0.25
+
+# Clinical Outcomes Tracking Configuration
+clinical_tracking:
+  # Enable clinical outcomes tracking
+  enabled: true
+  # Outcome tracking interval (seconds)
+  interval: 3600  # 1 hour
+  # Patient outcome types to track
+  outcome_types:
+    - diagnostic_accuracy
+    - treatment_effectiveness
+    - adverse_events
+    - patient_satisfaction
+  # Privacy protection settings
+  privacy:
+    # Enable PHI redaction
+    redact_phi: true
+    # Anonymization method
+    anonymization: "hashing"
+    # Hash salt for anonymization
+    hash_salt: "medical_ai_salt_2024"
+  # Clinical effectiveness thresholds
+  effectiveness_thresholds:
+    diagnostic_accuracy: 0.85  # 85% minimum accuracy
+    treatment_success: 0.75    # 75% minimum success rate
+
+# Alert Configuration
+alerts:
+  # Default notification channels
+  default_channels: ["email", "slack"]
+  # Escalation settings
+  escalation:
+    # Time before escalating alerts (minutes)
+    escalation_time: 15
+    # Maximum escalation level
+    max_level: 3
+    # Escalation channels per level
+    escalation_channels:
+      level_1: ["email"]
+      level_2: ["slack", "email"]
+      level_3: ["pagerduty", "email"]
+  
+  # Alert rules
+  rules:
+    # High latency alerts
+    - name: "High Latency P95"
+      condition: "latency_p95 > sla.latency_p95"
+      severity: "warning"
+      duration: 300  # 5 minutes
+      channels: ["slack"]
+      
+    - name: "Critical Latency P99"
+      condition: "latency_p99 > sla.latency_critical"
+      severity: "critical"
+      duration: 60  # 1 minute
+      channels: ["email", "slack"]
+      
+    # Memory usage alerts
+    - name: "High CPU Memory"
+      condition: "cpu_memory_usage > memory.cpu_memory_warning"
+      severity: "warning"
+      duration: 180  # 3 minutes
+      channels: ["slack"]
+      
+    - name: "Critical GPU Memory"
+      condition: "gpu_memory_usage > memory.gpu_memory_critical"
+      severity: "critical"
+      duration: 60  # 1 minute
+      channels: ["email", "pagerduty"]
+      
+    # Error rate alerts
+    - name: "High Error Rate"
+      condition: "error_rate > sla.error_rate"
+      severity: "warning"
+      duration: 300  # 5 minutes
+      channels: ["email", "slack"]
+      
+    # Model drift alerts
+    - name: "Model Drift Detected"
+      condition: "drift_detected == true"
+      severity: "warning"
+      duration: 60  # 1 minute
+      channels: ["email"]
+      
+    # Clinical effectiveness alerts
+    - name: "Low Diagnostic Accuracy"
+      condition: "diagnostic_accuracy < clinical_tracking.effectiveness_thresholds.diagnostic_accuracy"
+      severity: "critical"
+      duration: 600  # 10 minutes
+      channels: ["email", "pagerduty"]
+
+# Notification Channels Configuration
+notifications:
+  # Email notifications
+  email:
+    enabled: true
+    smtp_server: "smtp.company.com"
+    smtp_port: 587
+    username: "alerts@company.com"
+    password_env_var: "EMAIL_PASSWORD"  # Set this in environment
+    from_address: "alerts@company.com"
+    to_addresses:
+      - "ops-team@company.com"
+      - "medical-team@company.com"
+    
+  # Slack notifications
+  slack:
+    enabled: true
+    webhook_url_env_var: "SLACK_WEBHOOK_URL"  # Set this in environment
+    channel: "#medical-ai-alerts"
+    username: "Medical AI Monitor"
+    
+  # PagerDuty notifications
+  pagerduty:
+    enabled: true
+    integration_key_env_var: "PAGERDUTY_INTEGRATION_KEY"  # Set this in environment
+    service_key: "medical-ai-service"
+    
+  # Webhook notifications
+  webhooks:
+    enabled: true
+    endpoints:
+      - name: "ops-dashboard"
+        url_env_var: "OPS_DASHBOARD_WEBHOOK"
+        timeout: 10
+        retry_attempts: 3
+
+# Grafana Dashboard Configuration
+grafana:
+  # Grafana server configuration
+  server:
+    url: "https://grafana.company.com"
+    username_env_var: "GRAFANA_USERNAME"
+    password_env_var: "GRAFANA_PASSWORD"
+    api_key_env_var: "GRAFANA_API_KEY"
+  # Dashboard management
+  dashboard_management:
+    # Enable automatic dashboard provisioning
+    auto_provision: true
+    # Default data source
+    default_data_source: "Prometheus"
+    # Dashboard folders
+    folders:
+      - name: "Medical AI"
+        uid: "medical_ai"
+      - name: "Clinical Outcomes"
+        uid: "clinical_outcomes"
+      - name: "System Performance"
+        uid: "system_performance"
+  # Panel configuration
+  panels:
+    # Real-time inference metrics
+    inference_metrics:
+      - type: "stat"
+        title: "Requests per Minute"
+        unit: "req/min"
+      - type: "stat"
+        title: "Average Latency"
+        unit: "ms"
+      - type: "graph"
+        title: "Latency Percentiles"
+        y_axes: ["ms"]
+    # Clinical outcomes
+    clinical_outcomes:
+      - type: "stat"
+        title: "Diagnostic Accuracy"
+        unit: "percent"
+        thresholds: [85, 95]
+      - type: "graph"
+        title: "Treatment Success Rate"
+        unit: "percent"
+      - type: "table"
+        title: "Adverse Events"
+        columns: ["event_type", "count", "severity"]
+
+# Logging Configuration
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  # Log files
+  files:
+    # Application logs
+    application: "/var/log/medical-ai/monitoring.log"
+    # Error logs
+    error: "/var/log/medical-ai/monitoring_errors.log"
+    # Clinical outcomes logs
+    clinical: "/var/log/medical-ai/clinical_outcomes.log"
+  # Log rotation
+  rotation:
+    max_size: "100MB"
+    backup_count: 5
+    when: "midnight"
+
+# Security Configuration
+security:
+  # API authentication
+  api_auth:
+    enabled: true
+    token_expiry: 3600  # 1 hour
+    allowed_ips:
+      - "127.0.0.1"
+      - "10.0.0.0/8"
+  
+  # HIPAA compliance settings
+  hipaa_compliance:
+    # Enable audit logging
+    audit_logging: true
+    # Audit log retention (days)
+    audit_retention: 2555  # 7 years
+    # Encryption at rest
+    encryption_at_rest: true
+    # Data anonymization
+    data_anonymization: true
+
+# Environment-specific overrides
+development:
+  logging:
+    level: "DEBUG"
+  prometheus:
+    metrics_port: 9000
+  grafana:
+    server:
+      url: "http://localhost:3000"
+
+staging:
+  logging:
+    level: "INFO"
+  alerts:
+    rules:
+      - condition: "error_rate > 1.0"  # Higher threshold for staging
+        severity: "warning"
+        duration: 60
+
+production:
+  logging:
+    level: "WARNING"
+  alerts:
+    rules:
+      - condition: "availability < 99.5"  # Stricter SLA for production
+        severity: "critical"
+        duration: 60

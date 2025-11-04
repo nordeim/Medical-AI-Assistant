@@ -1,0 +1,88 @@
+# =============================================================================
+# Docker Ignore - Files to exclude from Docker build context
+# =============================================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+docs/
+LICENSE
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.tox/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+.yarn/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Data and models (too large)
+data/
+models/
+*.pt
+*.pth
+*.bin
+*.onnx
+vector_stores/
+checkpoints/
+
+# Logs
+*.log
+logs/
+audit_logs/
+
+# Testing
+coverage/
+.nyc_output/
+test_results/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Docker
+docker-compose.override.yml
+Dockerfile*
+.dockerignore

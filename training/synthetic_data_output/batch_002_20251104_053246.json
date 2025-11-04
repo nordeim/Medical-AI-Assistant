@@ -1,0 +1,4021 @@
+{
+  "generated_at": "2025-11-04T05:32:46.851114",
+  "num_scenarios": 25,
+  "scenarios": [
+    {
+      "scenario_id": "scenario_1",
+      "patient": {
+        "id": "patient_1",
+        "age": 36,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [
+          "anxiety"
+        ],
+        "current_medications": [
+          "atorvastatin",
+          "theophylline"
+        ],
+        "allergies": [
+          "dust",
+          "penicillin"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 123.8609988801704,
+          "blood_pressure_diastolic": 70.91518567219339,
+          "heart_rate": 66.21496893941176,
+          "temperature": 98.06508440122442,
+          "oxygen_saturation": 99.71614669214325
+        }
+      },
+      "primary_complaint": "Dizziness",
+      "symptoms": [
+        {
+          "name": "Dizziness",
+          "category": "neurological",
+          "severity": "mild",
+          "duration": "1 day",
+          "description": "Feeling of spinning or imbalance",
+          "red_flags": [
+            "nausea"
+          ]
+        },
+        {
+          "name": "Confusion",
+          "category": "neurological",
+          "severity": "severe",
+          "duration": "2 weeks",
+          "description": "Difficulty thinking clearly",
+          "red_flags": [
+            "memory_issues"
+          ]
+        },
+        {
+          "name": "Headache",
+          "category": "neurological",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Persistent head pain",
+          "red_flags": [
+            "sensitivity_to_light",
+            "nausea"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.GENERAL",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "Hi, I'm not feeling well today.",
+          "timestamp": "2025-11-04T05:32:46.849362",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.849362",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The dizziness is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.849362",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Dizziness"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:35:01.849362",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:35:31.849362",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:36:16.849362",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:36:46.849362",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:37:31.849362",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It comes and goes, but this time it's been persistent.",
+          "timestamp": "2025-11-04T05:38:01.849362",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend seek emergency medical care immediately.",
+          "timestamp": "2025-11-04T05:38:46.849362",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "general",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "get to the nearest emergency department immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7183632035254375
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849416",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "general"
+      }
+    },
+    {
+      "scenario_id": "scenario_2",
+      "patient": {
+        "id": "patient_2",
+        "age": 71,
+        "age_group": "AgeGroup.GERIATRIC",
+        "gender": "male",
+        "medical_history": [
+          "diabetes",
+          "hypothyroidism"
+        ],
+        "current_medications": [
+          "atorvastatin",
+          "ibuprofen",
+          "sumatriptan",
+          "lansoprazole"
+        ],
+        "allergies": [
+          "penicillin",
+          "aspirin"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 123.8048502652791,
+          "blood_pressure_diastolic": 84.98188584487283,
+          "heart_rate": 95.10199247571985,
+          "temperature": 99.86286154451764,
+          "oxygen_saturation": 97.12157028626473
+        }
+      },
+      "primary_complaint": "Confusion",
+      "symptoms": [
+        {
+          "name": "Confusion",
+          "category": "neurological",
+          "severity": "severe",
+          "duration": "2 weeks",
+          "description": "Difficulty thinking clearly",
+          "red_flags": [
+            "memory_issues"
+          ]
+        },
+        {
+          "name": "Dizziness",
+          "category": "neurological",
+          "severity": "mild",
+          "duration": "1 day",
+          "description": "Feeling of spinning or imbalance",
+          "red_flags": [
+            "nausea"
+          ]
+        },
+        {
+          "name": "Headache",
+          "category": "neurological",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Persistent head pain",
+          "red_flags": [
+            "sensitivity_to_light",
+            "nausea"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.GENERAL",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.849451",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.849451",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had confusion since 1 hour.",
+          "timestamp": "2025-11-04T05:34:01.849451",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Confusion"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:35:01.849451",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:35:31.849451",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:36:16.849451",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:36:46.849451",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:37:31.849451",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:38:01.849451",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:38:46.849451",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I take metformin for diabetes.",
+          "timestamp": "2025-11-04T05:39:16.849451",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you get to the nearest emergency department immediately.",
+          "timestamp": "2025-11-04T05:40:01.849451",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "general",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "seek emergency medical care immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.8419188506153709
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849498",
+        "generator_version": "1.0",
+        "complexity_score": 6,
+        "specialty_mapping": "general"
+      }
+    },
+    {
+      "scenario_id": "scenario_3",
+      "patient": {
+        "id": "patient_3",
+        "age": 56,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [
+          "asthma",
+          "diabetes"
+        ],
+        "current_medications": [
+          "lansoprazole"
+        ],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 114.80343160517025,
+          "blood_pressure_diastolic": 84.55319659557247,
+          "heart_rate": 53.313372929863675,
+          "temperature": 97.73791450499019,
+          "oxygen_saturation": 98.98582169624748
+        }
+      },
+      "primary_complaint": "Shortness of breath",
+      "symptoms": [
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        },
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.EMERGENT",
+      "specialty": "MedicalSpecialty.GERIATRICS",
+      "urgency_score": 2,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.849526",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.849526",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The shortness of breath is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.849526",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Shortness of breath"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:35:01.849526",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:35:31.849526",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:36:16.849526",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:36:46.849526",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:37:31.849526",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:38:01.849526",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:38:46.849526",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:39:16.849526",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you seek urgent medical care.",
+          "timestamp": "2025-11-04T05:40:01.849526",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 2
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 2,
+        "specialty_prediction": "geriatrics",
+        "urgency_score": 2,
+        "recommended_actions": [
+          "go to the emergency department within the next 30 minutes"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.9055141268712421
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849570",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "geriatrics"
+      }
+    },
+    {
+      "scenario_id": "scenario_4",
+      "patient": {
+        "id": "patient_4",
+        "age": 43,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "migraine",
+          "depression",
+          "gerd"
+        ],
+        "current_medications": [],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 118.1352990578177,
+          "blood_pressure_diastolic": 99.35136287400343,
+          "heart_rate": 63.815573450156116,
+          "temperature": 97.55316101378494,
+          "oxygen_saturation": 96.2207648226796
+        }
+      },
+      "primary_complaint": "Shortness of breath",
+      "symptoms": [
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.LESS_URGENT",
+      "specialty": "MedicalSpecialty.MENTAL_HEALTH",
+      "urgency_score": 4,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.849594",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.849594",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had shortness of breath since 1 day.",
+          "timestamp": "2025-11-04T05:34:01.849594",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Shortness of breath"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:35:01.849594",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:35:31.849594",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:36:16.849594",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Just some vitamins and supplements.",
+          "timestamp": "2025-11-04T05:36:46.849594",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:37:31.849594",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's been getting worse over the past few days.",
+          "timestamp": "2025-11-04T05:38:01.849594",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend monitor your symptoms and contact your doctor if they worsen.",
+          "timestamp": "2025-11-04T05:38:46.849594",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 4
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 4,
+        "specialty_prediction": "mental_health",
+        "urgency_score": 4,
+        "recommended_actions": [
+          "schedule an appointment with your doctor within a few days"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7081617005700104
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849629",
+        "generator_version": "1.0",
+        "complexity_score": 3,
+        "specialty_mapping": "mental_health"
+      }
+    },
+    {
+      "scenario_id": "scenario_5",
+      "patient": {
+        "id": "patient_5",
+        "age": 73,
+        "age_group": "AgeGroup.GERIATRIC",
+        "gender": "female",
+        "medical_history": [],
+        "current_medications": [
+          "bismuth",
+          "albuterol",
+          "atorvastatin",
+          "lisinopril"
+        ],
+        "allergies": [
+          "pollen"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 130.21060805795693,
+          "blood_pressure_diastolic": 78.39170313834217,
+          "heart_rate": 97.30359648831939,
+          "temperature": 98.20088428147447,
+          "oxygen_saturation": 98.10888912672914
+        }
+      },
+      "primary_complaint": "Shortness of breath",
+      "symptoms": [
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.LESS_URGENT",
+      "specialty": "MedicalSpecialty.DERMATOLOGY",
+      "urgency_score": 4,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "Hi, I'm not feeling well today.",
+          "timestamp": "2025-11-04T05:32:46.849653",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.849653",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The shortness of breath is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.849653",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Shortness of breath"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:35:01.849653",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Just some vitamins and supplements.",
+          "timestamp": "2025-11-04T05:35:31.849653",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:36:16.849653",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:36:46.849653",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:37:31.849653",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It comes and goes, but this time it's been persistent.",
+          "timestamp": "2025-11-04T05:38:01.849653",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "For your safety, please schedule an appointment with your doctor within a few days.",
+          "timestamp": "2025-11-04T05:38:46.849653",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 4
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 4,
+        "specialty_prediction": "dermatology",
+        "urgency_score": 4,
+        "recommended_actions": [
+          "monitor your symptoms and contact your doctor if they worsen"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7783415553082758
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849686",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "dermatology"
+      }
+    },
+    {
+      "scenario_id": "scenario_6",
+      "patient": {
+        "id": "patient_6",
+        "age": 52,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [
+          "allergies"
+        ],
+        "current_medications": [
+          "metoprolol"
+        ],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 133.26272722792677,
+          "blood_pressure_diastolic": 78.92019438657066,
+          "heart_rate": 75.5560698425182,
+          "temperature": 98.99490663595017,
+          "oxygen_saturation": 99.6744100452946
+        }
+      },
+      "primary_complaint": "Chest pain",
+      "symptoms": [
+        {
+          "name": "Chest pain",
+          "category": "respiratory",
+          "severity": "severe",
+          "duration": "1 week",
+          "description": "Sharp pain when breathing",
+          "red_flags": [
+            "shortness_of_breath",
+            "dizziness"
+          ]
+        },
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.RESPIRATORY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.849709",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.849709",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had chest pain since few hours.",
+          "timestamp": "2025-11-04T05:34:01.849709",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Chest pain"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:35:01.849709",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:35:31.849709",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:36:16.849709",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "No, I'm not taking anything right now.",
+          "timestamp": "2025-11-04T05:36:46.849709",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:37:31.849709",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:38:01.849709",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you call 911 or go to the emergency room right away.",
+          "timestamp": "2025-11-04T05:38:46.849709",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "respiratory",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "call 911 or go to the emergency room right away"
+        ],
+        "red_flags_checked": true,
+        "conversation_quality_score": 0.7924062734370588
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849749",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "respiratory"
+      }
+    },
+    {
+      "scenario_id": "scenario_7",
+      "patient": {
+        "id": "patient_7",
+        "age": 49,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [
+          "depression",
+          "hypothyroidism",
+          "diabetes"
+        ],
+        "current_medications": [
+          "albuterol"
+        ],
+        "allergies": [
+          "penicillin",
+          "aspirin"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 98.88182744405134,
+          "blood_pressure_diastolic": 88.07849413634902,
+          "heart_rate": 68.6171635535899,
+          "temperature": 98.78717858533399,
+          "oxygen_saturation": 97.2266837289732
+        }
+      },
+      "primary_complaint": "Persistent cough",
+      "symptoms": [
+        {
+          "name": "Persistent cough",
+          "category": "respiratory",
+          "severity": "mild",
+          "duration": "1 week",
+          "description": "Dry cough that won't go away",
+          "red_flags": []
+        },
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        },
+        {
+          "name": "Chest pain",
+          "category": "respiratory",
+          "severity": "severe",
+          "duration": "1 week",
+          "description": "Sharp pain when breathing",
+          "red_flags": [
+            "shortness_of_breath",
+            "dizziness"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.DERMATOLOGY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.849774",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.849774",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The persistent cough is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.849774",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Persistent cough"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:35:01.849774",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I take metformin for diabetes.",
+          "timestamp": "2025-11-04T05:35:31.849774",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:36:16.849774",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:36:46.849774",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:37:31.849774",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:38:01.849774",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:38:46.849774",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's been getting worse over the past few days.",
+          "timestamp": "2025-11-04T05:39:16.849774",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:40:01.849774",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:40:31.849774",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "For your safety, please call 911 or go to the emergency room right away.",
+          "timestamp": "2025-11-04T05:41:16.849774",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "dermatology",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "call 911 or go to the emergency room right away"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7302537592874966
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849831",
+        "generator_version": "1.0",
+        "complexity_score": 5,
+        "specialty_mapping": "dermatology"
+      }
+    },
+    {
+      "scenario_id": "scenario_8",
+      "patient": {
+        "id": "patient_8",
+        "age": 62,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [
+          "arthritis",
+          "allergies"
+        ],
+        "current_medications": [
+          "sumatriptan"
+        ],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 144.8857309468799,
+          "blood_pressure_diastolic": 59.529308689074774,
+          "heart_rate": 83.99316986306174,
+          "temperature": 97.9209928787978,
+          "oxygen_saturation": 101.05797026919191
+        }
+      },
+      "primary_complaint": "Wheezing",
+      "symptoms": [
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        },
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.EMERGENT",
+      "specialty": "MedicalSpecialty.GERIATRICS",
+      "urgency_score": 2,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm having some health concerns.",
+          "timestamp": "2025-11-04T05:32:46.849857",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Good day! I'm the medical assistant. How can I assist you today?",
+          "timestamp": "2025-11-04T05:33:16.849857",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "My wheezing started 1 day ago.",
+          "timestamp": "2025-11-04T05:34:01.849857",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Wheezing"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:35:01.849857",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Just started today, maybe this morning.",
+          "timestamp": "2025-11-04T05:35:31.849857",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:36:16.849857",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:36:46.849857",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:37:31.849857",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:38:01.849857",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Given your condition, it's important to contact your doctor immediately.",
+          "timestamp": "2025-11-04T05:38:46.849857",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 2
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 2,
+        "specialty_prediction": "geriatrics",
+        "urgency_score": 2,
+        "recommended_actions": [
+          "contact your doctor immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.9499116507507831
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849893",
+        "generator_version": "1.0",
+        "complexity_score": 5,
+        "specialty_mapping": "geriatrics"
+      }
+    },
+    {
+      "scenario_id": "scenario_9",
+      "patient": {
+        "id": "patient_9",
+        "age": 71,
+        "age_group": "AgeGroup.GERIATRIC",
+        "gender": "female",
+        "medical_history": [
+          "asthma",
+          "diabetes"
+        ],
+        "current_medications": [
+          "lansoprazole",
+          "omeprazole",
+          "acetaminophen"
+        ],
+        "allergies": [
+          "aspirin"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 148.31823944880202,
+          "blood_pressure_diastolic": 90.14988516782698,
+          "heart_rate": 83.28129982349701,
+          "temperature": 100.86629270821018,
+          "oxygen_saturation": 96.81008865973314
+        }
+      },
+      "primary_complaint": "Arm pain",
+      "symptoms": [
+        {
+          "name": "Arm pain",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 hours",
+          "description": "Pain radiating down left arm",
+          "red_flags": [
+            "chest_pain",
+            "sweating"
+          ]
+        },
+        {
+          "name": "Palpitations",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "Irregular or rapid heartbeat",
+          "red_flags": [
+            "dizziness",
+            "shortness_of_breath"
+          ]
+        },
+        {
+          "name": "Chest pressure",
+          "category": "cardiac",
+          "severity": "severe",
+          "duration": "2 days",
+          "description": "Feeling of heaviness in chest",
+          "red_flags": [
+            "arm_pain",
+            "shortness_of_breath",
+            "sweating"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.CARDIOLOGY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm experiencing some symptoms.",
+          "timestamp": "2025-11-04T05:32:46.849928",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.849928",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've been feeling arm pain for 2 hours.",
+          "timestamp": "2025-11-04T05:34:01.849928",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Arm pain"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:35:01.849928",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:35:31.849928",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:36:16.849928",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Yes, I take lisinopril for blood pressure.",
+          "timestamp": "2025-11-04T05:36:46.849928",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend call 911 or go to the emergency room right away.",
+          "timestamp": "2025-11-04T05:37:31.849928",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "cardiology",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "get to the nearest emergency department immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.9168830905979538
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.849959",
+        "generator_version": "1.0",
+        "complexity_score": 6,
+        "specialty_mapping": "cardiology"
+      }
+    },
+    {
+      "scenario_id": "scenario_10",
+      "patient": {
+        "id": "patient_10",
+        "age": 62,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "anxiety",
+          "asthma",
+          "hypothyroidism"
+        ],
+        "current_medications": [
+          "aspirin",
+          "metoprolol"
+        ],
+        "allergies": [
+          "latex"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 111.28095693707377,
+          "blood_pressure_diastolic": 73.44105853816133,
+          "heart_rate": 79.25148853356873,
+          "temperature": 97.30083865574915,
+          "oxygen_saturation": 100.02233373442152
+        }
+      },
+      "primary_complaint": "Chest pain",
+      "symptoms": [
+        {
+          "name": "Chest pain",
+          "category": "respiratory",
+          "severity": "severe",
+          "duration": "1 week",
+          "description": "Sharp pain when breathing",
+          "red_flags": [
+            "shortness_of_breath",
+            "dizziness"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.EMERGENT",
+      "specialty": "MedicalSpecialty.ORTHOPEDICS",
+      "urgency_score": 2,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm having some health concerns.",
+          "timestamp": "2025-11-04T05:32:46.849988",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Good day! I'm the medical assistant. How can I assist you today?",
+          "timestamp": "2025-11-04T05:33:16.849988",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've been feeling chest pain for 1 week.",
+          "timestamp": "2025-11-04T05:34:01.849988",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Chest pain"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:35:01.849988",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Yes, I take lisinopril for blood pressure.",
+          "timestamp": "2025-11-04T05:35:31.849988",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:36:16.849988",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:36:46.849988",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:37:31.849988",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's been getting worse over the past few days.",
+          "timestamp": "2025-11-04T05:38:01.849988",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:38:46.849988",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:39:16.849988",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:40:01.849988",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:40:31.849988",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend go to the emergency department within the next 30 minutes.",
+          "timestamp": "2025-11-04T05:41:16.849988",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 2
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 2,
+        "specialty_prediction": "orthopedics",
+        "urgency_score": 2,
+        "recommended_actions": [
+          "go to the emergency department within the next 30 minutes"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7912484892303054
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850036",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "orthopedics"
+      }
+    },
+    {
+      "scenario_id": "scenario_11",
+      "patient": {
+        "id": "patient_11",
+        "age": 57,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [
+          "arthritis"
+        ],
+        "current_medications": [
+          "acetaminophen",
+          "lansoprazole"
+        ],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 115.6733972584999,
+          "blood_pressure_diastolic": 69.32286934644694,
+          "heart_rate": 59.22399102443636,
+          "temperature": 97.80322623698058,
+          "oxygen_saturation": 95.02791483627922
+        }
+      },
+      "primary_complaint": "Arm pain",
+      "symptoms": [
+        {
+          "name": "Arm pain",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 hours",
+          "description": "Pain radiating down left arm",
+          "red_flags": [
+            "chest_pain",
+            "sweating"
+          ]
+        },
+        {
+          "name": "Palpitations",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "Irregular or rapid heartbeat",
+          "red_flags": [
+            "dizziness",
+            "shortness_of_breath"
+          ]
+        },
+        {
+          "name": "Chest pressure",
+          "category": "cardiac",
+          "severity": "severe",
+          "duration": "2 days",
+          "description": "Feeling of heaviness in chest",
+          "red_flags": [
+            "arm_pain",
+            "shortness_of_breath",
+            "sweating"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.CARDIOLOGY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm experiencing some symptoms.",
+          "timestamp": "2025-11-04T05:32:46.850059",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.850059",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had arm pain since 2 hours.",
+          "timestamp": "2025-11-04T05:34:01.850059",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Arm pain"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:35:01.850059",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's pretty bad, maybe 8 or 9.",
+          "timestamp": "2025-11-04T05:35:31.850059",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:36:16.850059",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Just some vitamins and supplements.",
+          "timestamp": "2025-11-04T05:36:46.850059",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:37:31.850059",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:38:01.850059",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:38:46.850059",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:39:16.850059",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:40:01.850059",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:40:31.850059",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend call 911 or go to the emergency room right away.",
+          "timestamp": "2025-11-04T05:41:16.850059",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "cardiology",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "get to the nearest emergency department immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.753563427406692
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850103",
+        "generator_version": "1.0",
+        "complexity_score": 5,
+        "specialty_mapping": "cardiology"
+      }
+    },
+    {
+      "scenario_id": "scenario_12",
+      "patient": {
+        "id": "patient_12",
+        "age": 22,
+        "age_group": "AgeGroup.YOUNG_ADULT",
+        "gender": "male",
+        "medical_history": [
+          "diabetes",
+          "gerd",
+          "hypertension"
+        ],
+        "current_medications": [
+          "acetaminophen",
+          "atorvastatin"
+        ],
+        "allergies": [
+          "penicillin"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 127.71193148510335,
+          "blood_pressure_diastolic": 88.5179086444307,
+          "heart_rate": 79.5867343727343,
+          "temperature": 97.97351595087301,
+          "oxygen_saturation": 98.61586202575107
+        }
+      },
+      "primary_complaint": "Palpitations",
+      "symptoms": [
+        {
+          "name": "Palpitations",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "Irregular or rapid heartbeat",
+          "red_flags": [
+            "dizziness",
+            "shortness_of_breath"
+          ]
+        },
+        {
+          "name": "Chest pressure",
+          "category": "cardiac",
+          "severity": "severe",
+          "duration": "2 days",
+          "description": "Feeling of heaviness in chest",
+          "red_flags": [
+            "arm_pain",
+            "shortness_of_breath",
+            "sweating"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.CARDIOLOGY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "Hi, I'm not feeling well today.",
+          "timestamp": "2025-11-04T05:32:46.850128",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Good day! I'm the medical assistant. How can I assist you today?",
+          "timestamp": "2025-11-04T05:33:16.850128",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've been feeling palpitations for 1 hour.",
+          "timestamp": "2025-11-04T05:34:01.850128",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Palpitations"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:35:01.850128",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's been getting worse over the past few days.",
+          "timestamp": "2025-11-04T05:35:31.850128",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:36:16.850128",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:36:46.850128",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend get to the nearest emergency department immediately.",
+          "timestamp": "2025-11-04T05:37:31.850128",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "cardiology",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "call 911 or go to the emergency room right away"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.9101392050503883
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850156",
+        "generator_version": "1.0",
+        "complexity_score": 3,
+        "specialty_mapping": "cardiology"
+      }
+    },
+    {
+      "scenario_id": "scenario_13",
+      "patient": {
+        "id": "patient_13",
+        "age": 38,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "hypothyroidism",
+          "hypertension",
+          "anxiety"
+        ],
+        "current_medications": [],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 120.0780852740333,
+          "blood_pressure_diastolic": 86.91531907642525,
+          "heart_rate": 74.44862159077312,
+          "temperature": 98.69027953249103,
+          "oxygen_saturation": 94.28331420131978
+        }
+      },
+      "primary_complaint": "Shortness of breath",
+      "symptoms": [
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.LESS_URGENT",
+      "specialty": "MedicalSpecialty.MENTAL_HEALTH",
+      "urgency_score": 4,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.850179",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.850179",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had shortness of breath since 1 day.",
+          "timestamp": "2025-11-04T05:34:01.850179",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Shortness of breath"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:35:01.850179",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:35:31.850179",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:36:16.850179",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:36:46.850179",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you consider seeing your healthcare provider this week.",
+          "timestamp": "2025-11-04T05:37:31.850179",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 4
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 4,
+        "specialty_prediction": "mental_health",
+        "urgency_score": 4,
+        "recommended_actions": [
+          "monitor your symptoms and contact your doctor if they worsen"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.9347922450403132
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850209",
+        "generator_version": "1.0",
+        "complexity_score": 2,
+        "specialty_mapping": "mental_health"
+      }
+    },
+    {
+      "scenario_id": "scenario_14",
+      "patient": {
+        "id": "patient_14",
+        "age": 23,
+        "age_group": "AgeGroup.YOUNG_ADULT",
+        "gender": "male",
+        "medical_history": [
+          "hypothyroidism"
+        ],
+        "current_medications": [],
+        "allergies": [
+          "latex"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 117.50129934121753,
+          "blood_pressure_diastolic": 81.10876480137455,
+          "heart_rate": 63.05227355989007,
+          "temperature": 98.33082443406101,
+          "oxygen_saturation": 95.40154969997843
+        }
+      },
+      "primary_complaint": "Wheezing",
+      "symptoms": [
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        },
+        {
+          "name": "Persistent cough",
+          "category": "respiratory",
+          "severity": "mild",
+          "duration": "1 week",
+          "description": "Dry cough that won't go away",
+          "red_flags": []
+        },
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.EMERGENT",
+      "specialty": "MedicalSpecialty.PEDIATRICS",
+      "urgency_score": 2,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm experiencing some symptoms.",
+          "timestamp": "2025-11-04T05:32:46.850232",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Good day! I'm the medical assistant. How can I assist you today?",
+          "timestamp": "2025-11-04T05:33:16.850232",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The wheezing is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.850232",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Wheezing"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:35:01.850232",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Just started today, maybe this morning.",
+          "timestamp": "2025-11-04T05:35:31.850232",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:36:16.850232",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:36:46.850232",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:37:31.850232",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:38:01.850232",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:38:46.850232",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Yes, I take lisinopril for blood pressure.",
+          "timestamp": "2025-11-04T05:39:16.850232",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:40:01.850232",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:40:31.850232",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you seek urgent medical care.",
+          "timestamp": "2025-11-04T05:41:16.850232",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 2
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 2,
+        "specialty_prediction": "pediatrics",
+        "urgency_score": 2,
+        "recommended_actions": [
+          "seek urgent medical care"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7772999624394952
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850278",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "pediatrics"
+      }
+    },
+    {
+      "scenario_id": "scenario_15",
+      "patient": {
+        "id": "patient_15",
+        "age": 67,
+        "age_group": "AgeGroup.GERIATRIC",
+        "gender": "male",
+        "medical_history": [],
+        "current_medications": [],
+        "allergies": [
+          "penicillin",
+          "shellfish"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 125.18341829346116,
+          "blood_pressure_diastolic": 85.05868742160465,
+          "heart_rate": 95.89059571203964,
+          "temperature": 97.58729074519971,
+          "oxygen_saturation": 97.9520518594607
+        }
+      },
+      "primary_complaint": "Chest pain",
+      "symptoms": [
+        {
+          "name": "Chest pain",
+          "category": "respiratory",
+          "severity": "severe",
+          "duration": "1 week",
+          "description": "Sharp pain when breathing",
+          "red_flags": [
+            "shortness_of_breath",
+            "dizziness"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.EMERGENT",
+      "specialty": "MedicalSpecialty.GERIATRICS",
+      "urgency_score": 2,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.850300",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.850300",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The chest pain is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.850300",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Chest pain"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:35:01.850300",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:35:31.850300",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:36:16.850300",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's pretty bad, maybe 8 or 9.",
+          "timestamp": "2025-11-04T05:36:46.850300",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:37:31.850300",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:38:01.850300",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:38:46.850300",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:39:16.850300",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:40:01.850300",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:40:31.850300",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Given your condition, it's important to seek urgent medical care.",
+          "timestamp": "2025-11-04T05:41:16.850300",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 2
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 2,
+        "specialty_prediction": "geriatrics",
+        "urgency_score": 2,
+        "recommended_actions": [
+          "go to the emergency department within the next 30 minutes"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.8357351674737447
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850347",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "geriatrics"
+      }
+    },
+    {
+      "scenario_id": "scenario_16",
+      "patient": {
+        "id": "patient_16",
+        "age": 34,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "hypertension"
+        ],
+        "current_medications": [],
+        "allergies": [
+          "dairy"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 105.5779642494219,
+          "blood_pressure_diastolic": 79.07433811033408,
+          "heart_rate": 67.76267918866806,
+          "temperature": 99.43289216209932,
+          "oxygen_saturation": 99.94823915678082
+        }
+      },
+      "primary_complaint": "Wheezing",
+      "symptoms": [
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        },
+        {
+          "name": "Chest pain",
+          "category": "respiratory",
+          "severity": "severe",
+          "duration": "1 week",
+          "description": "Sharp pain when breathing",
+          "red_flags": [
+            "shortness_of_breath",
+            "dizziness"
+          ]
+        },
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.PEDIATRICS",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm having some health concerns.",
+          "timestamp": "2025-11-04T05:32:46.850372",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.850372",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had wheezing since 1 day.",
+          "timestamp": "2025-11-04T05:34:01.850372",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Wheezing"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:35:01.850372",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:35:31.850372",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:36:16.850372",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:36:46.850372",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you seek emergency medical care immediately.",
+          "timestamp": "2025-11-04T05:37:31.850372",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "pediatrics",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "get to the nearest emergency department immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7202128181386311
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850399",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "pediatrics"
+      }
+    },
+    {
+      "scenario_id": "scenario_17",
+      "patient": {
+        "id": "patient_17",
+        "age": 27,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "arthritis",
+          "migraine",
+          "gerd"
+        ],
+        "current_medications": [],
+        "allergies": [
+          "shellfish"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 122.44227236547151,
+          "blood_pressure_diastolic": 78.85507979895665,
+          "heart_rate": 81.86468432616645,
+          "temperature": 98.77979165086317,
+          "oxygen_saturation": 101.03288323526697
+        }
+      },
+      "primary_complaint": "Arm pain",
+      "symptoms": [
+        {
+          "name": "Arm pain",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 hours",
+          "description": "Pain radiating down left arm",
+          "red_flags": [
+            "chest_pain",
+            "sweating"
+          ]
+        },
+        {
+          "name": "Palpitations",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "Irregular or rapid heartbeat",
+          "red_flags": [
+            "dizziness",
+            "shortness_of_breath"
+          ]
+        },
+        {
+          "name": "Chest pressure",
+          "category": "cardiac",
+          "severity": "severe",
+          "duration": "2 days",
+          "description": "Feeling of heaviness in chest",
+          "red_flags": [
+            "arm_pain",
+            "shortness_of_breath",
+            "sweating"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.CARDIOLOGY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm having some health concerns.",
+          "timestamp": "2025-11-04T05:32:46.850421",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.850421",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had arm pain since 2 hours.",
+          "timestamp": "2025-11-04T05:34:01.850421",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Arm pain"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:35:01.850421",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:35:31.850421",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:36:16.850421",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:36:46.850421",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "For your safety, please call 911 or go to the emergency room right away.",
+          "timestamp": "2025-11-04T05:37:31.850421",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "cardiology",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "get to the nearest emergency department immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.74824770370523
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850449",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "cardiology"
+      }
+    },
+    {
+      "scenario_id": "scenario_18",
+      "patient": {
+        "id": "patient_18",
+        "age": 45,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [
+          "migraine",
+          "allergies",
+          "hypothyroidism"
+        ],
+        "current_medications": [
+          "theophylline",
+          "gabapentin"
+        ],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 95.48951970557823,
+          "blood_pressure_diastolic": 97.81970900995765,
+          "heart_rate": 63.822722991128124,
+          "temperature": 97.51360070714124,
+          "oxygen_saturation": 97.91049334399058
+        }
+      },
+      "primary_complaint": "Nausea",
+      "symptoms": [
+        {
+          "name": "Nausea",
+          "category": "gastrointestinal",
+          "severity": "mild",
+          "duration": "6 hours",
+          "description": "Feeling of sickness",
+          "red_flags": []
+        },
+        {
+          "name": "Abdominal pain",
+          "category": "gastrointestinal",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Stomach cramps and discomfort",
+          "red_flags": [
+            "vomiting",
+            "diarrhea"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.EMERGENT",
+      "specialty": "MedicalSpecialty.GASTROINTESTINAL",
+      "urgency_score": 2,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "Hi, I'm not feeling well today.",
+          "timestamp": "2025-11-04T05:32:46.850471",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Good day! I'm the medical assistant. How can I assist you today?",
+          "timestamp": "2025-11-04T05:33:16.850471",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had nausea since 6 hours.",
+          "timestamp": "2025-11-04T05:34:01.850471",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Nausea"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:35:01.850471",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'd say it's about a 7 out of 10.",
+          "timestamp": "2025-11-04T05:35:31.850471",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:36:16.850471",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Yes, I take lisinopril for blood pressure.",
+          "timestamp": "2025-11-04T05:36:46.850471",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:37:31.850471",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:38:01.850471",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend go to the emergency department within the next 30 minutes.",
+          "timestamp": "2025-11-04T05:38:46.850471",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 2
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 2,
+        "specialty_prediction": "gastrointestinal",
+        "urgency_score": 2,
+        "recommended_actions": [
+          "contact your doctor immediately"
+        ],
+        "red_flags_checked": true,
+        "conversation_quality_score": 0.8197478916538107
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850508",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "gastrointestinal"
+      }
+    },
+    {
+      "scenario_id": "scenario_19",
+      "patient": {
+        "id": "patient_19",
+        "age": 33,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "female",
+        "medical_history": [],
+        "current_medications": [
+          "ibuprofen",
+          "acetaminophen",
+          "fluticasone",
+          "metoprolol"
+        ],
+        "allergies": [
+          "nuts",
+          "aspirin"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 102.54446370377616,
+          "blood_pressure_diastolic": 85.68939495004219,
+          "heart_rate": 65.37356144459574,
+          "temperature": 98.88735510483252,
+          "oxygen_saturation": 96.04532257832342
+        }
+      },
+      "primary_complaint": "Palpitations",
+      "symptoms": [
+        {
+          "name": "Palpitations",
+          "category": "cardiac",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "Irregular or rapid heartbeat",
+          "red_flags": [
+            "dizziness",
+            "shortness_of_breath"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.EMERGENT",
+      "specialty": "MedicalSpecialty.CARDIOLOGY",
+      "urgency_score": 2,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.850531",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.850531",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The palpitations is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.850531",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Palpitations"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:35:01.850531",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:35:31.850531",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:36:16.850531",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:36:46.850531",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:37:31.850531",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:38:01.850531",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:38:46.850531",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's pretty bad, maybe 8 or 9.",
+          "timestamp": "2025-11-04T05:39:16.850531",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:40:01.850531",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:40:31.850531",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend contact your doctor immediately.",
+          "timestamp": "2025-11-04T05:41:16.850531",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 2
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 2,
+        "specialty_prediction": "cardiology",
+        "urgency_score": 2,
+        "recommended_actions": [
+          "seek urgent medical care"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.883345912898382
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850578",
+        "generator_version": "1.0",
+        "complexity_score": 2,
+        "specialty_mapping": "cardiology"
+      }
+    },
+    {
+      "scenario_id": "scenario_20",
+      "patient": {
+        "id": "patient_20",
+        "age": 31,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "allergies",
+          "depression"
+        ],
+        "current_medications": [
+          "fluticasone",
+          "bismuth",
+          "ibuprofen"
+        ],
+        "allergies": [
+          "sulfa drugs",
+          "pet dander"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 116.663456123461,
+          "blood_pressure_diastolic": 80.96931767880196,
+          "heart_rate": 68.1161565111952,
+          "temperature": 100.19160215837294,
+          "oxygen_saturation": 99.17162165454957
+        }
+      },
+      "primary_complaint": "Persistent cough",
+      "symptoms": [
+        {
+          "name": "Persistent cough",
+          "category": "respiratory",
+          "severity": "mild",
+          "duration": "1 week",
+          "description": "Dry cough that won't go away",
+          "red_flags": []
+        },
+        {
+          "name": "Shortness of breath",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Difficulty breathing, especially during physical activity",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.URGENT",
+      "specialty": "MedicalSpecialty.GENERAL",
+      "urgency_score": 3,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.850600",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Good day! I'm the medical assistant. How can I assist you today?",
+          "timestamp": "2025-11-04T05:33:16.850600",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had persistent cough since 1 week.",
+          "timestamp": "2025-11-04T05:34:01.850600",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Persistent cough"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:35:01.850600",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Just some vitamins and supplements.",
+          "timestamp": "2025-11-04T05:35:31.850600",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:36:16.850600",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It comes and goes, but this time it's been persistent.",
+          "timestamp": "2025-11-04T05:36:46.850600",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:37:31.850600",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:38:01.850600",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you schedule an appointment with your doctor within 24 hours.",
+          "timestamp": "2025-11-04T05:38:46.850600",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 3
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 3,
+        "specialty_prediction": "general",
+        "urgency_score": 3,
+        "recommended_actions": [
+          "contact your healthcare provider soon"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.9505031542012736
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850633",
+        "generator_version": "1.0",
+        "complexity_score": 3,
+        "specialty_mapping": "general"
+      }
+    },
+    {
+      "scenario_id": "scenario_21",
+      "patient": {
+        "id": "patient_21",
+        "age": 18,
+        "age_group": "AgeGroup.YOUNG_ADULT",
+        "gender": "female",
+        "medical_history": [
+          "hypothyroidism",
+          "anxiety"
+        ],
+        "current_medications": [
+          "albuterol",
+          "acetaminophen"
+        ],
+        "allergies": [
+          "nuts"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 123.05513088022562,
+          "blood_pressure_diastolic": 61.43479299601425,
+          "heart_rate": 73.78189456170465,
+          "temperature": 99.83614031517166,
+          "oxygen_saturation": 96.62005639292994
+        }
+      },
+      "primary_complaint": "Chest pain",
+      "symptoms": [
+        {
+          "name": "Chest pain",
+          "category": "respiratory",
+          "severity": "severe",
+          "duration": "1 week",
+          "description": "Sharp pain when breathing",
+          "red_flags": [
+            "shortness_of_breath",
+            "dizziness"
+          ]
+        },
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.GERIATRICS",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm experiencing some symptoms.",
+          "timestamp": "2025-11-04T05:32:46.850654",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.850654",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I've had chest pain since 1 week.",
+          "timestamp": "2025-11-04T05:34:01.850654",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Chest pain"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:35:01.850654",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's pretty bad, maybe 8 or 9.",
+          "timestamp": "2025-11-04T05:35:31.850654",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:36:16.850654",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:36:46.850654",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:37:31.850654",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Yes, I take lisinopril for blood pressure.",
+          "timestamp": "2025-11-04T05:38:01.850654",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:38:46.850654",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's been getting worse over the past few days.",
+          "timestamp": "2025-11-04T05:39:16.850654",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you get to the nearest emergency department immediately.",
+          "timestamp": "2025-11-04T05:40:01.850654",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "geriatrics",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "seek emergency medical care immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7073589188641408
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850694",
+        "generator_version": "1.0",
+        "complexity_score": 2,
+        "specialty_mapping": "geriatrics"
+      }
+    },
+    {
+      "scenario_id": "scenario_22",
+      "patient": {
+        "id": "patient_22",
+        "age": 76,
+        "age_group": "AgeGroup.GERIATRIC",
+        "gender": "male",
+        "medical_history": [
+          "hypothyroidism"
+        ],
+        "current_medications": [],
+        "allergies": [
+          "nuts"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 127.0246796168238,
+          "blood_pressure_diastolic": 49.742601270774,
+          "heart_rate": 62.54373776588264,
+          "temperature": 96.51596052848667,
+          "oxygen_saturation": 98.20824329258525
+        }
+      },
+      "primary_complaint": "Confusion",
+      "symptoms": [
+        {
+          "name": "Confusion",
+          "category": "neurological",
+          "severity": "severe",
+          "duration": "2 weeks",
+          "description": "Difficulty thinking clearly",
+          "red_flags": [
+            "memory_issues"
+          ]
+        },
+        {
+          "name": "Headache",
+          "category": "neurological",
+          "severity": "moderate",
+          "duration": "1 day",
+          "description": "Persistent head pain",
+          "red_flags": [
+            "sensitivity_to_light",
+            "nausea"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.NEUROLOGY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "Hi, I'm not feeling well today.",
+          "timestamp": "2025-11-04T05:32:46.850715",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.850715",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "My confusion started 2 weeks ago.",
+          "timestamp": "2025-11-04T05:34:01.850715",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Confusion"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:35:01.850715",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:35:31.850715",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:36:16.850715",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's been going on for about a week now.",
+          "timestamp": "2025-11-04T05:36:46.850715",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:37:31.850715",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:38:01.850715",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:38:46.850715",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:39:16.850715",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "For your safety, please call 911 or go to the emergency room right away.",
+          "timestamp": "2025-11-04T05:40:01.850715",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "neurology",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "seek emergency medical care immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.8052037881439038
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850754",
+        "generator_version": "1.0",
+        "complexity_score": 5,
+        "specialty_mapping": "neurology"
+      }
+    },
+    {
+      "scenario_id": "scenario_23",
+      "patient": {
+        "id": "patient_23",
+        "age": 18,
+        "age_group": "AgeGroup.YOUNG_ADULT",
+        "gender": "female",
+        "medical_history": [],
+        "current_medications": [
+          "theophylline",
+          "albuterol",
+          "lansoprazole",
+          "aspirin"
+        ],
+        "allergies": [
+          "dairy",
+          "pollen"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 117.74649758893004,
+          "blood_pressure_diastolic": 78.94183496889288,
+          "heart_rate": 65.63045861024136,
+          "temperature": 99.61913631626523,
+          "oxygen_saturation": 95.53439354733806
+        }
+      },
+      "primary_complaint": "Chest pressure",
+      "symptoms": [
+        {
+          "name": "Chest pressure",
+          "category": "cardiac",
+          "severity": "severe",
+          "duration": "2 days",
+          "description": "Feeling of heaviness in chest",
+          "red_flags": [
+            "arm_pain",
+            "shortness_of_breath",
+            "sweating"
+          ]
+        }
+      ],
+      "triage_level": "TriageLevel.IMMEDIATE",
+      "specialty": "MedicalSpecialty.CARDIOLOGY",
+      "urgency_score": 1,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.850776",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.850776",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The chest pressure is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.850776",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Chest pressure"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:35:01.850776",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:35:31.850776",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:36:16.850776",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:36:46.850776",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:37:31.850776",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:38:01.850776",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "I suggest that you seek emergency medical care immediately.",
+          "timestamp": "2025-11-04T05:38:46.850776",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 1
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 1,
+        "specialty_prediction": "cardiology",
+        "urgency_score": 1,
+        "recommended_actions": [
+          "get to the nearest emergency department immediately"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7064700765506676
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850821",
+        "generator_version": "1.0",
+        "complexity_score": 1,
+        "specialty_mapping": "cardiology"
+      }
+    },
+    {
+      "scenario_id": "scenario_24",
+      "patient": {
+        "id": "patient_24",
+        "age": 57,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "depression",
+          "gerd",
+          "hypertension"
+        ],
+        "current_medications": [
+          "sumatriptan",
+          "albuterol"
+        ],
+        "allergies": [
+          "aspirin"
+        ],
+        "vital_signs": {
+          "blood_pressure_systolic": 118.88813192550835,
+          "blood_pressure_diastolic": 85.9638918275154,
+          "heart_rate": 68.2060743786873,
+          "temperature": 98.50920493222564,
+          "oxygen_saturation": 96.34984074216871
+        }
+      },
+      "primary_complaint": "Wheezing",
+      "symptoms": [
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.LESS_URGENT",
+      "specialty": "MedicalSpecialty.PEDIATRICS",
+      "urgency_score": 4,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I'm having some health concerns.",
+          "timestamp": "2025-11-04T05:32:46.850890",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hello! I'm here to help with your health concerns.",
+          "timestamp": "2025-11-04T05:33:16.850890",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "The wheezing is getting worse.",
+          "timestamp": "2025-11-04T05:34:01.850890",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Wheezing"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:35:01.850890",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:35:31.850890",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:36:16.850890",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:36:46.850890",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Have you experienced this before?",
+          "timestamp": "2025-11-04T05:37:31.850890",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm worried about it.",
+          "timestamp": "2025-11-04T05:38:01.850890",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are you currently taking any medications?",
+          "timestamp": "2025-11-04T05:38:46.850890",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "No, I'm not taking anything right now.",
+          "timestamp": "2025-11-04T05:39:16.850890",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:40:01.850890",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's been getting worse over the past few days.",
+          "timestamp": "2025-11-04T05:40:31.850890",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend schedule an appointment with your doctor within a few days.",
+          "timestamp": "2025-11-04T05:41:16.850890",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 4
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 4,
+        "specialty_prediction": "pediatrics",
+        "urgency_score": 4,
+        "recommended_actions": [
+          "schedule an appointment with your doctor within a few days"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.8135161722363244
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.850948",
+        "generator_version": "1.0",
+        "complexity_score": 3,
+        "specialty_mapping": "pediatrics"
+      }
+    },
+    {
+      "scenario_id": "scenario_25",
+      "patient": {
+        "id": "patient_25",
+        "age": 55,
+        "age_group": "AgeGroup.ADULT",
+        "gender": "male",
+        "medical_history": [
+          "asthma",
+          "allergies"
+        ],
+        "current_medications": [
+          "atorvastatin",
+          "montelukast"
+        ],
+        "allergies": [],
+        "vital_signs": {
+          "blood_pressure_systolic": 114.97545808356473,
+          "blood_pressure_diastolic": 87.18350807509532,
+          "heart_rate": 49.805378153213404,
+          "temperature": 98.44197095096885,
+          "oxygen_saturation": 96.83156974385561
+        }
+      },
+      "primary_complaint": "Wheezing",
+      "symptoms": [
+        {
+          "name": "Wheezing",
+          "category": "respiratory",
+          "severity": "moderate",
+          "duration": "2 days",
+          "description": "High-pitched whistling sound when breathing",
+          "red_flags": []
+        },
+        {
+          "name": "Persistent cough",
+          "category": "respiratory",
+          "severity": "mild",
+          "duration": "1 week",
+          "description": "Dry cough that won't go away",
+          "red_flags": []
+        }
+      ],
+      "triage_level": "TriageLevel.URGENT",
+      "specialty": "MedicalSpecialty.GENERAL",
+      "urgency_score": 3,
+      "conversation": [
+        {
+          "speaker": "patient",
+          "text": "I need some medical advice.",
+          "timestamp": "2025-11-04T05:32:46.850975",
+          "context": {
+            "stage": "greeting"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Hi there! What brings you to talk with me today?",
+          "timestamp": "2025-11-04T05:33:16.850975",
+          "context": {
+            "stage": "greeting_response"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "My wheezing started 2 days ago.",
+          "timestamp": "2025-11-04T05:34:01.850975",
+          "context": {
+            "stage": "chief_complaint",
+            "symptom": "Wheezing"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Can you describe your symptoms in more detail?",
+          "timestamp": "2025-11-04T05:35:01.850975",
+          "context": {
+            "stage": "follow_up_1"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I'm not really sure.",
+          "timestamp": "2025-11-04T05:35:31.850975",
+          "context": {
+            "stage": "follow_up_response_1"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "On a scale of 1-10, how would you rate your pain?",
+          "timestamp": "2025-11-04T05:36:16.850975",
+          "context": {
+            "stage": "follow_up_2"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "It's moderate, I'd say 5 or 6.",
+          "timestamp": "2025-11-04T05:36:46.850975",
+          "context": {
+            "stage": "follow_up_response_2"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "How long have you been experiencing this?",
+          "timestamp": "2025-11-04T05:37:31.850975",
+          "context": {
+            "stage": "follow_up_3"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "Just started today, maybe this morning.",
+          "timestamp": "2025-11-04T05:38:01.850975",
+          "context": {
+            "stage": "follow_up_response_3"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Are there any other symptoms you're noticing?",
+          "timestamp": "2025-11-04T05:38:46.850975",
+          "context": {
+            "stage": "follow_up_4"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "I hope it gets better soon.",
+          "timestamp": "2025-11-04T05:39:16.850975",
+          "context": {
+            "stage": "follow_up_response_4"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Do you have any known allergies?",
+          "timestamp": "2025-11-04T05:40:01.850975",
+          "context": {
+            "stage": "follow_up_5"
+          }
+        },
+        {
+          "speaker": "patient",
+          "text": "That's a good question.",
+          "timestamp": "2025-11-04T05:40:31.850975",
+          "context": {
+            "stage": "follow_up_response_5"
+          }
+        },
+        {
+          "speaker": "ai",
+          "text": "Based on your symptoms, I recommend contact your healthcare provider soon.",
+          "timestamp": "2025-11-04T05:41:16.850975",
+          "context": {
+            "stage": "recommendation",
+            "urgency": 3
+          }
+        }
+      ],
+      "expected_outcomes": {
+        "triage_prediction": 3,
+        "specialty_prediction": "general",
+        "urgency_score": 3,
+        "recommended_actions": [
+          "contact your healthcare provider soon"
+        ],
+        "red_flags_checked": false,
+        "conversation_quality_score": 0.7845660955676518
+      },
+      "metadata": {
+        "generated_at": "2025-11-04T05:32:46.851023",
+        "generator_version": "1.0",
+        "complexity_score": 4,
+        "specialty_mapping": "general"
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "feedback_sources": {
+    "surveys": {
+      "enabled": true,
+      "interval": "weekly",
+      "response_rate_target": 0.3,
+      "max_questions": 20
+    },
+    "support_tickets": {
+      "enabled": true,
+      "real_time": true,
+      "categories": ["bug", "feature_request", "general", "technical"],
+      "priority_detection": true
+    },
+    "social_media": {
+      "enabled": true,
+      "platforms": ["twitter", "linkedin", "reddit"],
+      "sentiment_analysis": true,
+      "mention_monitoring": true
+    },
+    "app_reviews": {
+      "enabled": true,
+      "platforms": ["ios", "android", "chrome_web_store"],
+      "rating_threshold": 3.0,
+      "review_analysis": true
+    },
+    "user_analytics": {
+      "enabled": true,
+      "event_types": ["feature_usage", "error_events", "user_flow", "performance"],
+      "session_tracking": true,
+      "conversion_tracking": true
+    },
+    "beta_testing": {
+      "enabled": true,
+      "user_group": "beta_testers",
+      "feedback_forms": true,
+      "usability_testing": true
+    }
+  },
+  "sentiment_analysis": {
+    "model": "textblob",
+    "threshold_positive": 0.1,
+    "threshold_negative": -0.1,
+    "confidence_threshold": 0.8,
+    "language_detection": true
+  },
+  "alerting": {
+    "high_priority_threshold": 0.8,
+    "negative_sentiment_threshold": -0.5,
+    "response_time_alert": 24,
+    "alert_channels": ["email", "slack", "pagerduty"],
+    "escalation_rules": {
+      "critical": "immediate",
+      "high": "15_minutes",
+      "medium": "1_hour",
+      "low": "4_hours"
+    }
+  },
+  "analytics": {
+    "trend_analysis_interval": "daily",
+    "impact_score_weights": {
+      "user_count": 0.3,
+      "sentiment_score": 0.25,
+      "priority_level": 0.25,
+      "frequency": 0.2
+    },
+    "pattern_recognition": true,
+    "anomaly_detection": true
+  },
+  "automation": {
+    "auto_categorization": true,
+    "priority_auto_assignment": true,
+    "response_templates": true,
+    "follow_up_automation": true,
+    "integration_webhooks": true
+  },
+  "data_retention": {
+    "raw_feedback_days": 365,
+    "processed_feedback_days": 1095,
+    "analytics_data_months": 24,
+    "log_data_months": 6
+  }
+}

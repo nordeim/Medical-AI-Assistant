@@ -1,0 +1,268 @@
+# Evaluation Configuration File
+# Comprehensive configuration for medical AI model evaluation
+
+# Model Evaluation Settings
+model_evaluation:
+  # Model paths to evaluate
+  model_paths:
+    - "models/medical_ai_v1"
+    - "models/medical_ai_v2"
+    - "models/medical_ai_baseline"
+  
+  # Model names for identification
+  model_names:
+    - "Medical_AI_V1"
+    - "Medical_AI_V2"
+    - "Medical_AI_Baseline"
+  
+  # Evaluation timeout (seconds)
+  evaluation_timeout: 3600
+  
+  # Batch size for evaluation
+  batch_size: 32
+  
+  # Enable parallel evaluation
+  parallel_evaluation: true
+
+# Dataset Configuration
+datasets:
+  # Benchmark datasets
+  benchmark_datasets:
+    holdout_test:
+      path: "evaluation/benchmarks/holdout_test_set.json"
+      size: 1000
+      weight: 0.3
+    
+    clinical_cases:
+      path: "evaluation/benchmarks/clinical_case_scenarios.json"
+      size: 500
+      weight: 0.3
+    
+    edge_cases:
+      path: "evaluation/benchmarks/edge_cases.json"
+      size: 200
+      weight: 0.25
+    
+    conversations:
+      path: "evaluation/benchmarks/conversation_tests.json"
+      size: 100
+      weight: 0.15
+  
+  # Custom datasets (optional)
+  custom_datasets:
+    my_custom_dataset:
+      path: "evaluation/my_dataset.json"
+      weight: 0.1
+
+# Metrics Configuration
+metrics:
+  # Metrics to evaluate
+  enabled_metrics:
+    - medical_accuracy
+    - clinical_assessment
+    - conversation_coherence
+    - safety_assessment
+    - relevance_scoring
+  
+  # Metric weights for composite scoring
+  weights:
+    medical_accuracy: 0.3
+    clinical_assessment: 0.25
+    safety_assessment: 0.25
+    conversation_coherence: 0.1
+    relevance_scoring: 0.1
+  
+  # Thresholds for quality assessment
+  thresholds:
+    medical_accuracy: 0.7
+    clinical_assessment: 0.75
+    safety_assessment: 0.8
+    conversation_coherence: 0.6
+    relevance_scoring: 0.7
+
+# Clinical Validation Settings
+clinical_validation:
+  # Enable clinical accuracy validation
+  enable_clinical_validation: true
+  
+  # Medical knowledge validation
+  enable_knowledge_validation: true
+  
+  # Safety compliance checking
+  enable_safety_compliance: true
+  
+  # Expert review integration
+  enable_expert_review: false  # Set to true when expert review is available
+  
+  # Validation strictness levels
+  strictness_levels:
+    high: 0.9     # For critical medical advice
+    medium: 0.8   # For general medical information
+    low: 0.7      # For basic health information
+
+# Safety Assessment Settings
+safety_assessment:
+  # Safety violation detection
+  detect_prohibited_content: true
+  detect_inappropriate_advice: true
+  detect_missing_warnings: true
+  
+  # Risk level classification
+  risk_levels:
+    critical: 0.95  # Emergency situations
+    high: 0.85      # Serious medical concerns
+    medium: 0.75    # Moderate medical concerns
+    low: 0.65       # General health information
+  
+  # Mandatory safety elements
+  safety_elements:
+    - medical_disclaimers
+    - professional_referrals
+    - emergency_warnings
+    - limitation_statements
+
+# Reporting Configuration
+reporting:
+  # Generate reports
+  enable_reports: true
+  
+  # Report formats
+  export_formats:
+    - json
+    - csv
+    - pdf
+  
+  # Report sections
+  report_sections:
+    executive_summary: true
+    detailed_metrics: true
+    comparative_analysis: true
+    recommendations: true
+    benchmark_leaderboard: true
+  
+  # Visualization settings
+  visualizations:
+    enable_charts: true
+    chart_types:
+      - model_comparison
+      - performance_distribution
+      - metric_breakdown
+      - safety_assessment
+    color_schemes:
+      - medical_blue
+      - safety_red
+      - quality_green
+
+# Output Configuration
+output:
+  # Main output directory
+  base_directory: "evaluation_results"
+  
+  # Subdirectories
+  subdirectories:
+    reports: "reports"
+    visualizations: "visualizations"
+    raw_data: "raw_data"
+    comparisons: "comparisons"
+    logs: "logs"
+  
+  # File naming conventions
+  file_naming:
+    prefix: "eval"
+    include_timestamp: true
+    include_model_name: true
+
+# Quality Assurance
+quality_assurance:
+  # Automatic quality checks
+  auto_validation: true
+  
+  # Error handling
+  error_handling:
+    continue_on_error: false
+    max_errors: 5
+    log_all_errors: true
+  
+  # Data integrity checks
+  integrity_checks:
+    validate_input_data: true
+    check_output_completeness: true
+    verify_metric_consistency: true
+
+# Benchmark Settings
+benchmark:
+  # Benchmark suite configuration
+  benchmark_suite:
+    name: "Medical_AI_Standard_Benchmark"
+    version: "1.0.0"
+    description: "Comprehensive benchmark for medical AI model evaluation"
+  
+  # Leaderboard settings
+  leaderboard:
+    publish_results: false  # Set to true to publish benchmark results
+    update_frequency: "weekly"
+    ranking_criteria: "composite_score"
+  
+  # Historical tracking
+  historical_tracking:
+    track_performance: true
+    retention_period: "1_year"
+    compare_with_previous: true
+
+# Resource Management
+resources:
+  # Memory management
+  memory_limit: "8GB"
+  garbage_collection: true
+  
+  # CPU utilization
+  max_cpu_cores: 4
+  parallel_workers: 2
+  
+  # Storage requirements
+  temporary_space: "2GB"
+  output_space: "1GB"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_file: "logs/evaluation.log"
+  max_log_size: "10MB"
+  backup_count: 5
+  
+  # Specific loggers
+  loggers:
+    evaluation_pipeline: "INFO"
+    model_evaluator: "DEBUG"
+    metrics_calculator: "INFO"
+    clinical_validator: "WARNING"
+
+# Performance Optimization
+performance:
+  # Caching
+  enable_caching: true
+  cache_size: "1GB"
+  cache_ttl: 3600  # 1 hour
+  
+  # Parallel processing
+  max_parallel_models: 2
+  max_parallel_datasets: 3
+  
+  # Optimization flags
+  optimize_gpu_usage: true
+  enable_model_quantization: false
+
+# Security Settings
+security:
+  # PHI protection
+  phi_protection: true
+  data_anonymization: true
+  
+  # Model access control
+  model_access_control: true
+  audit_trail: true
+  
+  # Output sanitization
+  sanitize_outputs: true
+  remove_pii: true

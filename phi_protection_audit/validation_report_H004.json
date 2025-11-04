@@ -1,0 +1,33 @@
+{
+  "validation_metadata": {
+    "timestamp": "2025-11-04T05:35:07.671495",
+    "validator_version": "1.0.0",
+    "original_timestamp": "2025-11-04T05:35:07.574682"
+  },
+  "validation_result": {
+    "is_valid": false,
+    "residual_phi_count": 5,
+    "pseudonym_consistency": 1.0,
+    "compliance_score": 0.6499999999999999,
+    "issues": [
+      "RESIDUAL_potential_name: 4 instances detected",
+      "PHI_INDICATOR_CONTACT_INDICATORS: 1 instances detected",
+      "LOW_COMPLIANCE_SCORE: Original de-identification has low compliance score"
+    ],
+    "recommendations": [
+      "Review de-identification method and patterns",
+      "Consider implementing additional validation layers",
+      "Document any acceptable PHI omissions for compliance review"
+    ]
+  },
+  "original_deidentification": {
+    "compliance_score": 0.4285714285714286,
+    "detections_count": 7,
+    "pseudonym_mapping_size": 26
+  },
+  "summary": {
+    "is_valid": false,
+    "record_id": "H004"
+  },
+  "redacted_text_sample": "\n            Radiology report for Patient Person_004.\n            Study: Chest X-ray\n            Date: Date_003\n            Findings: Clear Location_002 acute findings\n            Radiologist: Person_001 Location_001\n            Hospital: Facility_001\n            Phone: (Phone_004\n            "
+}

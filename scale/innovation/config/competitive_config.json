@@ -1,0 +1,67 @@
+{
+  "competitive_intelligence": {
+    "automated_monitoring": true,
+    "analysis_frequency": "daily",
+    "data_sources": [
+      "company_websites",
+      "product_reviews",
+      "social_media",
+      "press_releases",
+      "patent_databases",
+      "job_postings",
+      "funding_announcements"
+    ],
+    "monitoring_depth": "comprehensive",
+    "real_time_alerts": true
+  },
+  "feature_analysis": {
+    "gap_detection": true,
+    "similarity_threshold": 0.7,
+    "feature_extraction": "nlp_based",
+    "competitive_positioning": true,
+    "differentiation_analysis": true,
+    "feature_importance_scoring": true
+  },
+  "threat_assessment": {
+    "market_threat_indicators": [
+      "funding_rounds",
+      "product_launches",
+      "partnership_announcements",
+      "talent_acquisition",
+      "patent_filings",
+      "market_expansion"
+    ],
+    "threat_threshold": 0.7,
+    "threat_scoring_model": "multi_factor",
+    "early_warning_system": true
+  },
+  "opportunity_identification": {
+    "market_gap_analysis": true,
+    "customer_pain_point_detection": true,
+    "revenue_impact_modeling": true,
+    "competitive_weakness_exploitation": true,
+    "white_space_opportunities": true
+  },
+  "analysis_models": {
+    "text_classification": "transformer_based",
+    "sentiment_analysis": "advanced",
+    "trend_prediction": "time_series",
+    "feature_similarity": "cosine_similarity",
+    "market_positioning": "multi_dimensional"
+  },
+  "reporting": {
+    "dashboard_updates": "real_time",
+    "report_frequency": "weekly",
+    "insight_confidence_threshold": 0.75,
+    "automated_insights": true,
+    "stakeholder_notifications": true
+  },
+  "data_collection": {
+    "web_scraping": true,
+    "api_integration": true,
+    "news_monitoring": true,
+    "social_listening": true,
+    "patent_monitoring": true,
+    "financial_data_integration": true
+  }
+}

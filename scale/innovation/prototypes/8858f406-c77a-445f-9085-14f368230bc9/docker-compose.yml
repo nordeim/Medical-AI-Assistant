@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/innovation_db
+    depends_on:
+      - db
+
+  frontend:
+    image: node:16-alpine
+    working_dir: /app/frontend
+    ports:
+      - "3000:3000"
+    command: ["npm", "start"]
+    volumes:
+      - ./frontend:/app/frontend
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: innovation_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

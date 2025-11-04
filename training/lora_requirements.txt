@@ -1,0 +1,69 @@
+# LoRA/PEFT Training System Requirements
+
+# Core PyTorch dependencies
+torch>=1.13.0
+torchvision>=0.14.0
+torchaudio>=0.13.0
+
+# Transformer libraries
+transformers>=4.30.0
+datasets>=2.14.0
+tokenizers>=0.13.0
+sentencepiece>=0.1.99
+
+# PEFT (Parameter-Efficient Fine-Tuning)
+peft>=0.4.0
+
+# Quantization support
+bitsandbytes>=0.41.0
+accelerate>=0.20.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+pyyaml>=6.0
+scipy>=1.10.0
+
+# Monitoring and logging
+wandb>=0.15.0
+tensorboard>=2.13.0
+
+# Distributed training (optional)
+deepspeed>=0.12.0
+fairscale>=0.4.0
+
+# HuggingFace Hub support (optional)
+huggingface-hub>=0.16.0
+
+# Additional utilities
+tqdm>=4.65.0
+packaging>=23.0
+requests>=2.31.0
+
+# Testing dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+
+# Development dependencies
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
+mypy>=1.4.0
+
+# Documentation dependencies
+sphinx>=7.0.0
+sphinx-rtd-theme>=1.2.0
+mkdocs>=1.5.0
+
+# Performance profiling (optional)
+memory-profiler>=0.61.0
+psutil>=5.9.0
+gpustat>=1.1.1
+
+# Optional: Mixed precision training optimization
+apex>=0.1.0
+
+# Optional: Advanced model support
+timm>=0.9.0
+scikit-learn>=1.3.0

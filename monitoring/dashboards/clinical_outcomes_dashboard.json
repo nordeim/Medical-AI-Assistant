@@ -1,0 +1,232 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Clinical Outcomes and Effectiveness Analytics",
+    "tags": ["medical-ai", "clinical", "outcomes"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Treatment Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(medical_ai_treatment_success_rate) * 100",
+            "refId": "A",
+            "legendFormat": "Success Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 75},
+                {"color": "green", "value": 90}
+              ]
+            },
+            "custom": {
+              "displayMode": "color-background"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Patient Outcomes by Specialty",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "medical_ai_clinical_outcomes_by_specialty",
+            "refId": "A",
+            "legendFormat": "{{specialty}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "AI Diagnosis Accuracy Trend",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_correct_diagnoses_total[1d]) / rate(medical_ai_total_diagnoses_total[1d]) * 100",
+            "refId": "A",
+            "legendFormat": "Daily Accuracy %"
+          },
+          {
+            "expr": "avg_over_time(medical_ai_diagnosis_accuracy[7d:1d]) * 100",
+            "refId": "B",
+            "legendFormat": "7-day Average"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Treatment Recommendation Acceptance Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_treatment_recommendations_accepted_total[1d]) / rate(medical_ai_treatment_recommendations_total[1d]) * 100",
+            "refId": "A",
+            "legendFormat": "Acceptance Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 60},
+                {"color": "green", "value": 80}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 5,
+        "title": "Time to Diagnosis",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(medical_ai_diagnosis_time_seconds_bucket[1d]))",
+            "refId": "A",
+            "legendFormat": "50th Percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(medical_ai_diagnosis_time_seconds_bucket[1d]))",
+            "refId": "B",
+            "legendFormat": "95th Percentile"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Patient Readmission Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_patient_readmissions_total[1d]) / rate(medical_ai_patient_discharges_total[1d]) * 100",
+            "refId": "A",
+            "legendFormat": "Readmission Rate %"
+          },
+          {
+            "expr": "avg_over_time(medical_ai_readmission_rate[30d:1d]) * 100",
+            "refId": "B",
+            "legendFormat": "30-day Average"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 15},
+                {"color": "red", "value": 20}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "Clinical Decision Confidence Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_decision_confidence_bucket[1d])",
+            "refId": "A",
+            "legendFormat": "{{le}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      },
+      {
+        "id": 8,
+        "title": "Adverse Event Detection",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_adverse_events_detected_total[1d])",
+            "refId": "A",
+            "legendFormat": "Detected Events/day"
+          },
+          {
+            "expr": "rate(medical_ai_adverse_events_confirmed_total[1d])",
+            "refId": "B",
+            "legendFormat": "Confirmed Events/day"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 32}
+      },
+      {
+        "id": 9,
+        "title": "Patient Satisfaction Scores",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(medical_ai_patient_satisfaction_score)",
+            "refId": "A",
+            "legendFormat": "Average Score"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 5,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 3.0},
+                {"color": "green", "value": 4.0}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 40}
+      },
+      {
+        "id": 10,
+        "title": "Cost Effectiveness Ratio",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(medical_ai_cost_effectiveness_ratio)",
+            "refId": "A",
+            "legendFormat": "Cost per Quality-Adjusted Life Year"
+          }
+        ],
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 40}
+      },
+      {
+        "id": 11,
+        "title": "Clinical Model Performance by Use Case",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "medical_ai_model_performance_by_usecase",
+            "refId": "A",
+            "legendFormat": "{{use_case}}"
+          }
+        ],
+        "gridPos": {"h": 10, "w": 24, "x": 0, "y": 46}
+      }
+    ]
+  }
+}

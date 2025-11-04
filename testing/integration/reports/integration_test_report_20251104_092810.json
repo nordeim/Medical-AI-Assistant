@@ -1,0 +1,120 @@
+{
+  "test_execution": {
+    "start_time": "2025-11-04T01:28:10.759109",
+    "end_time": "2025-11-04T01:28:10.895798",
+    "total_duration": 0.13666439056396484,
+    "overall_status": "passed"
+  },
+  "execution_summary": {
+    "start_time": "2025-11-04T01:28:10.759109",
+    "end_time": "2025-11-04T01:28:10.895798",
+    "total_duration": 0.13666439056396484,
+    "test_categories": {
+      "system_reliability": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "success_rate": 1.0
+      }
+    },
+    "overall_status": "passed",
+    "metrics": {
+      "average_duration": {
+        "average": 1.565668947494748,
+        "median": 1.565668947494748,
+        "min": 1.565668947494748,
+        "max": 1.565668947494748,
+        "count": 1
+      },
+      "median_duration": {
+        "average": 1.6237411120082061,
+        "median": 1.6237411120082061,
+        "min": 1.6237411120082061,
+        "max": 1.6237411120082061,
+        "count": 1
+      },
+      "max_duration": {
+        "average": 2.381195452053915,
+        "median": 2.381195452053915,
+        "min": 2.381195452053915,
+        "max": 2.381195452053915,
+        "count": 1
+      },
+      "min_duration": {
+        "average": 0.6339981139086649,
+        "median": 0.6339981139086649,
+        "min": 0.6339981139086649,
+        "max": 0.6339981139086649,
+        "count": 1
+      }
+    }
+  },
+  "test_results": {
+    "system_reliability": {
+      "category": "system_reliability",
+      "description": "System Reliability Tests",
+      "status": "passed",
+      "start_time": "2025-11-04T01:28:10.759154",
+      "end_time": "2025-11-04T01:28:10.895655",
+      "duration": 0.1365041732788086,
+      "test_files": [
+        "test_system_reliability.py"
+      ],
+      "summary": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "success_rate": 1.0
+      },
+      "metrics": {
+        "average_duration": 1.565668947494748,
+        "median_duration": 1.6237411120082061,
+        "max_duration": 2.381195452053915,
+        "min_duration": 0.6339981139086649
+      },
+      "errors": [],
+      "test_count": 4,
+      "test_results": [
+        {
+          "name": "test_database_failure_recovery",
+          "status": "passed",
+          "duration": 2.381195452053915,
+          "location": "test_system_reliability.py::test_database_failure_recovery"
+        },
+        {
+          "name": "test_circuit_breaker_activation",
+          "status": "passed",
+          "duration": 2.045333953602623,
+          "location": "test_system_reliability.py::test_circuit_breaker_activation"
+        },
+        {
+          "name": "test_resource_constraint_degradation",
+          "status": "passed",
+          "duration": 1.2021482704137894,
+          "location": "test_system_reliability.py::test_resource_constraint_degradation"
+        },
+        {
+          "name": "test_rolling_restart_resilience",
+          "status": "passed",
+          "duration": 0.6339981139086649,
+          "location": "test_system_reliability.py::test_rolling_restart_resilience"
+        }
+      ]
+    }
+  },
+  "configuration": {
+    "base_url": "http://localhost:8000",
+    "test_timeout": 60,
+    "parallel_execution": false,
+    "max_workers": 4,
+    "output_dir": "/workspace/testing/integration/reports",
+    "log_level": "INFO"
+  },
+  "environment": {
+    "python_version": "3.12.5 (main, Sep  5 2024, 00:16:34) [GCC 12.2.0]",
+    "platform": "linux",
+    "test_directory": "/workspace/testing/integration"
+  }
+}

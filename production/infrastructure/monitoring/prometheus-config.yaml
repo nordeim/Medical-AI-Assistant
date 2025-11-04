@@ -1,0 +1,301 @@
+# Production Monitoring Stack for Medical AI Assistant
+# Healthcare-compliant monitoring with HIPAA, FDA, and ISO 27001 compliance
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: medical-ai-production
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: 'medical-ai-production'
+        environment: 'production'
+        compliance: 'hipaa,fda,iso27001'
+        region: 'us-east-1'
+
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
+
+    scrape_configs:
+      # Medical AI Application Metrics
+      - job_name: 'medical-ai-backend'
+        static_configs:
+          - targets: ['medical-ai-backend-service:8080']
+        metrics_path: '/metrics'
+        scrape_interval: 15s
+        scrape_timeout: 10s
+        honor_labels: true
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+            replacement: 'medical-ai-backend'
+          - source_labels: [__meta_kubernetes_service_name]
+            target_label: service
+            replacement: 'medical-ai-backend'
+
+      - job_name: 'medical-ai-frontend'
+        static_configs:
+          - targets: ['medical-ai-frontend-service:80']
+        metrics_path: '/metrics'
+        scrape_interval: 30s
+        scrape_timeout: 10s
+
+      - job_name: 'medical-ai-model-serving'
+        static_configs:
+          - targets: ['medical-ai-model-serving-service:8080']
+        metrics_path: '/metrics'
+        scrape_interval: 15s
+        scrape_timeout: 5s
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+            replacement: 'model-serving'
+
+      # Database Monitoring
+      - job_name: 'postgresql'
+        static_configs:
+          - targets: ['postgresql-primary-service:9187']
+        metrics_path: '/metrics'
+        scrape_interval: 30s
+        scrape_timeout: 10s
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: instance
+            replacement: 'postgresql-primary'
+          - source_labels: [__meta_kubernetes_service_name]
+            target_label: service
+            replacement: 'postgresql'
+
+      - job_name: 'redis'
+        static_configs:
+          - targets: ['redis-cluster-service:9121']
+        metrics_path: '/metrics'
+        scrape_interval: 30s
+
+      # Kubernetes System Monitoring
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+          - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: false
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: default;kubernetes;https
+
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+          - target_label: __address__
+            replacement: kubernetes.default.svc:443
+          - source_labels: [__meta_kubernetes_node_name]
+            regex: (.+)
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/${1}/proxy/metrics
+
+      # Healthcare Compliance Monitoring
+      - job_name: 'hipaa-audit'
+        static_configs:
+          - targets: ['hipaa-audit-service:8080']
+        metrics_path: '/compliance/metrics'
+        scrape_interval: 60s
+        scrape_timeout: 30s
+
+      - job_name: 'fda-compliance'
+        static_configs:
+          - targets: ['fda-compliance-service:8080']
+        metrics_path: '/fda/metrics'
+        scrape_interval: 300s
+
+    # Remote write for long-term storage
+    remote_write:
+      - url: "https://prometheus-remote-write.medical-ai.com/api/v1/write"
+        headers:
+          X-Api-Key: "${PROMETHEUS_API_KEY}"
+        queue_config:
+          max_samples_per_send: 1000
+          max_shards: 200
+          capacity: 2500
+        write_relabel_configs:
+          - source_labels: [__name__]
+            regex: "hipaa_.*|fda_.*|compliance_.*"
+            target_label: long_term_storage
+            replacement: "true"
+
+  alert_rules.yml: |
+    groups:
+    - name: medical_ai_health.rules
+      interval: 30s
+      rules:
+      # Application Health Rules
+      - alert: ApplicationDown
+        expr: up{job="medical-ai-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          compliance: hipaa
+          healthcare_component: backend
+        annotations:
+          summary: "Medical AI Backend application is down"
+          description: "The Medical AI Backend application has been down for more than 1 minute. Patient care services may be affected."
+          runbook_url: "https://runbooks.medical-ai.com/application-down"
+          escalation_policy: "healthcare-critical"
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="medical-ai-backend"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s, exceeding SLA of 2s"
+
+      # Model Performance Monitoring
+      - alert: ModelAccuracyDrift
+        expr: model_accuracy_score < 0.85
+        for: 15m
+        labels:
+          severity: critical
+          compliance: fda
+          component: model-serving
+        annotations:
+          summary: "Model accuracy has degraded below acceptable threshold"
+          description: "Model accuracy score is {{ $value }}, below FDA-required 85% threshold. Clinical decision support may be compromised."
+          action_required: "immediate_clinical_review"
+
+      - alert: ModelInferenceTimeout
+        expr: histogram_quantile(0.99, rate(model_inference_duration_seconds_bucket{job="medical-ai-model-serving"}[5m])) > 30
+        for: 10m
+        labels:
+          severity: warning
+          compliance: fda
+          component: model-serving
+        annotations:
+          summary: "Model inference times are excessive"
+          description: "99th percentile inference time is {{ $value }}s, exceeding clinical requirements"
+
+      # HIPAA Compliance Rules
+      - alert: PHIAccessViolation
+        expr: hipaa_unauthorized_access_attempts_total > 0
+        for: 0s
+        labels:
+          severity: critical
+          compliance: hipaa
+          security_level: "phi"
+        annotations:
+          summary: "PHI Access Violation Detected"
+          description: "{{ $value }} unauthorized PHI access attempts detected. Immediate security response required."
+          action_required: "security_incident_response"
+
+      - alert: AuditLogFailure
+        expr: hipaa_audit_log_failures_total > 0
+        for: 5m
+        labels:
+          severity: critical
+          compliance: hipaa
+        annotations:
+          summary: "HIPAA Audit Logging Failure"
+          description: "HIPAA audit logging has failed {{ $value }} times. Audit trail compliance is at risk."
+
+      # Database Health
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          compliance: hipaa
+          component: database
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Primary PostgreSQL instance is down. All patient data access is affected."
+
+      - alert: PostgreSQLReplicationLag
+        expr: pg_replication_lag > 3600
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+          component: database
+        annotations:
+          summary: "PostgreSQL replication lag is high"
+          description: "Replication lag is {{ $value }}s, exceeding acceptable threshold of 1 hour"
+
+      # Redis Cache Health
+      - alert: RedisDown
+        expr: redis_connected_clients == 0
+        for: 2m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis cache instance has no connected clients"
+
+      # Security Alerts
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High HTTP error rate detected"
+          description: "Error rate is {{ $value }} ({{ $value | humanizePercentage }}), indicating potential security or performance issues"
+
+      # Resource Utilization
+      - alert: HighCPUUsage
+        expr: (1 - avg(rate(container_cpu_usage_seconds_total{container!="POD",container!=""}[5m]))) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value | humanizePercentage }}, may affect application performance"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }}, may cause application instability"
+
+    - name: healthcare_compliance.rules
+      interval: 300s
+      rules:
+      - alert: ComplianceFrameworkViolation
+        expr: compliance_framework_violations_total > 0
+        for: 0s
+        labels:
+          severity: critical
+          compliance: hipaa,fda,iso27001
+        annotations:
+          summary: "Healthcare compliance framework violation"
+          description: "{{ $value }} compliance violations detected across frameworks"
+          escalation_policy: "compliance-immediate"
+
+      - alert: DataRetentionViolation
+        expr: data_retention_violations > 0
+        for: 0s
+        labels:
+          severity: critical
+          compliance: hipaa
+        annotations:
+          summary: "Data retention policy violation"
+          description: "Data retention policies are being violated. Legal and regulatory compliance at risk."

@@ -1,0 +1,379 @@
+# AWS API Gateway Configuration for Healthcare API
+{
+  "name": "Healthcare API Gateway",
+  "description": "Production-grade API gateway with rate limiting and security for healthcare applications",
+  "version": "1.0.0",
+  "resources": [
+    {
+      "path": "/api/v1",
+      "methods": [
+        {
+          "method": "GET",
+          "auth": "AWS_IAM",
+          "throttling": {
+            "rateLimit": 100,
+            "burstLimit": 200
+          },
+          "cors": {
+            "allowMethods": ["GET"],
+            "allowHeaders": ["Content-Type", "Authorization"],
+            "allowOrigin": "*"
+          }
+        },
+        {
+          "method": "POST",
+          "auth": "AWS_IAM",
+          "throttling": {
+            "rateLimit": 50,
+            "burstLimit": 100
+          }
+        }
+      ],
+      "backend": {
+        "type": "HTTP",
+        "uri": "https://healthcare-backend.execute-api.region.amazonaws.com/v1",
+        "integration": "AWS_PROXY"
+      }
+    },
+    {
+      "path": "/fhir/{resourceType}",
+      "methods": [
+        {
+          "method": "GET",
+          "auth": "CUSTOM",
+          "customAuth": {
+            "type": "OAUTH2",
+            "provider": "AzureAD",
+            "scopes": ["patient:read"]
+          },
+          "throttling": {
+            "rateLimit": 30,
+            "burstLimit": 60
+          },
+          "documentation": {
+            "summary": "FHIR Resource Read",
+            "description": "Read healthcare resources from FHIR-compliant systems"
+          }
+        },
+        {
+          "method": "POST",
+          "auth": "CUSTOM",
+          "customAuth": {
+            "type": "OAUTH2",
+            "provider": "AzureAD",
+            "scopes": ["patient:write"]
+          },
+          "throttling": {
+            "rateLimit": 20,
+            "burstLimit": 40
+          }
+        }
+      ],
+      "backend": {
+        "type": "AWS_LAMBDA",
+        "functionName": "fhir-adapter-handler",
+        "integration": "AWS_PROXY"
+      }
+    },
+    {
+      "path": "/analytics/{metricType}",
+      "methods": [
+        {
+          "method": "GET",
+          "auth": "API_KEY",
+          "throttling": {
+            "rateLimit": 200,
+            "burstLimit": 400
+          },
+          "cache": {
+            "enabled": true,
+            "ttl": 300
+          }
+        }
+      ],
+      "backend": {
+        "type": "AWS_LAMBDA",
+        "functionName": "analytics-metrics-handler"
+      }
+    }
+  ],
+  "customDomainNames": [
+    {
+      "domainName": "api.healthcare.org",
+      "certificateArn": "arn:aws:acm:region:account:certificate/cert-id",
+      "pathMappings": [
+        {
+          "path": "/api/v1",
+          "stage": "production"
+        },
+        {
+          "path": "/fhir",
+          "stage": "production"
+        }
+      ]
+    }
+  ],
+  "apiKeys": [
+    {
+      "name": "production-api-key",
+      "description": "Production API key for healthcare applications",
+      "enabled": true,
+      "value": "prod_api_key_123"
+    }
+  ],
+  "usagePlans": [
+    {
+      "name": "clinical-api-plan",
+      "description": "Usage plan for clinical applications",
+      "quota": {
+        "limit": 100000,
+        "period": "DAY",
+        "offset": 0
+      },
+      "throttle": {
+        "rateLimit": 100,
+        "burstLimit": 200
+      },
+      "apiStages": [
+        {
+          "apiId": "api-id",
+          "stage": "production"
+        }
+      ]
+    },
+    {
+      "name": "ehr-integration-plan",
+      "description": "Usage plan for EHR system integrations",
+      "quota": {
+        "limit": 50000,
+        "period": "DAY"
+      },
+      "throttle": {
+        "rateLimit": 30,
+        "burstLimit": 60
+      },
+      "apiStages": [
+        {
+          "apiId": "api-id",
+          "stage": "production"
+        }
+      ]
+    }
+  ],
+  "models": [
+    {
+      "name": "PatientResource",
+      "description": "FHIR Patient resource model",
+      "schema": {
+        "type": "object",
+        "required": ["resourceType", "id"],
+        "properties": {
+          "resourceType": {
+            "type": "string",
+            "enum": ["Patient"]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "family": {"type": "string"},
+                "given": {"type": "array", "items": {"type": "string"}}
+              }
+            }
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["male", "female", "other", "unknown"]
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    {
+      "name": "ObservationResource",
+      "description": "FHIR Observation resource model",
+      "schema": {
+        "type": "object",
+        "required": ["resourceType", "id"],
+        "properties": {
+          "resourceType": {
+            "type": "string",
+            "enum": ["Observation"]
+          },
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]
+          },
+          "category": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "coding": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "system": {"type": "string"},
+                      "code": {"type": "string"},
+                      "display": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "code": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "system": {"type": "string"},
+                    "code": {"type": "string"},
+                    "display": {"type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "subject": {
+            "type": "object",
+            "properties": {
+              "reference": {"type": "string"}
+            }
+          },
+          "valueQuantity": {
+            "type": "object",
+            "properties": {
+              "value": {"type": "number"},
+              "unit": {"type": "string"},
+              "system": {"type": "string"},
+              "code": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "requestValidators": [
+    {
+      "name": "Healthcare API Request Validator",
+      "validateRequestBody": true,
+      "validateRequestParameters": true
+    }
+  ],
+  "requestParameters": [
+    {
+      "name": "X-Patient-ID",
+      "in": "header",
+      "required": true,
+      "type": "string",
+      "description": "Unique patient identifier for HIPAA compliance"
+    },
+    {
+      "name": "X-Request-ID",
+      "in": "header",
+      "required": true,
+      "type": "string",
+      "description": "Unique request identifier for audit logging"
+    }
+  ],
+  "errorResponses": [
+    {
+      "statusCode": 400,
+      "responseTemplates": {
+        "application/json": "{\"error\": \"Bad Request\", \"message\": \"$input.path('$.errorMessage')\"}"
+      },
+      "responseParameters": {
+        "message": "$input.path('$.errorMessage')"
+      }
+    },
+    {
+      "statusCode": 401,
+      "responseTemplates": {
+        "application/json": "{\"error\": \"Unauthorized\", \"message\": \"Authentication required\"}"
+      }
+    },
+    {
+      "statusCode": 403,
+      "responseTemplates": {
+        "application/json": "{\"error\": \"Forbidden\", \"message\": \"Insufficient permissions\"}"
+      }
+    },
+    {
+      "statusCode": 429,
+      "responseTemplates": {
+        "application/json": "{\"error\": \"Rate Limit Exceeded\", \"message\": \"Too many requests\"}"
+      }
+    },
+    {
+      "statusCode": 500,
+      "responseTemplates": {
+        "application/json": "{\"error\": \"Internal Server Error\", \"message\": \"An error occurred processing your request\"}"
+      }
+    },
+    {
+      "statusCode": 503,
+      "responseTemplates": {
+        "application/json": "{\"error\": \"Service Unavailable\", \"message\": \"Service temporarily unavailable\"}"
+      }
+    }
+  ],
+  "stages": [
+    {
+      "name": "production",
+      "description": "Production stage for healthcare API",
+      "deploymentId": "deployment-id",
+      "methodSettings": {
+        "/api/v1/GET": {
+          "throttlingRateLimit": 100,
+          "throttlingBurstLimit": 200,
+          "cacheTtlInSeconds": 300,
+          "cachingEnabled": true
+        }
+      },
+      "variables": {
+        "environment": "production",
+        "version": "v1",
+        "backend_url": "https://healthcare-backend.com"
+      }
+    }
+  ],
+  "deployments": [
+    {
+      "description": "Initial production deployment",
+      "id": "deployment-id",
+      "createdDate": "2025-11-04T10:48:15Z"
+    }
+  ],
+  "cloudWatchRole": {
+    "roleArn": "arn:aws:iam::account:role/api-gateway-cloudwatch-role"
+  },
+  "cloudWatchRoleAccount": {
+    "accountId": "123456789012"
+  },
+  "disableExecuteApiEndpoint": false,
+  "endpointConfiguration": {
+    "types": ["REGIONAL"]
+  },
+  "minimumCompressionSize": 1024,
+  "tags": {
+    "Environment": "Production",
+    "Compliance": "HIPAA",
+    "Department": "Healthcare Technology",
+    "CostCenter": "API-Services"
+  }
+}

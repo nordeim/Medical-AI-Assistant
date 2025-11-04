@@ -1,0 +1,204 @@
+# Kubernetes Namespace for Medical AI Assistant Production
+# Segregated namespace for healthcare compliance and security
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: medical-ai-prod
+  labels:
+    name: medical-ai-prod
+    environment: production
+    compliance: hipaa
+    data-classification: phi
+    healthcare-system: "true"
+    audit-enabled: "true"
+    encryption-required: "true"
+  annotations:
+    description: "Production namespace for Medical AI Assistant with HIPAA compliance"
+    contact: "devops@medical-ai.example.com"
+    last-updated: "2025-11-04"
+    compliance-requirements: "HIPAA,FDA,ISO27001"
+    data-retention-policy: "7-years"
+    backup-frequency: "daily"
+    monitoring-enabled: "true"
+---
+# Network Policy for network segmentation
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: medical-ai-prod
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+# Network Policy for application traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-traffic
+  namespace: medical-ai-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: medical-ai
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: nginx-ingress
+    ports:
+    - protocol: TCP
+      port: 8080
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: backend
+    ports:
+    - protocol: TCP
+      port: 8000
+  - to:
+    - podSelector:
+        matchLabels:
+          app: serving
+    ports:
+    - protocol: TCP
+      port: 8081
+---
+# ResourceQuota for resource management
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: medical-ai-quota
+  namespace: medical-ai-prod
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 64Gi
+    limits.cpu: "40"
+    limits.memory: 128Gi
+    persistentvolumeclaims: "20"
+    requests.storage: 500Gi
+    pods: "50"
+    services: "10"
+    secrets: "50"
+    configmaps: "20"
+---
+# LimitRange for resource constraints
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: medical-ai-limits
+  namespace: medical-ai-prod
+spec:
+  limits:
+  - type: Container
+    default:
+      cpu: "2"
+      memory: 4Gi
+    defaultRequest:
+      cpu: "100m"
+      memory: 512Mi
+    max:
+      cpu: "8"
+      memory: 16Gi
+    min:
+      cpu: "50m"
+      memory: 128Mi
+  - type: Pod
+    max:
+      cpu: "16"
+      memory: 32Gi
+---
+# PodSecurityPolicy for security compliance
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: medical-ai-psp
+  labels:
+    compliance: hipaa
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  readOnlyRootFilesystem: true
+---
+# ServiceAccount for application
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: medical-ai-sa
+  namespace: medical-ai-prod
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/medical-ai-role
+    azure.workload.identity/client-id: "client-id-here"
+    gcp.googleapis.com/anthos-service-account: "medical-ai-sa@gcp-project.iam.gserviceaccount.com"
+automountServiceAccountToken: true
+---
+# ClusterRole for monitoring access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: medical-ai-monitor
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+---
+# ClusterRoleBinding for monitoring
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: medical-ai-monitor-binding
+subjects:
+- kind: ServiceAccount
+  name: medical-ai-sa
+  namespace: medical-ai-prod
+roleRef:
+  kind: ClusterRole
+  name: medical-ai-monitor
+  apiGroup: rbac.authorization.k8s.io

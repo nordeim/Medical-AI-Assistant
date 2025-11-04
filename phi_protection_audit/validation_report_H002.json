@@ -1,0 +1,36 @@
+{
+  "validation_metadata": {
+    "timestamp": "2025-11-04T05:35:07.654618",
+    "validator_version": "1.0.0",
+    "original_timestamp": "2025-11-04T05:35:07.568831"
+  },
+  "validation_result": {
+    "is_valid": false,
+    "residual_phi_count": 9,
+    "pseudonym_consistency": 1.0,
+    "compliance_score": 0.3,
+    "issues": [
+      "HIGH: 1 high-risk PHI elements remain (Names, Addresses, Dates)",
+      "RESIDUAL_potential_name: 6 instances detected",
+      "PHI_INDICATOR_NAME_INDICATORS: 1 instances detected",
+      "PHI_INDICATOR_CONTACT_INDICATORS: 2 instances detected",
+      "LOW_COMPLIANCE_SCORE: Original de-identification has low compliance score"
+    ],
+    "recommendations": [
+      "Review remaining PHI and consider enhanced detection methods",
+      "Review de-identification method and patterns",
+      "Consider implementing additional validation layers",
+      "Document any acceptable PHI omissions for compliance review"
+    ]
+  },
+  "original_deidentification": {
+    "compliance_score": 0.3666666666666667,
+    "detections_count": 6,
+    "pseudonym_mapping_size": 18
+  },
+  "summary": {
+    "is_valid": false,
+    "record_id": "H002"
+  },
+  "redacted_text_sample": "\n            Follow-up appointment for patient Person_001 scheduled for Date_002.\n            Previous diagnosis: Diabetes Type 2\n            Current medication: Metformin 500mg\n            Phone: (Phone_003, Email: Email_002\n            Address: Address_002, Address_002\n            "
+}

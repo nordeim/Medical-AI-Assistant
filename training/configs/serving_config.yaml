@@ -1,0 +1,377 @@
+# Model Serving Configuration
+# This file contains all configuration settings for the adapter-powered model serving system
+
+# Model Configuration
+model:
+  # Base model identifier from Hugging Face Hub or local path
+  base_model_id: "microsoft/DialoGPT-medium"
+  
+  # Model-specific settings
+  torch_dtype: "float16"
+  trust_remote_code: true
+  device_map: "auto"
+  
+  # Model loading options
+  load_in_8bit: false
+  load_in_4bit: false
+  
+  # Tokenizer configuration
+  tokenizer_config:
+    padding_side: "right"
+    truncation_side: "right"
+    trust_remote_code: true
+
+# Adapter Configuration
+adapters:
+  # General Assistant Adapter
+  general_assistant:
+    path: "./adapters/general_assistant"
+    description: "General purpose conversational assistant"
+    version: "1.0.0"
+    tags:
+      - "general"
+      - "conversational"
+      - "default"
+    config:
+      adapter_type: "lora"
+      alpha: 16
+      dropout: 0.1
+      target_modules:
+        - "q_proj"
+        - "v_proj"
+  
+  # Medical Specialist Adapter
+  medical_specialist:
+    path: "./adapters/medical_specialist"
+    description: "Medical domain specialist adapter with HIPAA compliance"
+    version: "1.0.0"
+    tags:
+      - "medical"
+      - "healthcare"
+      - "specialized"
+    config:
+      adapter_type: "lora"
+      alpha: 16
+      dropout: 0.1
+      target_modules:
+        - "q_proj"
+        - "v_proj"
+        - "k_proj"
+  
+  # Research Assistant Adapter
+  research_assistant:
+    path: "./adapters/research_assistant"
+    description: "Academic research and analysis assistant"
+    version: "1.0.0"
+    tags:
+      - "research"
+      - "academic"
+      - "analysis"
+    config:
+      adapter_type: "adalora"
+      alpha: 16
+      dropout: 0.05
+      target_r: 8
+  
+  # Customer Service Adapter
+  customer_service:
+    path: "./adapters/customer_service"
+    description: "Customer service and support specialist"
+    version: "1.0.0"
+    tags:
+      - "customer_service"
+      - "support"
+      - "communication"
+    config:
+      adapter_type: "lora"
+      alpha: 32
+      dropout: 0.2
+      target_modules:
+        - "q_proj"
+        - "v_proj"
+        - "out_proj"
+
+# Server Configuration
+server:
+  # Network settings
+  host: "0.0.0.0"
+  port: 8000
+  
+  # Performance settings
+  workers: 1
+  reload: false
+  log_level: "info"
+  
+  # Request handling
+  max_request_size: "16MB"
+  max_request_timeout: 60.0
+  keepalive_timeout: 5.0
+  
+  # CORS settings
+  cors:
+    allow_origins: ["*"]
+    allow_credentials: true
+    allow_methods: ["GET", "POST", "PUT", "DELETE"]
+    allow_headers: ["*"]
+  
+  # Security headers
+  security_headers: true
+  
+  # Rate limiting (if enabled)
+  rate_limiting:
+    enabled: false
+    requests_per_minute: 60
+    burst_size: 10
+
+# Resource Management
+resources:
+  # Memory management
+  max_memory_mb: 8192
+  memory_warning_threshold: 0.8  # 80% of max
+  garbage_collection_interval: 300  # seconds
+  
+  # Cache settings
+  adapter_cache_size: 5
+  cache_eviction_policy: "lru"  # lru, fifo, random
+  
+  # Loading strategy
+  lazy_loading: true
+  preload_adapters: ["general_assistant"]
+  
+  # GPU/CPU settings
+  gpu_memory_fraction: 0.8
+  cpu_offload: false
+  
+  # Disk cache
+  disk_cache:
+    enabled: true
+    cache_dir: "./cache"
+    max_size_gb: 10
+    cleanup_on_startup: true
+
+# Performance Tuning
+performance:
+  # Inference settings
+  batch_size: 1
+  max_sequence_length: 2048
+  max_new_tokens: 100
+  
+  # Generation parameters
+  default_generation_config:
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 50
+    repetition_penalty: 1.1
+    do_sample: true
+  
+  # Optimization settings
+  torch_compile: false
+  use_flash_attention: true
+  enable_xformers: true
+  
+  # Caching
+  response_cache:
+    enabled: true
+    ttl: 3600  # seconds
+    max_entries: 1000
+  
+  # Parallel processing
+  async_processing: true
+  max_concurrent_requests: 10
+
+# Monitoring and Metrics
+monitoring:
+  # Prometheus metrics
+  prometheus:
+    enabled: true
+    endpoint: "/metrics"
+    
+  # Health checks
+  health_check:
+    endpoint: "/health"
+    interval: 30  # seconds
+    timeout: 10
+    
+  # Logging
+  structured_logging: true
+  log_requests: true
+  log_responses: false  # Don't log sensitive content
+  log_level: "INFO"
+  
+  # Performance tracking
+  track_latency: true
+  track_memory_usage: true
+  track_throughput: true
+  
+  # Alerting
+  alerts:
+    enabled: false
+    webhook_url: ""
+    alert_thresholds:
+      high_latency_ms: 5000
+      high_memory_usage_percent: 85
+      error_rate_percent: 5
+
+# Security and Authentication
+security:
+  # Authentication (set to false for development)
+  authentication:
+    enabled: false
+    method: "bearer"  # bearer, api_key, oauth
+    secret_key: "your-secret-key"
+    token_expiry: 3600
+    
+  # API key management
+  api_keys:
+    enabled: false
+    required_for_admin: true
+    required_for_inference: false
+  
+  # Input validation
+  input_validation:
+    max_prompt_length: 4096
+    max_max_tokens: 512
+    banned_patterns: []
+    
+  # Output filtering
+  output_filtering:
+    enabled: false
+    content_filters: []
+    toxicity_threshold: 0.8
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: false
+    default_limit: 60  # requests per minute
+    burst_limit: 10
+    
+  # CORS and security headers
+  cors_origins: ["*"]
+  allowed_hosts: ["*"]
+  security_headers: true
+
+# Deployment Configuration
+deployment:
+  # Container settings
+  container:
+    image: "adapter-serving:latest"
+    registry: "your-registry.com"
+    tag: "latest"
+    
+  # Environment
+  environment: "production"  # development, staging, production
+  
+  # Scaling
+  scaling:
+    min_replicas: 1
+    max_replicas: 5
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+  
+  # Load balancing
+  load_balancing:
+    algorithm: "round_robin"  # round_robin, least_connections
+    health_check_interval: 30
+    
+  # Auto-scaling
+  autoscaling:
+    enabled: false
+    scale_up_threshold: 80
+    scale_down_threshold: 20
+    scale_cooldown: 300
+
+# Feature Flags
+features:
+  # Enable/disable specific features
+  hot_swapping: true
+  adapter_validation: true
+  performance_benchmarking: true
+  graceful_shutdown: true
+  
+  # Beta features
+  streaming_responses: false
+  multi_modal_support: false
+  adapter_fusion: false
+
+# Development Settings (only used in development environment)
+development:
+  # Debug settings
+  debug: false
+  reload_on_change: true
+  show_error_details: true
+  
+  # Testing
+  test_adapters: false
+  mock_responses: false
+  
+  # Profiling
+  enable_profiling: false
+  profile_output: "./profiles"
+
+# Backup and Recovery
+backup:
+  # Adapter backup
+  adapters:
+    backup_enabled: true
+    backup_dir: "./backups/adapters"
+    retention_days: 30
+    compression: true
+    
+  # Configuration backup
+  config_backup:
+    enabled: true
+    backup_dir: "./backups/config"
+    
+  # State recovery
+  state_recovery:
+    enabled: true
+    auto_recovery: false
+
+# Integration Settings
+integrations:
+  # Database connections
+  database:
+    enabled: false
+    type: "postgresql"
+    connection_string: ""
+    
+  # Message queues
+  message_queue:
+    enabled: false
+    type: "redis"
+    connection_string: ""
+    
+  # External services
+  external_services:
+    logging_service: ""
+    monitoring_service: ""
+    alerting_service: ""
+
+# Custom Settings
+# Add any custom configuration specific to your deployment
+custom:
+  # Example custom settings
+  organization_name: "Your Organization"
+  service_description: "Adapter-Powered AI Assistant Service"
+  contact_info: "support@yourorg.com"
+  
+  # Business logic settings
+  business_hours: 
+    start: "09:00"
+    end: "17:00"
+    timezone: "UTC"
+  
+  # Compliance settings
+  compliance:
+    data_retention_days: 90
+    audit_logging: true
+    hipaa_compliant: false
+    
+  # Custom metrics
+  custom_metrics:
+    - name: "business_metric_1"
+      description: "Custom business metric"
+      type: "counter"
+    - name: "business_metric_2"
+      description: "Another custom metric"
+      type: "gauge"

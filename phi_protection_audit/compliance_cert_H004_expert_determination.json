@@ -1,0 +1,41 @@
+{
+  "certificate": {
+    "certificate_id": "HIPAA_COMPLIANCE_20251104_c28471491d6422c7",
+    "issued_date": "2025-11-04T05:35:07.635750",
+    "valid_until": "2026-11-04T05:35:07.635748",
+    "status": "COMPLIANT",
+    "compliance_score": 1.0,
+    "method": "expert_determination",
+    "requirements": {
+      "met": 2,
+      "failed": 0,
+      "total": 2
+    },
+    "risk_assessment": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "recommendations": [
+      "IMMEDIATE ACTION: Address all failed mandatory requirements",
+      "Re-run de-identification with enhanced patterns",
+      "Obtain qualified expert certification",
+      "Document expert determination methodology",
+      "Store compliance certificate with de-identified data",
+      "Re-validate periodically or when regulations change"
+    ]
+  },
+  "method_specific": {
+    "safe_harbor": null,
+    "expert_determination": {
+      "method": "Expert Determination",
+      "expert_assessment": "LOW_RISK",
+      "risk_factors": [],
+      "statistical_disclosure_control": "APPLIED",
+      "re_identification_risk": "<0.01",
+      "expert_credentials": "HIPAA Certified Expert",
+      "certification_date": "2025-11-04T05:35:07.635740"
+    }
+  }
+}

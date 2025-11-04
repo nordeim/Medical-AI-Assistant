@@ -1,0 +1,280 @@
+# =============================================================================
+# Medical AI Assistant - Git Ignore
+# =============================================================================
+
+# =============================================================================
+# Environment & Secrets
+# =============================================================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+credentials/
+
+# =============================================================================
+# Python
+# =============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# =============================================================================
+# Node / JavaScript / React
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output
+
+# Production builds
+build/
+dist/
+.next/
+out/
+
+# Misc
+.DS_Store
+*.pem
+
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# =============================================================================
+# Machine Learning / AI
+# =============================================================================
+# Model files (too large for git)
+models/
+*.pt
+*.pth
+*.bin
+*.onnx
+*.pb
+*.h5
+*.safetensors
+
+# Adapter weights
+lora_adapters/
+peft_adapters/
+adapters/
+
+# Vector stores
+vector_stores/
+*.faiss
+*.index
+chroma_db/
+
+# Training artifacts
+checkpoints/
+runs/
+lightning_logs/
+wandb/
+mlruns/
+
+# Data files
+data/
+datasets/
+*.csv
+*.jsonl
+*.parquet
+*.arrow
+
+# Cache
+.cache/
+cache/
+*.cache
+
+# =============================================================================
+# Docker
+# =============================================================================
+*.log
+docker-compose.override.yml
+
+# =============================================================================
+# IDEs and Editors
+# =============================================================================
+# VSCode
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# =============================================================================
+# Operating System
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =============================================================================
+# Logs & Databases
+# =============================================================================
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Application logs
+logs/
+audit_logs/
+
+# =============================================================================
+# Temporary Files
+# =============================================================================
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.old
+
+# =============================================================================
+# Project Specific
+# =============================================================================
+# PHI data (NEVER commit!)
+phi_data/
+patient_data/
+ehr_exports/
+
+# Audit trails (contain sensitive info)
+audit_trail/
+
+# Synthetic data (optional, can commit if needed)
+# synthetic_data/
+
+# Test outputs
+test_outputs/
+test_results/
+
+# Deployment configs with secrets
+k8s/secrets/
+terraform/*.tfvars
+ansible/vault_*.yml
+
+# =============================================================================
+# Documentation Build
+# =============================================================================
+docs/_build/
+docs/.doctrees/
+site/
+
+# =============================================================================
+# Monitoring & Profiling
+# =============================================================================
+*.prof
+.profiling/
+monitoring/prometheus/data/

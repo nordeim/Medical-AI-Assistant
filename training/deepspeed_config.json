@@ -1,0 +1,221 @@
+{
+    "zero_optimization": {
+        "stage": 3,
+        "offload_optimizer": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "offload_param": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "allgather_partitions": true,
+        "allgather_bucket_size": 5e8,
+        "reduce_scatter": true,
+        "reduce_bucket_size": 5e8,
+        "gather_16bit_weights_on_model_save": true,
+        "sub_group_size": 1e9,
+        "elastic_checkpoint": false,
+        "stage3_max_live_parameters": 1e9,
+        "stage3_max_reuse_distance": 1e9,
+        "gather_state": true,
+        "override_module_apply": true
+    },
+    "zero_optimization_stage1": {
+        "allgather_partitions": true,
+        "allgather_bucket_size": 5e8,
+        "reduce_scatter": true,
+        "reduce_bucket_size": 5e8,
+        "zero_stage_1": true,
+        "cpu_offload": false,
+        "contiguous_gradients": true,
+        "sub_group_size": 1e9,
+        "藤q_size": 5e8
+    },
+    "zero_optimization_stage2": {
+        "offload_optimizer": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "allgather_partitions": true,
+        "allgather_bucket_size": 5e8,
+        "reduce_scatter": true,
+        "reduce_bucket_size": 5e8,
+        "zero_stage_2": true,
+        "contiguous_gradients": true,
+        "sub_group_size": 1e9,
+        "藤q_size": 5e8
+    },
+    "bf16": {
+        "enabled": true
+    },
+    "fp16": {
+        "enabled": true,
+        "auto_cast": true,
+        "loss_scale": 0,
+        "loss_scale_window": 1000,
+        "initial_scale_power": 16,
+        "loss_scale_policy": "dynamic",
+        "hysteresis": 2,
+        "consecutive_hysteresis": false,
+        "min_loss_scale": 1,
+        "enabled": true
+    },
+    "gradient_accumulation_steps": 1,
+    "gradient_clipping": 1.0,
+    "steps_per_print": 10,
+    "train_batch_size": "auto",
+    "train_micro_batch_size_per_gpu": "auto",
+    "wall_clock_breakdown": false,
+    "dump_state": false,
+    "global_rank": 0,
+    "communication_backend": {
+        "name": "nccl",
+        "timeout": 300
+    },
+    "monitoring": {
+        "enabled": true,
+        "tensorboard": {
+            "enabled": true,
+            "output_path": "logs/tensorboard"
+        },
+        "wandb": {
+            "enabled": false,
+            "project": "deepspeed_training",
+            "group": "distributed_training"
+        }
+    },
+    "checkpointing": {
+        "enabled": true,
+        "save_for_backward": true,
+        "save_global_step": true,
+        "save_optimizer_state": true,
+        "load_optimizer_state": true,
+        "save_lr_scheduler_state": true,
+        "load_lr_scheduler_state": true,
+        "save_checkpoint_limit": 3
+    },
+    "memory_efficient": {
+        "enabled": true,
+        "checkpoint_tagging_policy": "memory_efficient",
+        "memory_efficient_adam": true
+    },
+    "communication": {
+        "compression": {
+            "method": "none",
+            "config": {
+                "enabled": true,
+                "compression": "none"
+            }
+        },
+        "allreduce_post_accumulation": false,
+        "post_scale_tensor": [],
+        "dataloader_drop_last": false
+    },
+    "tensor_parallel": {
+        "enabled": false,
+        "backend": "pytorch",
+        "size": 1
+    },
+    "pipeline_parallel": {
+        "enabled": false,
+        "stages": 1,
+        "partition_name": "pipeline_parallel_partition"
+    },
+    "weight_quantization": {
+        "enabled": false,
+        "method": "dynamic",
+        "config": {
+            "bucket_size": 1e8
+        }
+    },
+    "activation_checkpointing": {
+        "enabled": false,
+        "checkpoints": [],
+        "partition_activations": false,
+        "contiguous_memory_optimization": false,
+        "cpu_checkpointer": false
+    },
+    "load_balancing": {
+        "enabled": true,
+        "cpu": true,
+        "memory_compression": true,
+        "gradient_summarization": true
+    },
+    "rotation": {
+        "enabled": false,
+        "method": "pytorch",
+        "schedule": [
+            "allgather",
+            "reduce_scatter"
+        ]
+    },
+    "gMAM": {
+        "enabled": false,
+        "model_sharding": false,
+        "process_group_size": 1,
+        "mam_block_size": 512,
+        "forward_preprocess": false,
+        "backward_preprocess": false,
+        "compute_cuda_optimal": true
+    },
+    "communication_pattern": {
+        "algorithm": "optimized",
+        "topology": "ring"
+    },
+    "tuning": {
+        "enabled": true,
+        "accuracy_tuner": {
+            "enabled": false,
+            "training_examples": 100,
+            "target_metric": "validation_loss",
+            "tolerance": 0.01
+        },
+        "speed_tuner": {
+            "enabled": false,
+            "benchmark_steps": 100,
+            "target_metric": "throughput",
+            "tolerance": 0.05
+        }
+    },
+    "logging": {
+        "level": "INFO",
+        "version": 1,
+        "disable_existing_loggers": false,
+        "formatters": {
+            "detailed": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            }
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "INFO",
+                "formatter": "detailed",
+                "stream": "ext://sys.stdout"
+            },
+            "file": {
+                "class": "logging.FileHandler",
+                "level": "DEBUG",
+                "formatter": "detailed",
+                "filename": "logs/deepspeed_training.log",
+                "mode": "a"
+            }
+        }
+    },
+    "timeout": {
+        "init_timeout": 300,
+        "grad_sync_timeout": 300,
+        "param_sync_timeout": 300,
+        "checkpoint_timeout": 1800
+    },
+    "shared_weights": {
+        "use": true,
+        "max_shared_weights": 256
+    },
+    "logging_info": {
+        "report_memory_snapshot": true,
+        "report_memory_per_level": false,
+        "snapshot_period": 1.0
+    }
+}

@@ -1,0 +1,231 @@
+version: '3.8'
+
+services:
+  # Main Orchestrator
+  orchestrator:
+    build: .
+    container_name: production-ops-orchestrator
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # Operations Center
+  operations-center:
+    build: ./operations-center
+    container_name: operations-center
+    ports:
+      - "8081:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARENT_ORCHESTRATOR=http://orchestrator:8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # SLA Monitoring
+  sla-monitoring:
+    build: ./sla-monitoring
+    container_name: sla-monitoring
+    ports:
+      - "8082:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARENT_ORCHESTRATOR=http://orchestrator:8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # Feature Flags
+  feature-flags:
+    build: ./feature-flags
+    container_name: feature-flags
+    ports:
+      - "8083:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARENT_ORCHESTRATOR=http://orchestrator:8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # User Analytics
+  user-analytics:
+    build: ./user-analytics
+    container_name: user-analytics
+    ports:
+      - "8084:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARENT_ORCHESTRATOR=http://orchestrator:8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # Feedback Systems
+  feedback-systems:
+    build: ./feedback-systems
+    container_name: feedback-systems
+    ports:
+      - "8085:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARENT_ORCHESTRATOR=http://orchestrator:8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # Competitive Analysis
+  competitive-analysis:
+    build: ./competitive-analysis
+    container_name: competitive-analysis
+    ports:
+      - "8086:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARENT_ORCHESTRATOR=http://orchestrator:8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # Roadmap Planning
+  roadmap-planning:
+    build: ./roadmap-planning
+    container_name: roadmap-planning
+    ports:
+      - "8087:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PARENT_ORCHESTRATOR=http://orchestrator:8080
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # Supporting Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: production-ops-db
+    environment:
+      - POSTGRES_DB=production_ops
+      - POSTGRES_USER=ops_user
+      - POSTGRES_PASSWORD=secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: production-ops-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+    networks:
+      - ops-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  ops-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,0 +1,460 @@
+name: Medical AI Training System - Comprehensive Tests
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  PYTHON_VERSION: '3.9'
+  CUDA_VERSION: '11.8'
+
+jobs:
+  # Pre-flight checks
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.check.outputs.should-run }}
+    steps:
+      - name: Check if tests should run
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" ]] || [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "should-run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-run=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Unit and Integration Tests
+  test-unit-integration:
+    needs: preflight
+    if: needs.preflight.outputs.should-run == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        exclude:
+          # Reduce matrix size for efficiency
+          - os: macos-latest
+            python-version: '3.8'
+          - os: windows-latest
+            python-version: '3.8'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install system dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -r training/requirements.txt
+        pip install -r training/requirements-dev.txt
+        pip install pytest pytest-cov pytest-html pytest-xdist pytest-timeout pytest-benchmark
+        pip install psutil pyyaml jupyter
+        # Install PyTorch with CUDA support if available
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+    - name: Verify installation
+      run: |
+        python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
+        python -c "import sys; print(f'Python: {sys.version}')"
+        python -c "import psutil; print(f'CPU count: {psutil.cpu_count()}')"
+
+    - name: Run Unit Tests
+      run: |
+        cd training
+        python -m pytest tests/test_lora_training.py -v --cov=scripts --cov=utils --cov-report=xml --cov-report=html --junitxml=unit_test_results.xml
+
+    - name: Run Integration Tests
+      run: |
+        cd training
+        python -m pytest tests/comprehensive_test_suite.py::TestIntegrationWorkflows -v --tb=short --timeout=300
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: |
+          training/*.xml
+          training/htmlcov/
+          training/test_results/
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Test Results (${{ matrix.os }} - Python ${{ matrix.python-version }})
+        path: training/unit_test_results.xml
+        reporter: java-junit
+        fail-on-error: false
+
+  # Performance Tests
+  test-performance:
+    needs: preflight
+    if: needs.preflight.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Performance tests are informational
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r training/requirements.txt
+        pip install -r training/requirements-dev.txt
+        pip install pytest psutil pyyaml
+        pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+    - name: Run Performance Benchmarks
+      run: |
+        cd training
+        python tests/performance_benchmarks.py --output-dir=performance_results
+
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-results
+        path: training/performance_results/
+
+  # Data Quality Tests
+  test-data-quality:
+    needs: preflight
+    if: needs.preflight.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r training/requirements.txt
+        pip install pytest psutil pyyaml pandas
+        pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+    - name: Run Data Quality Tests
+      run: |
+        cd training
+        python tests/test_data_quality.py
+
+    - name: Generate test data
+      run: |
+        cd training
+        python scripts/generate_test_data.py --size small --output-dir=test_data
+
+    - name: Upload test data
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-data
+        path: training/test_data/
+
+  # Stress and Load Tests
+  test-stress:
+    needs: preflight
+    if: needs.preflight.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r training/requirements.txt
+        pip install pytest psutil pyyaml
+        pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+    - name: Run Stress Tests
+      run: |
+        cd training
+        python -m pytest tests/comprehensive_test_suite.py::TestStressConditions -v --tb=short
+
+  # Security and Compliance Tests
+  test-security:
+    needs: preflight
+    if: needs.preflight.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r training/requirements.txt
+        pip install pytest bandit safety
+
+    - name: Run Security Scan (Bandit)
+      run: |
+        bandit -r training/scripts/ training/utils/ -f json -o security_report.json || true
+
+    - name: Check Dependencies (Safety)
+      run: |
+        safety check -r training/requirements.txt --json --output safety_report.json || true
+
+    - name: Run PHI Compliance Tests
+      run: |
+        cd training
+        python -c "
+        import sys
+        sys.path.append('utils')
+        from phi_validator import PHIValidator
+        from phi_redactor import PHIRedactor
+        
+        # Test PHI detection
+        validator = PHIValidator()
+        redactor = PHIRedactor()
+        
+        test_text = 'Patient John Doe with SSN 123-45-6789'
+        phi_detected = validator.scan_text_for_phi(test_text)
+        redacted_text = redactor.redact_text(test_text)
+        
+        print(f'PHI detected: {phi_detected}')
+        print(f'Redacted text: {redacted_text}')
+        
+        assert phi_detected, 'PHI should be detected'
+        assert 'John Doe' not in redacted_text, 'Name should be redacted'
+        assert '123-45-6789' not in redacted_text, 'SSN should be redacted'
+        print('✅ PHI compliance tests passed')
+        "
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          security_report.json
+          safety_report.json
+
+  # Coverage Analysis
+  coverage:
+    needs: [test-unit-integration, test-data-quality]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r training/requirements.txt
+        pip install -r training/requirements-dev.txt
+        pip install pytest pytest-cov pytest-html
+        pip install coverage[toml] codecov
+        pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+    - name: Run tests with coverage
+      run: |
+        cd training
+        python -m pytest tests/ --cov=scripts --cov=utils --cov-report=xml --cov-report=html --cov-report=term-missing
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: training/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Coverage comment
+      uses: py-cov-action/python-coverage-comment-action@v3
+      with:
+        GITHUB_TOKEN: ${{ github.token }}
+
+  # Quality Gates
+  quality-gates:
+    needs: [test-unit-integration, test-performance, test-data-quality, test-stress, test-security]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install psutil pyyaml
+
+    - name: Check Quality Gates
+      run: |
+        cd training
+        python scripts/run_all_tests.py --quality-gates-only
+
+    - name: Quality Gate Status
+      run: |
+        echo "Quality gates check completed"
+        # In a real implementation, this would publish results to dashboards
+
+  # Documentation Generation
+  docs:
+    needs: preflight
+    if: needs.preflight.outputs.should-run == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r training/requirements.txt
+        pip install sphinx sphinx-rtd-theme myst-parser
+        pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+    - name: Generate Documentation
+      run: |
+        cd training
+        python scripts/generate_docs.py --output-dir=docs_build
+
+    - name: Upload Documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: training/docs_build/
+
+  # Deployment (for main branch only)
+  deploy:
+    needs: [quality-gates, coverage]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r training/requirements.txt
+        pip install psutil pyyaml
+
+    - name: Final Quality Check
+      run: |
+        cd training
+        python scripts/run_all_tests.py --categories unit_tests integration_tests data_quality_tests
+
+    - name: Package release
+      run: |
+        cd training
+        python scripts/package_release.py --version ${{ github.sha }}
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-artifacts
+        path: training/dist/
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: training/dist/*
+        generate_release_notes: true
+
+  # Notification
+  notify:
+    needs: [test-unit-integration, test-performance, test-data-quality, test-stress, test-security, coverage, quality-gates]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify on Success
+      if: needs.test-unit-integration.result == 'success' && needs.test-performance.result == 'success' && needs.test-data-quality.result == 'success' && needs.test-stress.result == 'success' && needs.test-security.result == 'success' && needs.coverage.result == 'success' && needs.quality-gates.result == 'success'
+      run: |
+        echo "🎉 All tests passed successfully!"
+        # Add notification logic here (Slack, Discord, etc.)
+
+    - name: Notify on Failure
+      if: needs.test-unit-integration.result == 'failure' || needs.test-performance.result == 'failure' || needs.test-data-quality.result == 'failure' || needs.test-stress.result == 'failure' || needs.test-security.result == 'failure' || needs.coverage.result == 'failure' || needs.quality-gates.result == 'failure'
+      run: |
+        echo "❌ Some tests failed!"
+        echo "Failed jobs:"
+        echo "- Unit/Integration: ${{ needs.test-unit-integration.result }}"
+        echo "- Performance: ${{ needs.test-performance.result }}"
+        echo "- Data Quality: ${{ needs.test-data-quality.result }}"
+        echo "- Stress: ${{ needs.test-stress.result }}"
+        echo "- Security: ${{ needs.test-security.result }}"
+        echo "- Coverage: ${{ needs.coverage.result }}"
+        echo "- Quality Gates: ${{ needs.quality-gates.result }}"
+        # Add notification logic here

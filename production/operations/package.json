@@ -1,0 +1,57 @@
+{
+  "name": "production-operations-orchestrator",
+  "version": "1.0.0",
+  "description": "Production Operations and Continuous Improvement Framework for Medical AI Assistant",
+  "main": "production-operations-orchestrator.js",
+  "scripts": {
+    "start": "node production-operations-orchestrator.js",
+    "dev": "nodemon production-operations-orchestrator.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint *.js",
+    "lint:fix": "eslint *.js --fix",
+    "health": "node scripts/health-check.js",
+    "dashboard": "node scripts/open-dashboard.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0",
+    "node-cron": "^3.0.3",
+    "axios": "^1.6.2",
+    "socket.io": "^4.7.4",
+    "joi": "^17.11.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "eslint": "^8.55.0",
+    "supertest": "^6.3.3",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "production",
+    "operations",
+    "monitoring",
+    "healthcare",
+    "medical-ai",
+    "sla",
+    "analytics",
+    "feedback"
+  ],
+  "author": "Medical AI Operations Team",
+  "license": "PROPRIETARY",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/company/production-operations.git"
+  }
+}

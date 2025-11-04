@@ -1,0 +1,300 @@
+# Medical Compliance Alerting Rules for Prometheus
+# Healthcare-specific alerts for HIPAA, FDA, and ISO compliance
+groups:
+  - name: medical_compliance_alerts
+    interval: 30s
+    rules:
+      # HIPAA Compliance Alerts
+      - alert: HIPAAUnauthorizedAccess
+        expr: increase(medical_ai_auth_failures_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: security
+        annotations:
+          summary: "Unauthorized access attempts detected"
+          description: "More than 10 unauthorized access attempts in the last 5 minutes. Possible security breach attempt."
+          runbook_url: "https://runbooks.medical-ai.example.com/hipaa-unauthorized-access"
+          action_required: "Investigate access logs and potentially block IP addresses"
+          
+      - alert: HIPAAPHIExposure
+        expr: medical_ai_phi_exposure_total > 0
+        for: 0m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: data_protection
+        annotations:
+          summary: "Potential PHI exposure detected"
+          description: "PHI data exposure detected. Immediate investigation required."
+          runbook_url: "https://runbooks.medical-ai.example.com/phi-exposure"
+          action_required: "Initiate incident response protocol"
+          
+      - alert: HIPAAPhysicalAccessViolation
+        expr: medical_ai_physical_access_violations_total > 0
+        for: 0m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: physical_security
+        annotations:
+          summary: "Physical access violation detected"
+          description: "Unauthorized physical access to medical systems detected."
+          runbook_url: "https://runbooks.medical-ai.example.com/physical-access-violation"
+          action_required: "Lock down affected systems and investigate"
+          
+      # Data Integrity and Availability Alerts
+      - alert: DatabaseHighLatency
+        expr: medical_ai_database_query_duration_seconds{quantile="0.95"} > 5
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: performance
+        annotations:
+          summary: "Database query latency is high"
+          description: "95th percentile database query latency is {{ $value }}s, exceeding 5s threshold."
+          runbook_url: "https://runbooks.medical-ai.example.com/database-latency"
+          
+      - alert: DatabaseConnectionPoolExhausted
+        expr: medical_ai_database_connections_active / medical_ai_database_connections_max > 0.9
+        for: 3m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: database
+        annotations:
+          summary: "Database connection pool usage is high"
+          description: "Database connection pool is {{ $value | humanizePercentage }} full."
+          runbook_url: "https://runbooks.medical-ai.example.com/connection-pool"
+          
+      - alert: CriticalDatabaseError
+        expr: rate(medical_ai_database_errors_total[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: database
+        annotations:
+          summary: "High rate of database errors"
+          description: "Database error rate is {{ $value }} errors/sec, indicating potential data integrity issues."
+          runbook_url: "https://runbooks.medical-ai.example.com/database-errors"
+          
+      # Model Performance and Safety Alerts
+      - alert: ModelInferenceTimeout
+        expr: medical_ai_inference_duration_seconds > 30
+        for: 2m
+        labels:
+          severity: warning
+          compliance: fda
+          alert_group: ml_safety
+        annotations:
+          summary: "Model inference taking too long"
+          description: "Model inference duration is {{ $value }}s, exceeding 30s timeout threshold."
+          runbook_url: "https://runbooks.medical-ai.example.com/inference-timeout"
+          
+      - alert: ModelAccuracyDrift
+        expr: abs(medical_ai_model_accuracy - medical_ai_model_accuracy_baseline) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+          compliance: fda
+          alert_group: ml_safety
+        annotations:
+          summary: "Model accuracy drift detected"
+          description: "Model accuracy has drifted by {{ $value }} from baseline, indicating potential performance degradation."
+          runbook_url: "https://runbooks.medical-ai.example.com/accuracy-drift"
+          
+      - alert: ModelBiasDetected
+        expr: medical_ai_model_bias_score > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          compliance: fda
+          alert_group: ml_safety
+        annotations:
+          summary: "Model bias detected"
+          description: "Model bias score is {{ $value }}, exceeding 0.1 threshold. Potential fairness issue detected."
+          runbook_url: "https://runbooks.medical-ai.example.com/model-bias"
+          
+      - alert: MedicalDecisionSupportFailure
+        expr: medical_ai_clinical_decision_support_failures_total > 0
+        for: 0m
+        labels:
+          severity: critical
+          compliance: fda
+          alert_group: clinical_safety
+        annotations:
+          summary: "Clinical decision support system failure"
+          description: "Clinical decision support system has failed to provide recommendations."
+          runbook_url: "https://runbooks.medical-ai.example.com/clinical-decision-failure"
+          
+      # Security and Authentication Alerts
+      - alert: AuthenticationServiceDown
+        expr: up{job="medical-ai-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: security
+        annotations:
+          summary: "Authentication service is down"
+          description: "Authentication service has been down for more than 1 minute."
+          runbook_url: "https://runbooks.medical-ai.example.com/auth-service-down"
+          
+      - alert: SSLCertificateExpiring
+        expr: (ssl_certificate_expiry_seconds - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: security
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate expires in {{ $value | humanizeDuration }}."
+          runbook_url: "https://runbooks.medical-ai.example.com/ssl-expiry"
+          
+      - alert: SuspiciousAPIActivity
+        expr: rate(medical_ai_api_requests_total[5m]) > 1000
+        for: 2m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: security
+        annotations:
+          summary: "Suspicious API activity detected"
+          description: "API request rate is {{ $value }} requests/sec, potentially indicating DDoS or abuse."
+          runbook_url: "https://runbooks.medical-ai.example.com/suspicious-activity"
+          
+      # System Health and Performance Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: system_health
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 90% on {{ $labels.instance }} for more than 5 minutes."
+          runbook_url: "https://runbooks.medical-ai.example.com/high-cpu"
+          
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: system_health
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90% on {{ $labels.instance }} for more than 5 minutes."
+          runbook_url: "https://runbooks.medical-ai.example.com/high-memory"
+          
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: system_health
+        annotations:
+          summary: "Disk space is critically low"
+          description: "Disk space is below 10% on {{ $labels.instance }}."
+          runbook_url: "https://runbooks.medical-ai.example.com/disk-space-low"
+          
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: kubernetes
+        annotations:
+          summary: "Pod is crash looping"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is restart frequently."
+          runbook_url: "https://runbooks.medical-ai.example.com/pod-crash-loop"
+          
+      # Service Level Objective (SLO) Alerts
+      - alert: SLIErrorRateHigh
+        expr: |
+          (
+            sum(rate(medical_ai_requests_total{status!~"2.."}[5m])) by (service)
+            /
+            sum(rate(medical_ai_requests_total[5m])) by (service)
+          ) * 100 > 1
+        for: 5m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: slo
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate for {{ $labels.service }} is {{ $value }}% over the last 5 minutes, exceeding 1% SLO."
+          runbook_url: "https://runbooks.medical-ai.example.com/high-error-rate"
+          
+      - alert: SLILatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(medical_ai_request_duration_seconds_bucket[5m])) by (le, service)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: slo
+        annotations:
+          summary: "High latency detected"
+          description: "95th percentile latency for {{ $labels.service }} is {{ $value }}s, exceeding 1s SLO."
+          runbook_url: "https://runbooks.medical-ai.example.com/high-latency"
+          
+      # HIPAA Audit Trail Alerts
+      - alert: AuditLogWriteFailure
+        expr: rate(medical_ai_audit_log_write_failures_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: audit
+        annotations:
+          summary: "Failed to write audit logs"
+          description: "Audit log write failures detected. Possible compliance violation."
+          runbook_url: "https://runbooks.medical-ai.example.com/audit-log-failure"
+          
+      - alert: AuditLogRetentionViolation
+        expr: time() - medical_ai_last_audit_log_entry_timestamp > 86400
+        for: 5m
+        labels:
+          severity: warning
+          compliance: hipaa
+          alert_group: audit
+        annotations:
+          summary: "Audit log gap detected"
+          description: "No audit log entries in the last 24 hours, indicating potential logging failure."
+          runbook_url: "https://runbooks.medical-ai.example.com/audit-log-gap"
+          
+      # Backup and Disaster Recovery Alerts
+      - alert: BackupFailure
+        expr: medical_ai_backup_status != 1
+        for: 1h
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: backup
+        annotations:
+          summary: "Backup operation failed"
+          description: "Database backup operation failed and needs immediate attention."
+          runbook_url: "https://runbooks.medical-ai.example.com/backup-failure"
+          
+      - alert: BackupRetentionPolicyViolation
+        expr: time() - medical_ai_last_successful_backup_timestamp > 2592000
+        for: 1h
+        labels:
+          severity: critical
+          compliance: hipaa
+          alert_group: backup
+        annotations:
+          summary: "Backup retention policy violation"
+          description: "No successful backup in the last 30 days, violating HIPAA retention requirements."
+          runbook_url: "https://runbooks.medical-ai.example.com/retention-violation"

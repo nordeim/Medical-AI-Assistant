@@ -1,0 +1,225 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Healthcare Operations Metrics Dashboard",
+    "tags": ["medical-ai", "operations", "workflow"],
+    "timezone": "browser",
+    "refresh": "15s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Patient Throughput Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_patients_processed_total[1h])",
+            "refId": "A",
+            "legendFormat": "Patients/Hour"
+          },
+          {
+            "expr": "sum(medical_ai_patients_in_queue)",
+            "refId": "B",
+            "legendFormat": "Queue Length"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Patient Flow by Department",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_patient_visits_total[1h]) by (department)",
+            "refId": "A",
+            "legendFormat": "{{department}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 3,
+        "title": "Average Wait Times by Department",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "avg(medical_ai_wait_time_minutes) by (department)",
+            "refId": "A",
+            "legendFormat": "{{department}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Nurse Workload Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_nurse_patient_interactions_total[1h])",
+            "refId": "A",
+            "legendFormat": "{{nurse_id}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 5,
+        "title": "Resource Utilization",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "medical_ai_equipment_utilization_percent",
+            "refId": "A",
+            "legendFormat": "{{equipment_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Appointment Scheduling Efficiency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_appointments_completed_total[1h]) / rate(medical_ai_appointments_scheduled_total[1h]) * 100",
+            "refId": "A",
+            "legendFormat": "Completion Rate %"
+          },
+          {
+            "expr": "rate(medical_ai_appointments_no_show_total[1h]) / rate(medical_ai_appointments_scheduled_total[1h]) * 100",
+            "refId": "B",
+            "legendFormat": "No-Show Rate %"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "Emergency Department Metrics",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "medical_ai_ed_metrics",
+            "refId": "A",
+            "legendFormat": "{{metric}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
+      },
+      {
+        "id": 8,
+        "title": "Bed Occupancy Rate",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "avg(medical_ai_bed_occupancy_percent)",
+            "refId": "A",
+            "legendFormat": "Bed Occupancy %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 85},
+                {"color": "red", "value": 95}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
+      },
+      {
+        "id": 9,
+        "title": "Staff Productivity Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(medical_ai_clinical_actions_total[1h]) by (staff_type)",
+            "refId": "A",
+            "legendFormat": "{{staff_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40}
+      },
+      {
+        "id": 10,
+        "title": "Patient Satisfaction by Department",
+        "type": "bar gauge",
+        "targets": [
+          {
+            "expr": "avg(medical_ai_patient_satisfaction_score) by (department)",
+            "refId": "A",
+            "legendFormat": "{{department}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 5,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 3.0},
+                {"color": "green", "value": 4.0}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 48}
+      },
+      {
+        "id": 11,
+        "title": "Medication Administration Timeline",
+        "type": "state timeline",
+        "targets": [
+          {
+            "expr": "medical_ai_medication_administration_status",
+            "refId": "A",
+            "legendFormat": "{{patient_id}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 56}
+      },
+      {
+        "id": 12,
+        "title": "Shift Handoff Efficiency",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(medical_ai_shift_handoff_duration_minutes)",
+            "refId": "A",
+            "legendFormat": "Average Handoff Duration (min)"
+          },
+          {
+            "expr": "rate(medical_ai_shift_handoffs_completed_total[1h])",
+            "refId": "B",
+            "legendFormat": "Handoffs/Hour"
+          }
+        ],
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 64}
+      },
+      {
+        "id": 13,
+        "title": "Critical Alert Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(medical_ai_alert_response_time_seconds_bucket[1h]))",
+            "refId": "A",
+            "legendFormat": "95th Percentile Response Time"
+          }
+        ],
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 64}
+      }
+    ]
+  }
+}

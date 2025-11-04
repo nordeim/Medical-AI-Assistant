@@ -1,0 +1,66 @@
+{
+  "test_execution": {
+    "start_time": "2025-11-04T01:27:03.322045",
+    "end_time": "2025-11-04T01:27:03.322340",
+    "total_duration": 0.0002732276916503906,
+    "overall_status": "failed"
+  },
+  "execution_summary": {
+    "start_time": "2025-11-04T01:27:03.322045",
+    "end_time": "2025-11-04T01:27:03.322340",
+    "total_duration": 0.0002732276916503906,
+    "test_categories": {
+      "system_integration": {},
+      "patient_chat_flow": {}
+    },
+    "overall_status": "failed",
+    "metrics": {}
+  },
+  "test_results": {
+    "system_integration": {
+      "category": "system_integration",
+      "description": "Complete System Integration Tests",
+      "status": "error",
+      "start_time": "2025-11-04T01:27:03.322093",
+      "end_time": "2025-11-04T01:27:03.322195",
+      "duration": 0.00010132789611816406,
+      "test_files": [
+        "test_complete_system_integration.py"
+      ],
+      "summary": {},
+      "metrics": {},
+      "errors": [
+        "No module named 'pytest'"
+      ]
+    },
+    "patient_chat_flow": {
+      "category": "patient_chat_flow",
+      "description": "Patient Chat Flow Integration Tests",
+      "status": "error",
+      "start_time": "2025-11-04T01:27:03.322239",
+      "end_time": "2025-11-04T01:27:03.322301",
+      "duration": 6.103515625e-05,
+      "test_files": [
+        "test_patient_chat_flow.py"
+      ],
+      "summary": {},
+      "metrics": {},
+      "errors": [
+        "No module named 'pytest'"
+      ]
+    }
+  },
+  "configuration": {
+    "base_url": "http://localhost:8000",
+    "test_timeout": 60,
+    "parallel_execution": false,
+    "max_workers": 4,
+    "output_dir": "/workspace/testing/integration/reports",
+    "log_level": "INFO"
+  },
+  "environment": {
+    "python_version": "3.12.5 (main, Sep  5 2024, 00:16:34) [GCC 12.2.0]",
+    "platform": "linux",
+    "test_directory": "/workspace/testing/integration"
+  }
+}

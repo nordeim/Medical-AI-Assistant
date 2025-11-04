@@ -1,0 +1,37 @@
+attribution_models:
+  first_touch: 0.3
+  last_touch: 0.4
+  linear: 0.2
+  time_decay: 0.1
+churn_indicators:
+- low_usage_frequency
+- high_support_tickets
+- low_satisfaction_scores
+- missed_renewal_dates
+- competitive_solicitation
+customer_health_metrics:
+- product_usage
+- support_ticket_rate
+- satisfaction_score
+- renewal_probability
+- expansion_indicators
+forecast_horizon_months: 12
+pipeline_stages:
+- avg_days: 14
+  probability: 0.1
+  stage: lead
+- avg_days: 30
+  probability: 0.25
+  stage: qualified
+- avg_days: 45
+  probability: 0.5
+  stage: proposal
+- avg_days: 30
+  probability: 0.75
+  stage: negotiation
+- avg_days: 0
+  probability: 1.0
+  stage: closed_won
+- avg_days: 0
+  probability: 0.0
+  stage: closed_lost

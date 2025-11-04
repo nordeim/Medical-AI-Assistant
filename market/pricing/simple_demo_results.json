@@ -1,0 +1,135 @@
+{
+  "analysis_date": "2025-11-04T13:20:01.621914",
+  "customer_analysis": {
+    "customer": {
+      "customer_id": "metro_hospital",
+      "organization_name": "Metro Hospital System",
+      "market_segment": "hospital_system",
+      "annual_revenue": 500000000,
+      "patient_volume": 200000,
+      "tier": "gold"
+    },
+    "pricing": {
+      "base_price": 450000,
+      "optimized_price": 1350000.0,
+      "multipliers": {
+        "volume": 2.0,
+        "tier": 1.5
+      }
+    },
+    "roi": {
+      "implementation_cost": 405000.0,
+      "annual_benefits": {
+        "reduced_readmissions": 800000,
+        "operational_efficiency": 600000,
+        "quality_improvements": 400000,
+        "administrative_savings": 300000
+      },
+      "roi_percentage": 1455.5555555555554,
+      "payback_months": 2.3142857142857145
+    }
+  },
+  "market_analysis": {
+    "total_tam": 8700000000,
+    "segment_rankings": [
+      {
+        "segment": "hospital system",
+        "opportunity_score": 8.5,
+        "tam": 2500000000
+      },
+      {
+        "segment": "integrated delivery network",
+        "opportunity_score": 8.2,
+        "tam": 3200000000
+      },
+      {
+        "segment": "academic medical center",
+        "opportunity_score": 7.8,
+        "tam": 1800000000
+      },
+      {
+        "segment": "clinic",
+        "opportunity_score": 7.5,
+        "tam": 1200000000
+      }
+    ]
+  },
+  "revenue_forecast": [
+    {
+      "month": 1,
+      "revenue": 500000.0,
+      "cumulative": 500000.0
+    },
+    {
+      "month": 2,
+      "revenue": 525000.0,
+      "cumulative": 1025000.0
+    },
+    {
+      "month": 3,
+      "revenue": 551250.0,
+      "cumulative": 1576250.0
+    },
+    {
+      "month": 4,
+      "revenue": 578812.5000000001,
+      "cumulative": 2155062.5
+    },
+    {
+      "month": 5,
+      "revenue": 607753.1250000001,
+      "cumulative": 2762815.625
+    },
+    {
+      "month": 6,
+      "revenue": 574326.7031250002,
+      "cumulative": 3337142.328125
+    },
+    {
+      "month": 7,
+      "revenue": 603043.0382812503,
+      "cumulative": 3940185.3664062503
+    },
+    {
+      "month": 8,
+      "revenue": 633195.1901953127,
+      "cumulative": 4573380.5566015635
+    },
+    {
+      "month": 9,
+      "revenue": 738727.7218945315,
+      "cumulative": 5312108.278496095
+    },
+    {
+      "month": 10,
+      "revenue": 775664.1079892581,
+      "cumulative": 6087772.386485353
+    },
+    {
+      "month": 11,
+      "revenue": 977336.7760664651,
+      "cumulative": 7065109.162551818
+    },
+    {
+      "month": 12,
+      "revenue": 1026203.6148697885,
+      "cumulative": 8091312.777421607
+    }
+  ],
+  "benchmarks": {
+    "industry_avg_roi": 180,
+    "industry_avg_payback": 24,
+    "our_roi": 1455.5555555555554,
+    "our_payback": 2.3142857142857145,
+    "performance_grade": "A"
+  },
+  "success_criteria": [
+    "\u2705 Pricing strategies optimization for different healthcare market segments",
+    "\u2705 Value-based pricing tied to clinical outcomes",
+    "\u2705 Subscription models and enterprise licensing strategies",
+    "\u2705 Revenue operations and forecasting systems",
+    "\u2705 Pricing optimization based on customer value analysis",
+    "\u2705 Financial models and ROI calculators for healthcare clients",
+    "\u2705 Revenue attribution and marketing ROI tracking"
+  ]
+}

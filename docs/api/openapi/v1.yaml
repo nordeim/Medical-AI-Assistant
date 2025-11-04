@@ -1,0 +1,1152 @@
+openapi: 3.0.3
+info:
+  title: Medical AI Assistant API
+  description: |
+    Comprehensive API for the Medical AI Assistant system providing clinical decision support 
+    for patient triage and healthcare workflow optimization.
+    
+    ## Authentication
+    All API endpoints require authentication using either:
+    - API Key: Send in header `Authorization: Bearer YOUR_API_KEY`
+    - JWT Token: Send in header `Authorization: Bearer YOUR_JWT_TOKEN`
+    
+    ## Rate Limiting
+    - Standard Tier: 100 requests/minute
+    - Premium Tier: 1000 requests/minute
+    - Enterprise Tier: 10000 requests/minute
+    
+    ## Support
+    For technical support: api-support@medical-ai.example.com
+    For status updates: https://status.medical-ai.example.com
+  version: 1.0.0
+  contact:
+    name: Medical AI Assistant API Support
+    email: api-support@medical-ai.example.com
+    url: https://docs.medical-ai.example.com
+  license:
+    name: Proprietary
+    url: https://medical-ai.example.com/license
+
+servers:
+  - url: https://api.medical-ai.example.com/v1
+    description: Production server
+  - url: https://api-staging.medical-ai.example.com/v1
+    description: Staging server
+  - url: http://localhost:8000/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - JWTAuth: []
+
+paths:
+  /health:
+    get:
+      summary: System health check
+      description: Returns the current health status of the Medical AI Assistant system
+      operationId: getHealth
+      tags:
+        - System
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: System is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /sessions:
+    post:
+      summary: Create new consultation session
+      description: Creates a new patient consultation session with the AI assistant
+      operationId: createSession
+      tags:
+        - Sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: List consultation sessions
+      description: Retrieve a list of consultation sessions with optional filtering
+      operationId: listSessions
+      tags:
+        - Sessions
+      parameters:
+        - name: status
+          in: query
+          description: Filter by session status
+          schema:
+            type: string
+            enum: [active, completed, cancelled]
+        - name: patient_age_group
+          in: query
+          description: Filter by patient age group
+          schema:
+            type: string
+            enum: [PEDIATRIC, ADULT, GERIATRIC]
+        - name: start_date
+          in: query
+          description: Filter sessions created after this date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          description: Filter sessions created before this date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          description: Maximum number of sessions to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of sessions to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Sessions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{session_id}:
+    get:
+      summary: Get session details
+      description: Retrieve detailed information about a specific consultation session
+      operationId: getSession
+      tags:
+        - Sessions
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: Unique identifier for the session
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDetails'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: End consultation session
+      description: Ends an active consultation session
+      operationId: endSession
+      tags:
+        - Sessions
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: Unique identifier for the session
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session ended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/{session_id}/messages:
+    post:
+      summary: Send message to AI
+      description: Send a message to the AI assistant during an active consultation
+      operationId: sendMessage
+      tags:
+        - Chat
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: Unique identifier for the session
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageRequest'
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageResponse'
+        '400':
+          description: Invalid message data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Session not found or inactive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: Get conversation history
+      description: Retrieve the conversation history for a session
+      operationId: getConversationHistory
+      tags:
+        - Chat
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: Unique identifier for the session
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Conversation history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationHistory'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ws/chat/{session_id}:
+    get:
+      summary: WebSocket chat connection
+      description: Establish a WebSocket connection for real-time chat
+      operationId: websocketChat
+      tags:
+        - Chat
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: Unique identifier for the session
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '101':
+          description: WebSocket connection established
+        '400':
+          description: Invalid session ID
+        '401':
+          description: Unauthorized
+
+  /assessments:
+    get:
+      summary: List assessments
+      description: Retrieve a list of patient assessments with optional filtering
+      operationId: listAssessments
+      tags:
+        - Assessments
+      parameters:
+        - name: status
+          in: query
+          description: Filter by assessment status
+          schema:
+            type: string
+            enum: [pending, completed, reviewed, escalated]
+        - name: triage_level
+          in: query
+          description: Filter by triage level
+          schema:
+            type: string
+            enum: [IMMEDIATE, EMERGENT, URGENT, LESS_URGENT, NON_URGENT]
+        - name: priority
+          in: query
+          description: Filter by priority level
+          schema:
+            type: string
+            enum: [high, medium, low]
+        - name: limit
+          in: query
+          description: Maximum number of assessments to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of assessments to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Assessments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentList'
+
+  /assessments/{assessment_id}:
+    get:
+      summary: Get assessment details
+      description: Retrieve detailed information about a specific patient assessment
+      operationId: getAssessment
+      tags:
+        - Assessments
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          description: Unique identifier for the assessment
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Assessment details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentDetails'
+        '404':
+          description: Assessment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /assessments/{assessment_id}/actions:
+    post:
+      summary: Take action on assessment
+      description: Healthcare professional takes action on an AI-generated assessment
+      operationId: takeAssessmentAction
+      tags:
+        - Assessments
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          description: Unique identifier for the assessment
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessmentActionRequest'
+      responses:
+        '200':
+          description: Action taken successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentActionResponse'
+        '400':
+          description: Invalid action data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Assessment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /nurse/queue:
+    get:
+      summary: Get pending assessments queue
+      description: Retrieve the queue of pending assessments for nurse review
+      operationId: getNurseQueue
+      tags:
+        - Nurse Dashboard
+      parameters:
+        - name: status
+          in: query
+          description: Filter by assessment status
+          schema:
+            type: string
+            enum: [pending, reviewed, action_required]
+            default: pending
+        - name: priority
+          in: query
+          description: Filter by priority level
+          schema:
+            type: string
+            enum: [high, medium, low]
+        - name: triage_level
+          in: query
+          description: Filter by triage level
+          schema:
+            type: string
+            enum: [IMMEDIATE, EMERGENT, URGENT, LESS_URGENT, NON_URGENT]
+        - name: limit
+          in: query
+          description: Maximum number of assessments to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Nurse queue retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NurseQueue'
+        '401':
+          description: Nurse access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/system/health:
+    get:
+      summary: System health status
+      description: Get detailed system health information for administrators
+      operationId: getSystemHealth
+      tags:
+        - Administration
+      responses:
+        '200':
+          description: System health information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+        '401':
+          description: Administrator access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/metrics:
+    get:
+      summary: System metrics
+      description: Get system performance and usage metrics
+      operationId: getSystemMetrics
+      tags:
+        - Administration
+      parameters:
+        - name: start_time
+          in: query
+          description: Start time for metrics (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          description: End time for metrics (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: granularity
+          in: query
+          description: Time granularity for metrics
+          schema:
+            type: string
+            enum: [minute, hour, day]
+            default: hour
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetrics'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    JWTAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        services:
+          type: object
+          properties:
+            database:
+              $ref: '#/components/schemas/ServiceStatus'
+            ai_service:
+              $ref: '#/components/schemas/ServiceStatus'
+            vector_db:
+              $ref: '#/components/schemas/ServiceStatus'
+        uptime_seconds:
+          type: integer
+
+    ServiceStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, unknown]
+        response_time_ms:
+          type: integer
+        error:
+          type: string
+
+    CreateSessionRequest:
+      type: object
+      required:
+        - patient_age_group
+        - chief_complaint
+      properties:
+        patient_age_group:
+          type: string
+          enum: [PEDIATRIC, ADULT, GERIATRIC]
+          description: Patient age group classification
+        chief_complaint:
+          type: string
+          maxLength: 500
+          description: Primary reason for seeking medical consultation
+        medical_history:
+          type: array
+          items:
+            type: string
+          description: Relevant medical history (optional)
+        current_medications:
+          type: array
+          items:
+            type: string
+          description: Current medications (optional)
+        allergies:
+          type: array
+          items:
+            type: string
+          description: Known allergies (optional)
+        consent_given:
+          type: boolean
+          description: Patient consent for AI-assisted consultation
+        privacy_acknowledged:
+          type: boolean
+          description: Patient acknowledgment of privacy practices
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+        patient_age_group:
+          type: string
+        chief_complaint:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        assessment_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    SessionDetails:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Session'
+        - type: object
+          properties:
+            session_data:
+              type: object
+              properties:
+                medical_history:
+                  type: array
+                  items:
+                    type: string
+                current_medications:
+                  type: array
+                  items:
+                    type: string
+                allergies:
+                  type: array
+                  items:
+                    type: string
+                consent_given:
+                  type: boolean
+                privacy_acknowledged:
+                  type: boolean
+            conversation_summary:
+              type: object
+              properties:
+                total_messages:
+                  type: integer
+                message_count:
+                  type: integer
+                ai_message_count:
+                  type: integer
+                estimated_duration_minutes:
+                  type: integer
+                completion_percentage:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+
+    SessionList:
+      type: object
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Session'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        total_count:
+          type: integer
+
+    ChatMessageRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          maxLength: 2000
+          description: Patient's message to the AI assistant
+        message_type:
+          type: string
+          enum: [text, symptom_description, question, emergency_alert]
+          default: text
+          description: Type of message being sent
+        urgency_level:
+          type: string
+          enum: [low, medium, high, emergency]
+          default: low
+          description: Urgency level of the message
+
+    ChatMessageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+          format: uuid
+        message_type:
+          type: string
+        ai_response:
+          type: string
+        response_time_ms:
+          type: integer
+        conversation_complete:
+          type: boolean
+        next_steps:
+          type: array
+          items:
+            type: string
+        emergency_detected:
+          type: boolean
+        assessment_ready:
+          type: boolean
+
+    ConversationHistory:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationMessage'
+        conversation_summary:
+          $ref: '#/components/schemas/ConversationSummary'
+        metadata:
+          type: object
+          properties:
+            start_time:
+              type: string
+              format: date-time
+            end_time:
+              type: string
+              format: date-time
+            total_duration_minutes:
+              type: integer
+
+    ConversationMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sender:
+          type: string
+          enum: [patient, ai]
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        message_type:
+          type: string
+          metadata:
+            type: object
+
+    ConversationSummary:
+      type: object
+      properties:
+        primary_concerns:
+          type: array
+          items:
+            type: string
+        symptoms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Symptom'
+        risk_factors:
+          type: array
+          items:
+            type: string
+        red_flags_detected:
+          type: boolean
+        urgency_indicators:
+          type: array
+          items:
+            type: string
+
+    Symptom:
+      type: object
+      properties:
+        description:
+          type: string
+        severity:
+          type: integer
+          minimum: 1
+          maximum: 10
+        duration:
+          type: string
+        location:
+          type: string
+        triggers:
+          type: array
+          items:
+            type: string
+
+    Assessment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, completed, reviewed, escalated]
+        triage_level:
+          type: string
+          enum: [IMMEDIATE, EMERGENT, URGENT, LESS_URGENT, NON_URGENT]
+        risk_level:
+          type: string
+          enum: [critical, high, moderate, low]
+        ai_recommendation:
+          type: string
+        confidence_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        created_at:
+          type: string
+          format: date-time
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    AssessmentDetails:
+      allOf:
+        - $ref: '#/components/schemas/Assessment'
+        - type: object
+          properties:
+            ai_analysis:
+              type: object
+              properties:
+                symptoms_analyzed:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Symptom'
+                risk_factors_identified:
+                  type: array
+                  items:
+                    type: string
+                differential_considerations:
+                  type: array
+                  items:
+                    type: string
+                red_flags:
+                  type: array
+                  items:
+                    type: string
+            conversation_context:
+              $ref: '#/components/schemas/ConversationSummary'
+            clinical_recommendations:
+              type: array
+              items:
+                type: string
+
+    AssessmentList:
+      type: object
+      properties:
+        assessments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assessment'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    AssessmentActionRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [accept, modify, escalate, request_info]
+          description: Action to take on the assessment
+        rationale:
+          type: string
+          maxLength: 1000
+          description: Clinical rationale for the action
+        modifications:
+          type: object
+          description: Modifications to AI recommendations (required if action is 'modify')
+          properties:
+            triage_level:
+              type: string
+              enum: [IMMEDIATE, EMERGENT, URGENT, LESS_URGENT, NON_URGENT]
+            risk_level:
+              type: string
+              enum: [critical, high, moderate, low]
+            recommendations:
+              type: array
+              items:
+                type: string
+        additional_info_requested:
+          type: string
+          maxLength: 500
+          description: Additional information request (required if action is 'request_info')
+        escalation_reason:
+          type: string
+          maxLength: 500
+          description: Reason for escalation (required if action is 'escalate')
+
+    AssessmentActionResponse:
+      type: object
+      properties:
+        action_id:
+          type: string
+          format: uuid
+        assessment_id:
+          type: string
+          format: uuid
+        action:
+          type: string
+        status:
+          type: string
+          enum: [accepted, rejected, pending_review]
+        timestamp:
+          type: string
+          format: date-time
+        next_steps:
+          type: array
+          items:
+            type: string
+
+    NurseQueue:
+      type: object
+      properties:
+        pending_assessments:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueueAssessment'
+        queue_stats:
+          $ref: '#/components/schemas/QueueStats'
+
+    QueueAssessment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+          format: uuid
+        patient_age_group:
+          type: string
+        chief_complaint:
+          type: string
+        triage_level:
+          type: string
+          enum: [IMMEDIATE, EMERGENT, URGENT, LESS_URGENT, NON_URGENT]
+        risk_level:
+          type: string
+          enum: [critical, high, moderate, low]
+        ai_recommendation:
+          type: string
+        confidence_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        waiting_time_minutes:
+          type: integer
+        priority_score:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    QueueStats:
+      type: object
+      properties:
+        total_pending:
+          type: integer
+        by_triage_level:
+          type: object
+          properties:
+            IMMEDIATE:
+              type: integer
+            EMERGENT:
+              type: integer
+            URGENT:
+              type: integer
+            LESS_URGENT:
+              type: integer
+            NON_URGENT:
+              type: integer
+        average_wait_time_minutes:
+          type: number
+        priority_queue_size:
+          type: integer
+
+    SystemHealth:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/HealthStatus'
+        - type: object
+          properties:
+            system_info:
+              type: object
+              properties:
+                cpu_usage_percent:
+                  type: number
+                memory_usage_percent:
+                  type: number
+                disk_usage_percent:
+                  type: number
+                network_io:
+                  type: object
+            performance_metrics:
+              type: object
+              properties:
+                requests_per_minute:
+                  type: number
+                average_response_time_ms:
+                  type: number
+                error_rate_percent:
+                  type: number
+                active_sessions:
+                  type: integer
+
+    SystemMetrics:
+      type: object
+      properties:
+        time_range:
+          type: object
+          properties:
+            start_time:
+              type: string
+              format: date-time
+            end_time:
+              type: string
+              format: date-time
+        metrics:
+          type: object
+          properties:
+            total_requests:
+              type: integer
+            successful_requests:
+              type: integer
+            failed_requests:
+              type: integer
+            average_response_time_ms:
+              type: number
+            requests_by_endpoint:
+              type: object
+            errors_by_type:
+              type: object
+            active_sessions_over_time:
+              type: array
+              items:
+                $ref: '#/components/schemas/TimeSeriesPoint'
+
+    TimeSeriesPoint:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        value:
+          type: number
+
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        total_count:
+          type: integer
+        has_more:
+          type: boolean
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid request parameters
+            details:
+              type: object
+        timestamp:
+          type: string
+          format: date-time
+        request_id:
+          type: string
+          format: uuid
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: Sessions
+    description: Patient consultation session management
+  - name: Chat
+    description: AI chat interface and messaging
+  - name: Assessments
+    description: Patient assessment management
+  - name: Nurse Dashboard
+    description: Healthcare professional dashboard endpoints
+  - name: Administration
+    description: System administration and monitoring
+
+x-rate-limits:
+  standard: 100 requests/minute
+  premium: 1000 requests/minute
+  enterprise: 10000 requests/minute

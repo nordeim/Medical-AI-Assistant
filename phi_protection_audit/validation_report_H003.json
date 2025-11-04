@@ -1,0 +1,33 @@
+{
+  "validation_metadata": {
+    "timestamp": "2025-11-04T05:35:07.663466",
+    "validator_version": "1.0.0",
+    "original_timestamp": "2025-11-04T05:35:07.572356"
+  },
+  "validation_result": {
+    "is_valid": false,
+    "residual_phi_count": 6,
+    "pseudonym_consistency": 1.0,
+    "compliance_score": 0.43999999999999995,
+    "issues": [
+      "HIGH: 1 high-risk PHI elements remain (Names, Addresses, Dates)",
+      "RESIDUAL_potential_name: 5 instances detected",
+      "PHI_INDICATOR_NAME_INDICATORS: 1 instances detected"
+    ],
+    "recommendations": [
+      "Review remaining PHI and consider enhanced detection methods",
+      "Consider implementing additional validation layers",
+      "Document any acceptable PHI omissions for compliance review"
+    ]
+  },
+  "original_deidentification": {
+    "compliance_score": 0.5,
+    "detections_count": 1,
+    "pseudonym_mapping_size": 19
+  },
+  "summary": {
+    "is_valid": false,
+    "record_id": "H003"
+  },
+  "redacted_text_sample": "\n            Emergency department visit - Patient unknown, approximately Address_003 pain.\n            BP: 140/90, HR: 95, Temp: 98.6\u00b0F\n            EKG: Normal sinus rhythm\n            Released after observation.\n            "
+}

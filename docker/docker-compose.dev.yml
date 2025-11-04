@@ -1,0 +1,110 @@
+# =============================================================================
+# Medical AI Assistant - Docker Compose Development Override
+# Development-specific configurations with hot reloading
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # Backend - Development Configuration
+  # ===========================================================================
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+      target: base  # Use base stage without production optimizations
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD_ON_CHANGE=true
+      - ENABLE_PROFILING=true
+    volumes:
+      - ../backend:/app  # Mount source for hot reload (remove :ro)
+      - model-cache:/app/models
+      - vector-data:/app/vector_stores
+      - app-logs:/app/logs
+    stdin_open: true
+    tty: true
+
+  # ===========================================================================
+  # Frontend - Development Configuration
+  # ===========================================================================
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/Dockerfile.frontend
+      target: builder  # Use builder stage for development
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8000
+      - VITE_WS_URL=ws://localhost:8000/ws
+    volumes:
+      - ../frontend:/app  # Mount source for hot reload
+      - /app/node_modules  # Anonymous volume for node_modules
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+
+  # ===========================================================================
+  # Database - Development Configuration
+  # ===========================================================================
+  db:
+    ports:
+      - "5432:5432"  # Expose for local DB tools
+    environment:
+      - POSTGRES_PASSWORD=devpass  # Simple password for dev
+    command: >
+      postgres
+      -c log_statement=all
+      -c log_duration=on
+      -c log_line_prefix='%m [%p] %u@%d '
+
+  # ===========================================================================
+  # Redis - Development Configuration
+  # ===========================================================================
+  redis:
+    command: redis-server --appendonly yes  # Remove password for dev simplicity
+    ports:
+      - "6379:6379"  # Expose for local Redis tools
+
+  # ===========================================================================
+  # pgAdmin - Database Management UI (dev only)
+  # ===========================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: medai-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@medai.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - mednet
+    depends_on:
+      - db
+    ports:
+      - "5050:80"
+
+  # ===========================================================================
+  # Mailhog - Email Testing (dev only)
+  # ===========================================================================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: medai-mailhog
+    restart: unless-stopped
+    networks:
+      - mednet
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+
+volumes:
+  pgadmin-data:
+    name: medai-pgadmin-data

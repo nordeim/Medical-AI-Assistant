@@ -1,0 +1,611 @@
+# Production PostgreSQL Cluster Configuration
+# HIPAA-compliant database with encryption, backup, and disaster recovery
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-config
+  namespace: medical-ai-production
+data:
+  postgresql.conf: |
+    # HIPAA-compliant PostgreSQL Configuration
+    # FIPS 140-2 Level 3 Compliance
+    
+    # Connection Settings
+    listen_addresses = '*'
+    port = 5432
+    max_connections = 200
+    superuser_reserved_connections = 3
+    
+    # Memory Settings
+    shared_buffers = 2GB                   # 25% of total RAM
+    effective_cache_size = 6GB            # 75% of total RAM
+    maintenance_work_mem = 512MB
+    work_mem = 32MB
+    hash_mem_multiplier = 2.0
+    
+    # Checkpoint Settings
+    wal_level = replica
+    max_wal_size = 2GB
+    min_wal_size = 1GB
+    checkpoint_completion_target = 0.9
+    checkpoint_timeout = 15min
+    
+    # Write Ahead Log Settings
+    wal_compression = on
+    wal_buffers = 32MB
+    commit_delay = 10
+    commit_siblings = 5
+    
+    # Replication Settings
+    max_wal_senders = 10
+    max_replication_slots = 10
+    hot_standby = on
+    hot_standby_feedback = on
+    
+    # Performance Settings
+    random_page_cost = 1.1
+    effective_io_concurrency = 200
+    max_worker_processes = 16
+    max_parallel_workers_per_gather = 8
+    max_parallel_workers = 16
+    
+    # Logging Configuration for HIPAA Audit
+    log_destination = 'stderr'
+    logging_collector = on
+    log_directory = '/var/log/postgresql'
+    log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+    log_file_mode = 0600
+    log_rotation_age = 1d
+    log_rotation_size = 100MB
+    
+    # HIPAA Audit Logging
+    log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+    log_checkpoints = on
+    log_connections = on
+    log_disconnections = on
+    log_lock_waits = on
+    log_temp_files = 0
+    log_autovacuum_min_duration = 0
+    log_error_verbosity = default
+    
+    # Security Settings
+    ssl = on
+    ssl_ciphers = 'ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM:DHE+CHACHA20:!aNULL:!MD5:!DSS'
+    ssl_prefer_server_ciphers = on
+    ssl_min_protocol_version = 'TLSv1.3'
+    ssl_ecdh_curve = 'prime256v1'
+    ssl_dh_params_file = '/etc/ssl/certs/dhparams.pem'
+    
+    # Authentication
+    password_encryption = scram-sha-256
+    pg_hba.conf = |
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+      # "local" is for Unix domain socket connections only
+      local   all             all                                     peer
+      # IPv4 local connections:
+      host    all             all             127.0.0.1/32            scram-sha-256
+      # IPv6 local connections:
+      host    all             all             ::1/128                 scram-sha-256
+      # Allow replication connections from localhost, by a user with the
+      # replication privilege.
+      local   replication     all                                     peer
+      host    replication     all             127.0.0.1/32            scram-sha-256
+      host    replication     all             ::1/128                 scram-sha-256
+      # Medical AI production network
+      host    medical_ai      all             10.0.0.0/8              scram-sha-256
+      host    medical_ai      all             172.16.0.0/12           scram-sha-256
+      host    medical_ai      all             192.168.0.0/16          scram-sha-256
+    
+    # Access Control
+    row_security = on
+    default_table_access_method = 'heap'
+    
+    # Locale Settings
+    datestyle = 'iso, mdy'
+    timezone = 'America/New_York'
+    lc_messages = 'en_US.UTF-8'
+    lc_monetary = 'en_US.UTF-8'
+    lc_numeric = 'en_US.UTF-8'
+    lc_time = 'en_US.UTF-8'
+    default_text_search_config = 'pg_catalog.english'
+    
+    # Extensions
+    shared_preload_libraries = 'pgaudit,pg_stat_statements,pg_cron'
+    
+    # pgaudit Configuration
+    pgaudit.log = 'all'
+    pgaudit.log_catalog = on
+    pgaudit.log_parameter = on
+    pgaudit.log_relation = on
+    pgaudit.log_row_limit = 0
+    pgaudit.log_statement = 'all'
+    pgaudit.log_statement_once = off
+    
+    # Background Writer
+    bgwriter_delay = 200ms
+    bgwriter_lru_maxpages = 100
+    bgwriter_lru_multiplier = 2.0
+    bgwriter_flush_after = 512kB
+    
+    # Asynchronous Behavior
+    max_worker_processes = 16
+    max_parallel_workers_per_gather = 8
+    max_parallel_workers = 16
+    max_parallel_maintenance_workers = 4
+    
+    # Resource Limits
+    max_locks_per_transaction = 64
+    max_pred_locks_per_transaction = 64
+    
+    # Archive Mode for Backup
+    archive_mode = on
+    archive_command = 'aws s3 cp %p s3://medical-ai-postgres-wal-archive/%f'
+    archive_timeout = 1800
+    
+    # Autovacuum Settings for Healthcare Data
+    autovacuum = on
+    autovacuum_max_workers = 6
+    autovacuum_naptime = 1min
+    autovacuum_vacuum_threshold = 50
+    autovacuum_analyze_threshold = 50
+    autovacuum_vacuum_scale_factor = 0.1
+    autovacuum_analyze_scale_factor = 0.05
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgresql-credentials
+  namespace: medical-ai-production
+type: Opaque
+data:
+  password: <base64-encoded-password>
+  replication-password: <base64-encoded-replication-password>
+  superuser-password: <base64-encoded-superuser-password>
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgresql-tls
+  namespace: medical-ai-production
+type: kubernetes.io/tls
+data:
+  tls.crt: <base64-encoded-cert>
+  tls.key: <base64-encoded-key>
+  ca.crt: <base64-encoded-ca-cert>
+
+---
+# PostgreSQL Primary with Encrypted Storage
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql-primary-pv
+  labels:
+    app: postgresql
+    tier: primary
+    encrypted: "true"
+    compliance: hipaa,fda,iso27001
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2-encrypted  # AWS KMS encrypted
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - rw
+    - noatime
+    - nodiratime
+    - errors=remount-ro
+  nfs:
+    server: nfs-server.medical-ai.com
+    path: /postgresql/primary
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-primary-pvc
+  namespace: medical-ai-production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Ti
+  storageClassName: gp2-encrypted
+  selector:
+    matchLabels:
+      app: postgresql
+      tier: primary
+
+---
+# Backup CronJob for Automated Backups
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgresql-backup
+  namespace: medical-ai-production
+  labels:
+    app: postgresql
+    component: backup
+    environment: production
+    compliance: hipaa,fda,iso27001
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      labels:
+        app: postgresql
+        component: backup
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgresql
+            component: backup
+        spec:
+          serviceAccountName: postgres-backup-service-account
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+          containers:
+          - name: postgres-backup
+            image: postgres:15-alpine
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              
+              # Environment variables
+              export PGPASSWORD="${POSTGRES_PASSWORD}"
+              export AWS_DEFAULT_REGION="us-east-1"
+              
+              # Create backup timestamp
+              BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
+              BACKUP_FILE="medical_ai_${BACKUP_DATE}.sql"
+              
+              echo "Starting PostgreSQL backup: ${BACKUP_FILE}"
+              
+              # Create database dump with encryption
+              pg_dump \
+                --host="${POSTGRES_HOST}" \
+                --port=5432 \
+                --username="${POSTGRES_USER}" \
+                --dbname=medical_ai \
+                --verbose \
+                --clean \
+                --if-exists \
+                --create \
+                --format=custom \
+                --compress=9 \
+                --file="/tmp/${BACKUP_FILE}" \
+                --exclude-table-data=audit_logs \
+                --exclude-table-data=session_logs
+              
+              # Compress backup
+              gzip "/tmp/${BACKUP_FILE}"
+              
+              # Upload to S3 with encryption
+              aws s3 cp "/tmp/${BACKUP_FILE}.gz" \
+                "s3://medical-ai-postgres-backups/${BACKUP_FILE}.gz" \
+                --server-side-encryption aws:kms \
+                --ssekms-key-id "arn:aws:kms:us-east-1:ACCOUNT:key/KEY-ID" \
+                --storage-class GLACIER
+              
+              # Upload WAL archive
+              aws s3 sync /var/lib/postgresql/data/pg_wal/ \
+                "s3://medical-ai-postgres-wal-archive/" \
+                --server-side-encryption aws:kms \
+                --ssekms-key-id "arn:aws:kms:us-east-1:ACCOUNT:key/KEY-ID"
+              
+              # Cleanup local files
+              rm -f "/tmp/${BACKUP_FILE}.gz"
+              
+              # Retention: Delete backups older than 7 years (HIPAA requirement)
+              aws s3 ls s3://medical-ai-postgres-backups/ | \
+                awk '{print $4}' | \
+                while read -r backup; do
+                  backup_date=$(echo "$backup" | cut -d'_' -f3 | cut -d'.' -f1)
+                  if [ -n "$backup_date" ]; then
+                    backup_timestamp=$(date -d "${backup_date:0:8} ${backup_date:8:2}:${backup_date:10:2}:${backup_date:12:2}" +%s 2>/dev/null || echo "0")
+                    current_timestamp=$(date +%s)
+                    days_old=$(( (current_timestamp - backup_timestamp) / 86400 ))
+                    if [ $days_old -gt 2555 ]; then  # 7 years
+                      echo "Deleting old backup: $backup (${days_old} days old)"
+                      aws s3 rm "s3://medical-ai-postgres-backups/$backup"
+                    fi
+                  fi
+                done
+              
+              # Health check backup integrity
+              pg_restore \
+                --list "/tmp/${BACKUP_FILE}.gz" \
+                --dry-run \
+                > /dev/null 2>&1
+              
+              if [ $? -eq 0 ]; then
+                echo "Backup completed successfully: ${BACKUP_FILE}.gz"
+                # Send success metric
+                curl -X POST "${PROMETHEUS_PUSHGATEWAY}/metrics/job/postgres_backup" \
+                  -H "Content-Type: text/plain" \
+                  --data-binary "postgres_backup_success 1\npostgres_backup_timestamp $(date +%s)"
+              else
+                echo "Backup integrity check failed"
+                # Send failure metric
+                curl -X POST "${PROMETHEUS_PUSHGATEWAY}/metrics/job/postgres_backup" \
+                  -H "Content-Type: text/plain" \
+                  --data-binary "postgres_backup_success 0\npostgres_backup_timestamp $(date +%s)"
+                exit 1
+              fi
+            env:
+            - name: POSTGRES_HOST
+              value: "postgresql-cluster-service"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: password
+            - name: PROMETHEUS_PUSHGATEWAY
+              value: "http://prometheus-pushgateway:9091"
+            resources:
+              requests:
+                cpu: "1"
+                memory: "2Gi"
+              limits:
+                cpu: "2"
+                memory: "4Gi"
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
+            volumeMounts:
+            - name: backup-tmp
+              mountPath: /tmp
+            - name: postgres-backup-config
+              mountPath: /backup-config
+              readOnly: true
+          volumes:
+          - name: backup-tmp
+            emptyDir:
+              sizeLimit: 10Gi
+          - name: postgres-backup-config
+            configMap:
+              name: postgresql-backup-config
+          restartPolicy: OnFailure
+          terminationGracePeriodSeconds: 30
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-backup-config
+  namespace: medical-ai-production
+data:
+  backup-script.sh: |
+    #!/bin/bash
+    # PostgreSQL Backup Script for Medical AI
+    # HIPAA-compliant backup with encryption and retention
+    
+    set -euo pipefail
+    
+    # Configuration
+    BACKUP_RETENTION_DAYS=2555  # 7 years for HIPAA compliance
+    BACKUP_BUCKET="s3://medical-ai-postgres-backups"
+    WAL_BUCKET="s3://medical-ai-postgres-wal-archive"
+    KMS_KEY_ID="arn:aws:kms:us-east-1:ACCOUNT:key/KEY-ID"
+    
+    # Logging function
+    log() {
+        echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" >&2
+    }
+    
+    # Health check function
+    health_check() {
+        if ! pg_isready -h "${POSTGRES_HOST}" -p 5432 -U "${POSTGRES_USER}" > /dev/null 2>&1; then
+            log "ERROR: PostgreSQL is not ready"
+            return 1
+        fi
+        return 0
+    }
+    
+    # Backup integrity check
+    verify_backup() {
+        local backup_file="$1"
+        if ! pg_restore --list "$backup_file" --dry-run > /dev/null 2>&1; then
+            log "ERROR: Backup integrity check failed for $backup_file"
+            return 1
+        fi
+        log "INFO: Backup integrity check passed for $backup_file"
+        return 0
+    }
+    
+    # Main backup function
+    main() {
+        log "INFO: Starting PostgreSQL backup"
+        
+        # Health check
+        if ! health_check; then
+            log "ERROR: Health check failed"
+            exit 1
+        fi
+        
+        # Create backup timestamp
+        BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
+        BACKUP_FILE="medical_ai_${BACKUP_DATE}.sql"
+        
+        # Create encrypted database dump
+        pg_dump \
+            --host="${POSTGRES_HOST}" \
+            --port=5432 \
+            --username="${POSTGRES_USER}" \
+            --dbname=medical_ai \
+            --verbose \
+            --clean \
+            --if-exists \
+            --create \
+            --format=custom \
+            --compress=9 \
+            --file="/tmp/${BACKUP_FILE}" \
+            --exclude-table-data=audit_logs \
+            --exclude-table-data=session_logs || {
+                log "ERROR: pg_dump failed"
+                exit 1
+            }
+        
+        # Compress backup
+        gzip "/tmp/${BACKUP_FILE}" || {
+            log "ERROR: Compression failed"
+            exit 1
+        }
+        
+        # Upload to S3 with encryption
+        if aws s3 cp "/tmp/${BACKUP_FILE}.gz" \
+            "${BACKUP_BUCKET}/${BACKUP_FILE}.gz" \
+            --server-side-encryption aws:kms \
+            --ssekms-key-id "${KMS_KEY_ID}" \
+            --storage-class GLACIER; then
+            log "INFO: Backup uploaded successfully"
+        else
+            log "ERROR: Upload to S3 failed"
+            exit 1
+        fi
+        
+        # Verify backup integrity
+        if ! verify_backup "/tmp/${BACKUP_FILE}.gz"; then
+            log "ERROR: Backup integrity verification failed"
+            exit 1
+        fi
+        
+        # Cleanup old backups
+        cleanup_old_backups
+        
+        # Send metrics
+        send_metrics 1
+        
+        log "INFO: Backup completed successfully"
+    }
+    
+    # Cleanup function
+    cleanup_old_backups() {
+        log "INFO: Cleaning up old backups"
+        aws s3 ls "${BACKUP_BUCKET}/" | \
+            awk '{print $4}' | \
+            while read -r backup; do
+                if [ -n "$backup" ]; then
+                    backup_timestamp=$(echo "$backup" | grep -o '[0-9]\{8\}');
+                    if [ -n "$backup_timestamp" ]; then
+                        backup_date=$(date -d "${backup_timestamp:0:8} ${backup_timestamp:8:2}:${backup_timestamp:10:2}:${backup_timestamp:12:2}" +%s 2>/dev/null || echo "0")
+                        if [ "$backup_date" != "0" ]; then
+                            current_timestamp=$(date +%s)
+                            days_old=$(( (current_timestamp - backup_date) / 86400 ))
+                            if [ $days_old -gt $BACKUP_RETENTION_DAYS ]; then
+                                log "INFO: Deleting old backup: $backup (${days_old} days old)"
+                                aws s3 rm "${BACKUP_BUCKET}/${backup}"
+                            fi
+                        fi
+                    fi
+                fi
+            done
+    }
+    
+    # Send metrics
+    send_metrics() {
+        local status=$1
+        curl -X POST "${PROMETHEUS_PUSHGATEWAY}/metrics/job/postgres_backup" \
+            -H "Content-Type: text/plain" \
+            --data-binary "postgres_backup_success ${status}\npostgres_backup_timestamp $(date +%s)" || {
+                log "WARNING: Failed to send metrics"
+            }
+    }
+    
+    # Signal handlers
+    trap 'send_metrics 0; exit 1' ERR
+    trap 'send_metrics 0; exit 1' INT TERM
+    
+    # Run main function
+    main "$@"
+
+---
+# Point-in-Time Recovery Job
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgresql-pitr
+  namespace: medical-ai-production
+  labels:
+    app: postgresql
+    component: pitr
+    environment: production
+    compliance: hipaa,fda,iso27001
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  successfulJobsHistoryLimit: 24
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      labels:
+        app: postgresql
+        component: pitr
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgresql
+            component: pitr
+        spec:
+          serviceAccountName: postgres-pitr-service-account
+          containers:
+          - name: postgres-pitr
+            image: postgres:15-alpine
+            command:
+            - /bin/bash
+            - -c
+            - |
+              # Point-in-Time Recovery monitoring
+              echo "Checking Point-in-Time Recovery status..."
+              
+              # Monitor WAL archive size
+              wal_size=$(aws s3 ls s3://medical-ai-postgres-wal-archive/ --recursive --summarize | grep "Total Size" | awk '{print $3}')
+              echo "WAL archive size: $wal_size bytes"
+              
+              # Monitor replication lag
+              lag=$(psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d medical_ai -t -c "SELECT EXTRACT(EPOCH FROM COALESCE(replay_lag, INTERVAL '0 seconds'))::integer FROM pg_stat_replica WHERE application_name != '' LIMIT 1;" 2>/dev/null || echo "0")
+              echo "Replication lag: $lag seconds"
+              
+              # Health metrics
+              echo "postgres_wal_archive_size $wal_size" >> /tmp/metrics
+              echo "postgres_replication_lag_seconds $lag" >> /tmp/metrics
+              
+              # Upload metrics
+              if command -v curl >/dev/null 2>&1; then
+                curl -X POST "${PROMETHEUS_PUSHGATEWAY}/metrics/job/postgres_pitr" \
+                  -H "Content-Type: text/plain" \
+                  --data-binary @/tmp/metrics || echo "Failed to send metrics"
+              fi
+            env:
+            - name: POSTGRES_HOST
+              value: "postgresql-cluster-service"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: password
+            - name: PROMETHEUS_PUSHGATEWAY
+              value: "http://prometheus-pushgateway:9091"
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "256Mi"
+              limits:
+                cpu: "500m"
+                memory: "512Mi"
+          restartPolicy: OnFailure

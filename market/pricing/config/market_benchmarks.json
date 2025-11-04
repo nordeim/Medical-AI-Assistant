@@ -1,0 +1,298 @@
+{
+  "market_segments": {
+    "large_hospital": {
+      "characteristics": {
+        "bed_count_range": [400, 1000],
+        "patient_volume_range": [15000, 50000],
+        "annual_revenue_range": [200000000, 1000000000],
+        "technology_adoption_level": "high",
+        "price_sensitivity": "medium"
+      },
+      "pricing_benchmarks": {
+        "enterprise_subscription": {
+          "base_price_range": [400000, 800000],
+          "implementation_cost": 75000,
+          "support_annual_cost": 100000
+        },
+        "outcome_based_pricing": {
+          "base_fee_range": [200000, 400000],
+          "value_capture_rate": 0.25,
+          "payment_terms": "quarterly"
+        }
+      },
+      "competitive_landscape": {
+        "primary_competitors": ["IBM Watson Health", "Google Cloud Healthcare", "Microsoft Healthcare"],
+        "competitive_advantages": ["Seamless EHR integration", "Proven clinical outcomes", "24/7 support"],
+        "market_differentiation": "Focus on operational efficiency and cost reduction"
+      }
+    },
+    "academic_medical_center": {
+      "characteristics": {
+        "bed_count_range": [500, 1200],
+        "patient_volume_range": [20000, 80000],
+        "annual_revenue_range": [400000000, 1500000000],
+        "technology_adoption_level": "very_high",
+        "price_sensitivity": "low"
+      },
+      "pricing_benchmarks": {
+        "enterprise_subscription": {
+          "base_price_range": [500000, 1200000],
+          "research_integration_premium": 0.30,
+          "academic_discount": 0.15
+        },
+        "research_partnership": {
+          "collaboration_fee": 200000,
+          "data_sharing_agreement": 100000,
+          "publication_benefits": "co-authorship opportunities"
+        }
+      },
+      "competitive_landscape": {
+        "primary_competitors": ["Epic Systems", "Allscripts", "Cerner"],
+        "competitive_advantages": ["Research integration", "Educational capabilities", "Grant funding support"],
+        "market_differentiation": "Leader in academic medical AI research and innovation"
+      }
+    },
+    "community_clinic": {
+      "characteristics": {
+        "bed_count_range": [0, 100],
+        "patient_volume_range": [1000, 15000],
+        "annual_revenue_range": [10000000, 100000000],
+        "technology_adoption_level": "medium",
+        "price_sensitivity": "high"
+      },
+      "pricing_benchmarks": {
+        "subscription_pricing": {
+          "starter_tier": 1500,
+          "professional_tier": 3500,
+          "volume_discounts": {
+            "multi_year": 0.10,
+            "referral_program": 0.05
+          }
+        },
+        "value_based_pricing": {
+          "per_patient_fee": 0.50,
+          "outcome_bonus": 0.25,
+          "minimum_commitment": 50000
+        }
+      },
+      "competitive_landscape": {
+        "primary_competitors": ["athenahealth", "NextGen Healthcare", "eClinicalWorks"],
+        "competitive_advantages": ["Affordable pricing", "Quick implementation", "Practice management integration"],
+        "market_differentiation": "Cost-effective AI solutions for community healthcare"
+      }
+    },
+    "integrated_delivery_network": {
+      "characteristics": {
+        "bed_count_range": [1000, 3000],
+        "patient_volume_range": [50000, 200000],
+        "annual_revenue_range": [1000000000, 5000000000],
+        "technology_adoption_level": "high",
+        "price_sensitivity": "medium"
+      },
+      "pricing_benchmarks": {
+        "enterprise_licensing": {
+          "facility_based_pricing": {
+            "first_facility": 100000,
+            "additional_facilities": 50000,
+            "volume_discounts": {
+              "5_9_facilities": 0.15,
+              "10_19_facilities": 0.25,
+              "20_plus_facilities": 0.35
+            }
+          },
+          "bed_based_pricing": {
+            "per_bed_annual": 300,
+            "minimum_annual": 200000,
+            "maximum_annual": 3000000
+          }
+        },
+        "hybrid_pricing": {
+          "base_platform_fee": 500000,
+          "variable_component": 0.40,
+          "outcome_bonus_multiplier": 1.30
+        }
+      },
+      "competitive_landscape": {
+        "primary_competitors": ["Epic Systems", "Cerner", "Allscripts"],
+        "competitive_advantages": ["Network-wide standardization", "Population health management", "Value-based care support"],
+        "market_differentiation": "Comprehensive population health and network optimization"
+      }
+    },
+    "critical_access_hospital": {
+      "characteristics": {
+        "bed_count_range": [25, 50],
+        "patient_volume_range": [2000, 8000],
+        "annual_revenue_range": [20000000, 100000000],
+        "technology_adoption_level": "low",
+        "price_sensitivity": "very_high"
+      },
+      "pricing_benchmarks": {
+        "subscription_pricing": {
+          "starter_tier": 800,
+          "professional_tier": 2000,
+          "rural_discount": 0.20,
+          "implementation_assistance": 10000
+        },
+        "value_based_pricing": {
+          "per_patient_fee": 0.30,
+          "cost_savings_guarantee": 0.50,
+          "minimum_roi": 2.0
+        }
+      },
+      "competitive_landscape": {
+        "primary_competitors": ["athenahealth", "eClinicalWorks"],
+        "competitive_advantages": ["Rural healthcare focus", "Cost-effective solutions", "Compliance support"],
+        "market_differentiation": "Specialized solutions for critical access and rural hospitals"
+      }
+    }
+  },
+  "clinical_outcomes_benchmarks": {
+    "mortality_rates": {
+      "cardiac_surgery": {
+        "baseline_rate": 0.025,
+        "top_quartile_performance": 0.015,
+        "ai_improvement_potential": 0.40,
+        "value_per_prevented_death": 50000
+      },
+      "stroke": {
+        "baseline_rate": 0.12,
+        "top_quartile_performance": 0.08,
+        "ai_improvement_potential": 0.33,
+        "value_per_prevented_death": 75000
+      },
+      "sepsis": {
+        "baseline_rate": 0.18,
+        "top_quartile_performance": 0.12,
+        "ai_improvement_potential": 0.33,
+        "value_per_prevented_death": 40000
+      }
+    },
+    "readmission_rates": {
+      "heart_failure": {
+        "baseline_rate": 0.25,
+        "target_rate": 0.18,
+        "ai_reduction_potential": 0.28,
+        "cost_per_readmission": 15000
+      },
+      "copd": {
+        "baseline_rate": 0.22,
+        "target_rate": 0.16,
+        "ai_reduction_potential": 0.27,
+        "cost_per_readmission": 12000
+      },
+      "pneumonia": {
+        "baseline_rate": 0.18,
+        "target_rate": 0.13,
+        "ai_reduction_potential": 0.28,
+        "cost_per_readmission": 10000
+      }
+    },
+    "operational_metrics": {
+      "length_of_stay": {
+        "baseline_days": 4.2,
+        "ai_reduction_potential": 0.14,
+        "cost_per_bed_day": 2000,
+        "value_per_day_saved": 8000
+      },
+      "diagnostic_accuracy": {
+        "baseline_accuracy": 0.85,
+        "ai_improvement_potential": 0.09,
+        "cost_per_misdiagnosis": 25000,
+        "liability_cost_per_error": 100000
+      },
+      "patient_satisfaction": {
+        "baseline_score": 82,
+        "ai_improvement_potential": 0.07,
+        "value_per_satisfaction_point": 25000,
+        "reimbursement_impact": 0.02
+      }
+    }
+  },
+  "market_trends": {
+    "growth_projections": {
+      "healthcare_ai_market": {
+        "2024_size_billion": 22.5,
+        "2029_projected_billion": 148.0,
+        "cagr_percent": 45.7
+      },
+      "pricing_model_evolution": {
+        "traditional_licensing_decline": -0.15,
+        "subscription_growth": 0.35,
+        "value_based_growth": 0.65,
+        "outcome_based_growth": 0.85
+      }
+    },
+    "competitive_dynamics": {
+      "market_consolidation": {
+        "major_acquisitions": [
+          {"acquirer": "Microsoft", "target": "Nuance Communications", "value_billion": 19.7, "year": 2022},
+          {"acquirer": "Amazon", "target": "One Medical", "value_billion": 3.9, "year": 2022},
+          {"acquirer": "Oracle", "target": "Cerner", "value_billion": 28.3, "year": 2022}
+        ]
+      },
+      "technology_advancement": {
+        "generative_ai_adoption": 0.25,
+        "real_time_analytics": 0.45,
+        "predictive_modeling": 0.60,
+        "clinical_decision_support": 0.75
+      }
+    }
+  },
+  "regulatory_environment": {
+    "compliance_requirements": {
+      "hipaa": {
+        "data_encryption": "required",
+        "audit_trails": "mandatory",
+        "business_associate_agreements": "required"
+      },
+      "fda": {
+        "software_as_medical_device": "case_by_case",
+        "clinical_validation": "required_for_claims",
+        "post_market_surveillance": "recommended"
+      },
+      "state_regulations": {
+        "data_residency": "varies_by_state",
+        "patient_consent": "state_specific",
+        "interoperability": "increasing_requirements"
+      }
+    },
+    "reimbursement_landscape": {
+      "cms_quality_programs": {
+        "hospital_acquired_conditions": "payment_penalty",
+        "hospital_readmissions": "payment_penalty",
+        "hospital_value_based_purchasing": "payment_incentive"
+      },
+      "value_based_care_trends": {
+        "accountable_care_organizations": 0.40,
+        "bundled_payments": 0.25,
+        "shared_savings": 0.35
+      }
+    }
+  },
+  "customer_preferences": {
+    "pricing_model_preferences": {
+      "large_hospitals": {
+        "value_based_pricing": 0.45,
+        "enterprise_licensing": 0.35,
+        "subscription": 0.20
+      },
+      "academic_medical_centers": {
+        "partnership_models": 0.50,
+        "enterprise_licensing": 0.30,
+        "research_collaboration": 0.20
+      },
+      "community_clinics": {
+        "subscription": 0.60,
+        "per_patient": 0.25,
+        "value_based": 0.15
+      }
+    },
+    "decision_factors": {
+      "clinical_outcomes": 0.30,
+      "cost_effectiveness": 0.25,
+      "ease_of_implementation": 0.20,
+      "vendor_reputation": 0.15,
+      "technical_support": 0.10
+    }
+  }
+}

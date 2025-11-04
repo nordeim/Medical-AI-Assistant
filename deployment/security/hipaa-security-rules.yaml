@@ -1,0 +1,438 @@
+# HIPAA Security Rules Configuration for Kubernetes Pod Security Standards
+# Enforces healthcare compliance and data protection
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hipaa-security-policy
+  namespace: medical-ai-prod
+  labels:
+    compliance: hipaa
+    security-policy: "enabled"
+data:
+  # Pod Security Standards Baseline Policy
+  baseline-policy.yaml: |
+    apiVersion: policy/v1beta1
+    kind: PodSecurityPolicy
+    metadata:
+      name: hipaa-baseline-psp
+      labels:
+        compliance: hipaa
+        policy-type: baseline
+    spec:
+      privileged: false
+      allowPrivilegeEscalation: false
+      requiredDropCapabilities:
+        - ALL
+      volumes:
+        - 'configMap'
+        - 'emptyDir'
+        - 'projected'
+        - 'secret'
+        - 'downwardAPI'
+        - 'persistentVolumeClaim'
+      hostNetwork: false
+      hostIPC: false
+      hostPID: false
+      runAsUser:
+        rule: 'MustRunAsNonRoot'
+      supplementalGroups:
+        rule: 'MustRunAs'
+        ranges:
+          - min: 1
+            max: 65535
+      fsGroup:
+        rule: 'MustRunAs'
+        ranges:
+          - min: 1
+            max: 65535
+      readOnlyRootFilesystem: true
+      allowHostPaths: []
+      allowedHostPaths: []
+      allowedFlexVolumes: []
+      allowedCapabilities: []
+      defaultAddCapabilities: []
+      requiredDropCapabilities: []
+      defaultAllowPrivilegeEscalation: false
+      allowPrivilegeEscalation: false
+      allowedUnsafeSysctls: []
+      forbiddenSysctls: []
+      hostPorts: []
+      seccompProfile:
+        type: RuntimeDefault
+
+  # Restricted Policy for highly sensitive workloads
+  restricted-policy.yaml: |
+    apiVersion: policy/v1beta1
+    kind: PodSecurityPolicy
+    metadata:
+      name: hipaa-restricted-psp
+      labels:
+        compliance: hipaa
+        policy-type: restricted
+    spec:
+      privileged: false
+      allowPrivilegeEscalation: false
+      requiredDropCapabilities:
+        - ALL
+      volumes:
+        - 'configMap'
+        - 'emptyDir'
+        - 'projected'
+        - 'secret'
+        - 'downwardAPI'
+      hostNetwork: true
+      hostIPC: false
+      hostPID: false
+      runAsUser:
+        rule: 'MustRunAsNonRoot'
+        ranges:
+          - min: 1000
+            max: 65535
+      supplementalGroups:
+        rule: 'MustRunAs'
+        ranges:
+          - min: 1000
+            max: 65535
+      fsGroup:
+        rule: 'MustRunAs'
+        ranges:
+          - min: 1000
+            max: 65535
+      readOnlyRootFilesystem: true
+      allowHostPaths:
+        - pathPrefix: "/dev/shm"
+        - pathPrefix: "/tmp"
+      allowedHostPaths:
+        - pathPrefix: "/dev/shm"
+        - pathPrefix: "/tmp"
+      allowedFlexVolumes: []
+      allowedCapabilities:
+        - NET_BIND_SERVICE
+      defaultAddCapabilities: []
+      requiredDropCapabilities:
+        - ALL
+      defaultAllowPrivilegeEscalation: false
+      allowPrivilegeEscalation: false
+      allowedUnsafeSysctls:
+        - "net.core.somaxconn"
+      forbiddenSysctls:
+        - "*"
+      hostPorts:
+        - min: 1024
+          max: 65535
+      seccompProfile:
+        type: RuntimeDefault
+
+  # Network Policies for segmentation
+  network-policies.yaml: |
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: deny-all-default
+      namespace: medical-ai-prod
+    spec:
+      podSelector: {}
+      policyTypes:
+      - Ingress
+      - Egress
+
+    ---
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-frontend-to-backend
+      namespace: medical-ai-prod
+    spec:
+      podSelector:
+        matchLabels:
+          component: backend
+      policyTypes:
+      - Ingress
+      ingress:
+      - from:
+        - podSelector:
+            matchLabels:
+              component: frontend
+        ports:
+        - protocol: TCP
+          port: 8000
+
+    ---
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-backend-to-serving
+      namespace: medical-ai-prod
+    spec:
+      podSelector:
+        matchLabels:
+          component: serving
+      policyTypes:
+      - Ingress
+      ingress:
+      - from:
+        - podSelector:
+            matchLabels:
+              component: backend
+        ports:
+        - protocol: TCP
+          port: 8081
+        - protocol: TCP
+          port: 9090
+
+    ---
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-backend-to-database
+      namespace: medical-ai-prod
+    spec:
+      podSelector:
+        matchLabels:
+          component: database
+      policyTypes:
+      - Ingress
+      ingress:
+      - from:
+        - podSelector:
+            matchLabels:
+              component: backend
+        ports:
+        - protocol: TCP
+          port: 5432
+
+    ---
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-backend-to-cache
+      namespace: medical-ai-prod
+    spec:
+      podSelector:
+        matchLabels:
+          component: cache
+      policyTypes:
+      - Ingress
+      ingress:
+      - from:
+        - podSelector:
+            matchLabels:
+              component: backend
+        ports:
+        - protocol: TCP
+          port: 6379
+
+  # Security Context Constraints
+  security-contexts.yaml: |
+    apiVersion: v1
+    kind: SecurityContextConstraints
+    metadata:
+      name: hipaa-scc
+    allowHostDirVolumePath: false
+    allowHostIPC: false
+    allowHostNetwork: false
+    allowHostPID: false
+    allowHostPorts: false
+    allowPrivilegedContainer: false
+    allowPrivilegeEscalation: false
+    allowedCapabilities:
+      - NET_BIND_SERVICE
+    defaultAddCapabilities: []
+    fsGroup:
+      type: MustRunAs
+    groups:
+    - system:authenticated
+    readOnlyRootFilesystem: true
+    requiredDropCapabilities:
+      - ALL
+    runAsUser:
+      type: MustRunAsNonRoot
+    seccompProfiles:
+      - runtime/default
+    volumes:
+      - configMap
+      - emptyDir
+      - projected
+      - secret
+      - downwardAPI
+      - persistentVolumeClaim
+
+  # Service Account configuration
+  service-accounts.yaml: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: medical-ai-backend-sa
+      namespace: medical-ai-prod
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/medical-ai-backend-role
+        azure.workload.identity/client-id: "backend-client-id"
+        gcp.googleapis.com/anthos-service-account: "medical-ai-backend@gcp-project.iam.gserviceaccount.com"
+    automountServiceAccountToken: true
+    imagePullSecrets:
+    - name: medical-ai-registry-secret
+
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: medical-ai-frontend-sa
+      namespace: medical-ai-prod
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/medical-ai-frontend-role
+    automountServiceAccountToken: false
+
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: medical-ai-serving-sa
+      namespace: medical-ai-prod
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/medical-ai-serving-role
+        azure.workload.identity/client-id: "serving-client-id"
+    automountServiceAccountToken: true
+    imagePullSecrets:
+    - name: medical-ai-registry-secret
+
+  # RBAC Policies
+  rbac-policies.yaml: |
+    # Backend Service Account Role
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      namespace: medical-ai-prod
+      name: medical-ai-backend-role
+    rules:
+    - apiGroups: [""]
+      resources: ["secrets", "configmaps"]
+      verbs: ["get", "list"]
+    - apiGroups: [""]
+      resources: ["services"]
+      verbs: ["get", "list"]
+    - apiGroups: [""]
+      resources: ["endpoints"]
+      verbs: ["get", "list"]
+    - apiGroups: ["apps"]
+      resources: ["deployments"]
+      verbs: ["get", "list"]
+    
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: medical-ai-backend-binding
+      namespace: medical-ai-prod
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: medical-ai-backend-role
+    subjects:
+    - kind: ServiceAccount
+      name: medical-ai-backend-sa
+      namespace: medical-ai-prod
+
+    # Serving Service Account Role
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      namespace: medical-ai-prod
+      name: medical-ai-serving-role
+    rules:
+    - apiGroups: [""]
+      resources: ["secrets", "configmaps"]
+      verbs: ["get", "list"]
+    - apiGroups: [""]
+      resources: ["services"]
+      verbs: ["get", "list"]
+    - apiGroups: [""]
+      resources: ["endpoints"]
+      verbs: ["get", "list"]
+    - apiGroups: ["metrics.k8s.io"]
+      resources: ["pods", "nodes"]
+      verbs: ["get", "list"]
+    
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: medical-ai-serving-binding
+      namespace: medical-ai-prod
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: medical-ai-serving-role
+    subjects:
+    - kind: ServiceAccount
+      name: medical-ai-serving-sa
+      namespace: medical-ai-prod
+
+    # Monitoring Service Account
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: medical-ai-monitor
+    rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "endpoints", "nodes"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "replicasets"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["metrics.k8s.io"]
+      resources: ["pods", "nodes"]
+      verbs: ["get", "list"]
+    - apiGroups: ["networking.k8s.io"]
+      resources: ["ingresses"]
+      verbs: ["get", "list", "watch"]
+    
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: medical-ai-monitor-binding
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: medical-ai-monitor
+    subjects:
+    - kind: ServiceAccount
+      name: medical-ai-prometheus-sa
+      namespace: medical-ai-prod
+
+  # Pod Disruption Budgets for availability
+  disruption-budgets.yaml: |
+    apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: medical-ai-backend-pdb
+      namespace: medical-ai-prod
+    spec:
+      minAvailable: 2
+      selector:
+        matchLabels:
+          component: backend
+
+    ---
+    apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: medical-ai-frontend-pdb
+      namespace: medical-ai-prod
+    spec:
+      minAvailable: 2
+      selector:
+        matchLabels:
+          component: frontend
+
+    ---
+    apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: medical-ai-serving-pdb
+      namespace: medical-ai-prod
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          component: serving

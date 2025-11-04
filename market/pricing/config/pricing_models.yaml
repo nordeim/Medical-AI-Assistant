@@ -1,0 +1,88 @@
+enterprise_license:
+  base_price: 500000
+  contractual_terms:
+    maintenance_fee: 15% annually
+    setup_fee: 20% of annual fee
+    support_included: Business hours
+  discount_tiers:
+    bronze: 0.85
+    gold: 0.95
+    platinum: 1.0
+    silver: 0.9
+  model_name: Enterprise License
+  price_factors:
+    custom_requirements: 1.3
+    customer_tier: 1.0
+    implementation_complexity: 1.1
+    market_segment: 1.2
+  usage_tiers:
+    enterprise: 3.0
+    multi_facility: 1.5
+    network: 2.0
+    single_facility: 1.0
+per_patient:
+  base_price: 0.5
+  contractual_terms:
+    billing_cycle: Monthly
+    overage_rates: Standard rates
+    volume_commitment: Annual minimum
+  discount_tiers:
+    high_volume: 0.8
+    low_volume: 1.0
+    medium_volume: 0.9
+    pilot: 1.2
+  model_name: Per Patient
+  price_factors:
+    clinical_complexity: 1.4
+    integration_depth: 1.2
+    patient_volume: 1.0
+    service_level: 1.0
+  usage_tiers:
+    minimum_100k: 0.8
+    minimum_10k: 1.2
+    minimum_25k: 1.0
+    minimum_50k: 0.9
+subscription:
+  base_price: 120000
+  contractual_terms:
+    payment_terms: Annual
+    renewal_discount: 5%
+    term_length: 3 years
+  discount_tiers:
+    bronze: 0.7
+    gold: 0.9
+    platinum: 1.0
+    silver: 0.8
+  model_name: Subscription
+  price_factors:
+    competitive_pressure: 1.0
+    customer_tier: 1.0
+    market_segment: 1.0
+    volume_discount: 0.95
+  usage_tiers:
+    basic: 1.0
+    enterprise: 2.0
+    premium: 1.5
+    standard: 1.2
+value_based:
+  base_price: 200000
+  contractual_terms:
+    measurement_period: 12 months
+    payment_schedule: Performance based
+    value_adjustment: Semi-annual
+  discount_tiers:
+    high_confidence: 0.9
+    medium_confidence: 0.8
+    outcome_guaranteed: 1.0
+    pilot_program: 0.7
+  model_name: Value Based
+  price_factors:
+    clinical_outcomes: 1.5
+    implementation_success: 1.2
+    operational_efficiency: 1.3
+    value_capture_rate: 0.25
+  usage_tiers:
+    enterprise: 1.8
+    multi_department: 1.3
+    pilot: 0.5
+    single_department: 1.0

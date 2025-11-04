@@ -1,0 +1,33 @@
+{
+  "audit_timestamp": "2025-11-04T05:35:07.745866",
+  "total_records_processed": 4,
+  "validation_results": {
+    "passed": 0,
+    "failed": 4
+  },
+  "compliance_summary": {
+    "expert_determination": {
+      "passed": 4,
+      "failed": 0
+    },
+    "safe_harbor": {
+      "passed": 1,
+      "failed": 3
+    }
+  },
+  "files_generated": [
+    "compliance_cert_H001_expert_determination.json",
+    "compliance_cert_H001_safe_harbor.json",
+    "compliance_cert_H002_expert_determination.json",
+    "compliance_cert_H002_safe_harbor.json",
+    "compliance_cert_H003_expert_determination.json",
+    "compliance_cert_H003_safe_harbor.json",
+    "compliance_cert_H004_expert_determination.json",
+    "compliance_cert_H004_safe_harbor.json",
+    "pseudonym_map.json",
+    "validation_report_H001.json",
+    "validation_report_H002.json",
+    "validation_report_H003.json",
+    "validation_report_H004.json"
+  ]
+}

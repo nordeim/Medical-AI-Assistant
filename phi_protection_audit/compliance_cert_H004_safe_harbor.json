@@ -1,0 +1,40 @@
+{
+  "certificate": {
+    "certificate_id": "HIPAA_COMPLIANCE_20251104_c28471491d6422c7",
+    "issued_date": "2025-11-04T05:35:07.614541",
+    "valid_until": "2026-11-04T05:35:07.614539",
+    "status": "NON_COMPLIANT",
+    "compliance_score": 0.7,
+    "method": "safe_harbor",
+    "requirements": {
+      "met": 7,
+      "failed": 3,
+      "total": 10
+    },
+    "risk_assessment": {
+      "critical": 2,
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    },
+    "recommendations": [
+      "IMMEDIATE ACTION: Address all failed mandatory requirements",
+      "Re-run de-identification with enhanced patterns",
+      "Ensure all 18 Safe Harbor identifiers are removed",
+      "Document the Safe Harbor method used for compliance",
+      "Store compliance certificate with de-identified data",
+      "Re-validate periodically or when regulations change"
+    ]
+  },
+  "method_specific": {
+    "safe_harbor": {
+      "method": "Safe Harbor",
+      "total_identifiers": 18,
+      "identifiers_removed": 7,
+      "year_only_dates": 0,
+      "generalized_dates": 1,
+      "zip_code_handling": "State-level only"
+    },
+    "expert_determination": null
+  }
+}

@@ -1,0 +1,389 @@
+# LoRA Training Configuration
+# Comprehensive configuration file for LoRA/PEFT training with various model types and optimization options
+
+# Model Configuration
+model:
+  model_name: "meta-llama/Llama-2-7b-hf"  # Base model name or path
+  model_type: "llama"                      # Model type: llama, mistral, qwen, gpt2, gpt-neo, opt
+  trust_remote_code: false                 # Trust remote code execution
+  use_auth_token: null                     # HuggingFace auth token (optional)
+  cache_dir: "./cache"                     # Model cache directory
+  max_length: 2048                         # Maximum sequence length
+  device_map: "auto"                       # Device mapping strategy
+
+# LoRA Configuration
+lora:
+  r: 16                                    # LoRA rank (attention: higher = more parameters)
+  lora_alpha: 32                           # LoRA alpha (scaling factor)
+  lora_dropout: 0.1                        # LoRA dropout rate
+  target_modules:                          # Target modules for LoRA
+    - "q_proj"
+    - "v_proj" 
+    - "k_proj"
+    - "o_proj"
+  bias: "none"                             # Bias: none, all, lora_only
+  task_type: "CAUSAL_LM"                   # Task type
+  use_rslora: false                        # Use RSLoRA (Rank-Stabilized LoRA)
+  use_dora: false                          # Use DoRA (Weight-Decomposed LoRA)
+  init_lora_weights: true                  # Initialize LoRA weights
+
+# Quantization Configuration
+quantization:
+  use_4bit: false                          # Use 4-bit quantization
+  use_8bit: false                          # Use 8-bit quantization
+  bnb_4bit_quant_type: "nf4"               # 4-bit quantization type: nf4, fp4
+  bnb_4bit_use_double_quant: true          # Use double quantization for 4-bit
+  bnb_4bit_compute_dtype: "bfloat16"       # Compute dtype for 4-bit: float16, bfloat16
+  load_in_4bit: false                      # Load model in 4-bit
+  load_in_8bit: false                      # Load model in 8-bit
+
+# Training Configuration
+training:
+  output_dir: "./output"                   # Output directory
+  logging_dir: "./logs"                    # Logging directory
+  num_epochs: 3                            # Number of training epochs
+  per_device_train_batch_size: 4           # Training batch size per device
+  per_device_eval_batch_size: 4            # Evaluation batch size per device
+  gradient_accumulation_steps: 1           # Gradient accumulation steps
+  learning_rate: 2e-4                      # Learning rate
+  weight_decay: 0.01                       # Weight decay
+  max_grad_norm: 1.0                       # Maximum gradient norm
+  warmup_ratio: 0.1                        # Warmup ratio
+  lr_scheduler_type: "linear"              # LR scheduler: linear, cosine, cosine_with_restarts, polynomial, constant
+  warmup_steps: 0                          # Warmup steps (overrides warmup_ratio if > 0)
+  fp16: false                              # Use FP16 mixed precision
+  bf16: false                              # Use BF16 mixed precision
+  dataloader_num_workers: 0                # Number of DataLoader workers
+  remove_unused_columns: false             # Remove unused columns from dataset
+  save_steps: 500                          # Save every N steps
+  save_total_limit: 3                      # Maximum number of saves to keep
+  evaluation_strategy: "steps"             # Evaluation strategy: no, steps, epoch
+  eval_steps: 500                          # Evaluate every N steps
+  load_best_model_at_end: true             # Load best model at end of training
+  metric_for_best_model: "eval_loss"       # Metric for best model
+  greater_is_better: false                 # Whether higher metric is better
+  early_stopping_patience: 3               # Early stopping patience
+  save_safetensors: true                   # Save in safetensors format
+  report_to: ["wandb"]                     # Report to: wandb, tensorboard, etc.
+  run_name: "lora-training"                # Run name for logging
+
+# Optimization Configuration
+optimization:
+  gradient_checkpointing: true             # Enable gradient checkpointing
+  group_by_length: false                   # Group batches by sequence length
+  length_column_name: "length"             # Column name for length grouping
+  ddp_find_unused_parameters: null         # DDP find unused parameters
+  dataloader_pin_memory: true              # Pin memory for DataLoader
+  skip_memory_metrics: true                # Skip memory metrics collection
+  max_steps: null                          # Maximum training steps (optional)
+  save_strategy: "steps"                   # Save strategy: no, steps, epoch
+  deepspeed_config: null                   # DeepSpeed configuration file
+  use_distributed: false                   # Use distributed training
+  local_rank: -1                           # Local rank for distributed training
+  gradient_checkpointing_kwargs:           # Additional kwargs for gradient checkpointing
+    use_reentrant: false
+
+# Data Configuration  
+data:
+  data_path: "data/train.jsonl"            # Path to training data
+  data_type: "jsonl"                       # Data type: jsonl, json, csv, txt, datasets
+  text_column: "text"                      # Text column name
+  prompt_column: null                      # Prompt column name (optional)
+  response_column: null                    # Response column name (optional)
+  train_split_ratio: 0.9                   # Training split ratio
+  val_split_ratio: 0.05                    # Validation split ratio
+  max_samples: null                        # Maximum samples to use (optional)
+  stream: false                            # Stream data loading
+  preprocessing_num_workers: null          # Preprocessing workers
+  load_from_cache_file: true               # Load from cache file
+  dataset_cache_dir: null                  # Dataset cache directory
+
+# Preset Configurations for Different Scenarios
+
+# =====================================
+# PRESET: Llama-2-7B with Full Precision
+# =====================================
+llama7b_full_precision:
+  model:
+    model_name: "meta-llama/Llama-2-7b-hf"
+    model_type: "llama"
+    max_length: 2048
+  lora:
+    r: 16
+    lora_alpha: 32
+    lora_dropout: 0.1
+  training:
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 4
+    learning_rate: 2e-4
+    bf16: true
+  quantization:
+    use_4bit: false
+    use_8bit: false
+
+# =====================================
+# PRESET: Llama-2-7B with 4-bit Quantization  
+# =====================================
+llama7b_4bit:
+  model:
+    model_name: "meta-llama/Llama-2-7b-hf"
+    model_type: "llama"
+    max_length: 2048
+  lora:
+    r: 32
+    lora_alpha: 64
+    lora_dropout: 0.05
+  training:
+    per_device_train_batch_size: 8
+    gradient_accumulation_steps: 8
+    learning_rate: 5e-4
+    bf16: true
+  quantization:
+    use_4bit: true
+    bnb_4bit_quant_type: "nf4"
+    bnb_4bit_use_double_quant: true
+
+# =====================================
+# PRESET: Llama-2-13B with 4-bit Quantization
+# =====================================
+llama13b_4bit:
+  model:
+    model_name: "meta-llama/Llama-2-13b-hf"
+    model_type: "llama"
+    max_length: 2048
+  lora:
+    r: 64
+    lora_alpha: 128
+    lora_dropout: 0.05
+  training:
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 16
+    learning_rate: 1e-4
+    bf16: true
+  quantization:
+    use_4bit: true
+    bnb_4bit_quant_type: "nf4"
+    bnb_4bit_use_double_quant: true
+
+# =====================================
+# PRESET: Mistral-7B with 8-bit Quantization
+# =====================================
+mistral7b_8bit:
+  model:
+    model_name: "mistralai/Mistral-7B-v0.1"
+    model_type: "mistral"
+    max_length: 2048
+  lora:
+    r: 32
+    lora_alpha: 64
+    lora_dropout: 0.1
+  training:
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 8
+    learning_rate: 3e-4
+    bf16: true
+  quantization:
+    use_8bit: true
+    load_in_8bit: true
+
+# =====================================
+# PRESET: Qwen-7B with 4-bit Quantization
+# =====================================
+qwen7b_4bit:
+  model:
+    model_name: "Qwen/Qwen-7B"
+    model_type: "qwen"
+    trust_remote_code: true
+    max_length: 2048
+  lora:
+    r: 32
+    lora_alpha: 64
+    lora_dropout: 0.1
+    target_modules:
+      - "q_proj"
+      - "k_proj"
+      - "v_proj"
+      - "o_proj"
+  training:
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 8
+    learning_rate: 2e-4
+    bf16: true
+  quantization:
+    use_4bit: true
+    bnb_4bit_quant_type: "nf4"
+    bnb_4bit_use_double_quant: true
+
+# =====================================
+# PRESET: Fine-tuning for Code Generation
+# =====================================
+code_generation:
+  model:
+    model_name: "codellama/CodeLlama-7b-Instruct-hf"
+    model_type: "llama"
+    max_length: 4096
+  lora:
+    r: 64
+    lora_alpha: 128
+    lora_dropout: 0.05
+    target_modules:
+      - "q_proj"
+      - "v_proj"
+      - "k_proj"
+      - "o_proj"
+      - "gate_proj"
+      - "up_proj"
+      - "down_proj"
+  training:
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 16
+    learning_rate: 1e-4
+    warmup_ratio: 0.03
+    bf16: true
+  quantization:
+    use_4bit: true
+    bnb_4bit_quant_type: "nf4"
+
+# =====================================
+# PRESET: Multi-turn Conversation Fine-tuning
+# =====================================
+conversation_finetuning:
+  model:
+    model_name: "meta-llama/Llama-2-7b-chat-hf"
+    model_type: "llama"
+    max_length: 2048
+  lora:
+    r: 32
+    lora_alpha: 64
+    lora_dropout: 0.1
+  training:
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 8
+    learning_rate: 3e-4
+    num_epochs: 5
+    bf16: true
+  data:
+    data_type: "jsonl"
+    text_column: "conversations"
+    prompt_column: "prompt"
+    response_column: "response"
+
+# =====================================
+# PRESET: Memory-Constrained Training
+# =====================================
+memory_optimized:
+  model:
+    model_name: "meta-llama/Llama-2-7b-hf"
+    model_type: "llama"
+    max_length: 1024
+  lora:
+    r: 8
+    lora_alpha: 16
+    lora_dropout: 0.1
+  training:
+    per_device_train_batch_size: 1
+    gradient_accumulation_steps: 32
+    learning_rate: 1e-4
+    bf16: false
+    fp16: true
+  optimization:
+    gradient_checkpointing: true
+    group_by_length: true
+    dataloader_pin_memory: false
+  quantization:
+    use_4bit: true
+    bnb_4bit_quant_type: "nf4"
+
+# =====================================
+# PRESET: High Performance Training
+# =====================================
+high_performance:
+  model:
+    model_name: "meta-llama/Llama-2-7b-hf"
+    model_type: "llama"
+    max_length: 2048
+  lora:
+    r: 64
+    lora_alpha: 128
+    lora_dropout: 0.05
+  training:
+    per_device_train_batch_size: 8
+    gradient_accumulation_steps: 4
+    learning_rate: 1e-4
+    warmup_ratio: 0.05
+    bf16: true
+    dataloader_num_workers: 4
+  optimization:
+    gradient_checkpointing: false
+    group_by_length: true
+    dataloader_pin_memory: true
+
+# =====================================
+# PRESET: Fast Experimentation
+# =====================================
+fast_experimentation:
+  model:
+    model_name: "microsoft/DialoGPT-small"
+    model_type: "gpt2"
+    max_length: 512
+  lora:
+    r: 4
+    lora_alpha: 8
+    lora_dropout: 0.1
+  training:
+    num_epochs: 1
+    per_device_train_batch_size: 8
+    gradient_accumulation_steps: 2
+    learning_rate: 5e-4
+    max_steps: 1000
+    save_steps: 100
+    eval_steps: 100
+    bf16: false
+    fp16: false
+  data:
+    max_samples: 1000
+
+# =====================================
+# PRESET: Distributed Training
+# =====================================
+distributed_training:
+  model:
+    model_name: "meta-llama/Llama-2-13b-hf"
+    model_type: "llama"
+    max_length: 2048
+  lora:
+    r: 32
+    lora_alpha: 64
+    lora_dropout: 0.1
+  training:
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 16
+    learning_rate: 2e-4
+    bf16: true
+  optimization:
+    use_distributed: true
+    gradient_checkpointing: true
+    deepspeed_config: "configs/deepspeed_zero3.json"
+
+# =====================================
+# PRESET: Educational/Research Setup
+# =====================================
+educational:
+  model:
+    model_name: "gpt2-medium"
+    model_type: "gpt2"
+    max_length: 512
+  lora:
+    r: 16
+    lora_alpha: 32
+    lora_dropout: 0.1
+  training:
+    num_epochs: 2
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 4
+    learning_rate: 3e-4
+    save_steps: 200
+    eval_steps: 200
+    report_to: []
+  data:
+    max_samples: 500

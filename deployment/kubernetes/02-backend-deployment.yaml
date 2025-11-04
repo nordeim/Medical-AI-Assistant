@@ -1,0 +1,338 @@
+# Backend API Production Deployment for Kubernetes
+# HIPAA-compliant backend with enhanced security and monitoring
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medical-ai-backend
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backend
+    environment: production
+    compliance: hipaa
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: medical-ai
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: medical-ai
+        component: backend
+        environment: production
+        compliance: hipaa
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+        audit.kubernetes.io/allow-privilege-escalation: "false"
+        audit.kubernetes.io/readonly-root-filesystem: "true"
+    spec:
+      serviceAccountName: medical-ai-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+      - name: wait-for-database
+        image: postgres:15-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h medical-ai-database -p 5432 -U $DB_USER; do
+            echo 'Waiting for database...'
+            sleep 2
+          done
+          echo 'Database is ready!'
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-database-secret
+              key: username
+      - name: wait-for-redis
+        image: redis:7-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until redis-cli -h medical-ai-redis -p 6379 ping; do
+            echo 'Waiting for Redis...'
+            sleep 2
+          done
+          echo 'Redis is ready!'
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-redis-secret
+              key: password
+      containers:
+      - name: backend
+        image: medical-ai/backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-database-secret
+              key: url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-redis-secret
+              key: url
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-secret
+              key: secret-key
+        - name: ALLOWED_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: medical-ai-config
+              key: allowed-hosts
+        - name: CORS_ORIGINS
+          valueFrom:
+            configMapKeyRef:
+              name: medical-ai-config
+              key: cors-origins
+        - name: HIPAA_COMPLIANCE
+          value: "true"
+        - name: AUDIT_LOGGING
+          value: "true"
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medical-ai-encryption
+              key: encryption-key
+        - name: MODEL_CACHE_SIZE
+          value: "1000"
+        - name: MAX_CONCURRENT_REQUESTS
+          value: "50"
+        - name: REQUEST_TIMEOUT
+          value: "60"
+        - name: PROMETHEUS_MULTIPROC_DIR
+          value: "/tmp/prometheus_multiproc_dir"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 1Gi
+          limits:
+            cpu: 2Gi
+            memory: 4Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: models
+          mountPath: /app/models
+        - name: data
+          mountPath: /app/data
+        - name: logs
+          mountPath: /app/logs
+        - name: prometheus-multiproc
+          mountPath: /tmp/prometheus_multiproc_dir
+        - name: tmp
+          mountPath: /tmp
+          readOnly: false
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: medical-ai-models-pvc
+      - name: data
+        persistentVolumeClaim:
+          claimName: medical-ai-data-pvc
+      - name: logs
+        emptyDir: {}
+      - name: prometheus-multiproc
+        emptyDir: {}
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 500Mi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - medical-ai
+                - key: component
+                  operator: In
+                  values:
+                  - backend
+              topologyKey: kubernetes.io/hostname
+      tolerations:
+      - key: "medical-ai-dedicated"
+        operator: "Equal"
+        value: "backend"
+        effect: "NoSchedule"
+      nodeSelector:
+        workload-type: backend
+---
+# Service for Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: medical-ai-backend
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backend
+    environment: production
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  selector:
+    app: medical-ai
+    component: backend
+---
+# HorizontalPodAutoscaler for Backend
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medical-ai-backend-hpa
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-backend
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "50"
+  - type: Pods
+    pods:
+      metric:
+        name: active_connections
+      target:
+        type: AverageValue
+        averageValue: "100"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 25
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+---
+# VerticalPodAutoscaler for Backend
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: medical-ai-backend-vpa
+  namespace: medical-ai-prod
+  labels:
+    app: medical-ai
+    component: backend
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medical-ai-backend
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: backend
+      maxAllowed:
+        cpu: 4
+        memory: 8Gi
+      minAllowed:
+        cpu: 100m
+        memory: 256Mi

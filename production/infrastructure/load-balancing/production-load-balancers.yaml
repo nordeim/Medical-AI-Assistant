@@ -1,0 +1,524 @@
+# Production Load Balancing Configuration
+# Healthcare-compliant load balancing with auto-scaling for Medical AI Assistant
+
+# AWS Application Load Balancer (ALB) Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-alb-config
+  namespace: medical-ai-production
+data:
+  aws-alb-production.yaml: |
+    # AWS ALB Configuration for Medical AI Production
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: aws-alb-production
+      namespace: medical-ai-production
+    data:
+      alb.yaml: |
+        # ALB Ingress Controller Configuration
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: medical-ai-ingress
+          namespace: medical-ai-production
+          labels:
+            app: medical-ai
+            environment: production
+            compliance: hipaa,fda,iso27001
+          annotations:
+            # AWS Load Balancer Controller
+            kubernetes.io/ingress.class: "alb"
+            alb.ingress.kubernetes.io/scheme: "internet-facing"
+            alb.ingress.kubernetes.io/target-type: "instance"
+            
+            # Health Check Configuration
+            alb.ingress.kubernetes.io/healthcheck-path: "/health"
+            alb.ingress.kubernetes.io/healthcheck-port: "80"
+            alb.ingress.kubernetes.io/healthcheck-protocol: "HTTP"
+            alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
+            alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+            alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+            alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+            
+            # SSL/TLS Configuration
+            alb.ingress.kubernetes.io/ssl-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+            alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:ACCOUNT:certificate/CERT-ID"
+            
+            # Security and HIPAA Compliance
+            alb.ingress.kubernetes.io/ssl-redirect: "true"
+            alb.ingress.kubernetes.io/load-balancer-attributes: |
+              routing.http2.enabled=true,
+              deletion_protection.enabled=true,
+              idle_timeout.timeout_seconds=3600,
+              cross_zone.enabled=true,
+              access_logs.s3.enabled=true,
+              access_logs.s3.bucket=medical-ai-alb-logs,
+              access_logs.s3.prefix=access-logs/
+            
+            # WAF Integration
+            aws-load-balancer-controller.metrics/real_ip_header: "X-Forwarded-For"
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+            
+            # Session Affinity for Healthcare Compliance
+            alb.ingress.kubernetes.io/target-group-attributes: |
+              stickiness.enabled=true,
+              stickiness.lb_cookie.duration_seconds=86400,
+              health_check.enabled=true,
+              health_check.path=/health,
+              health_check.interval_seconds=30,
+              health_check.timeout_seconds=5,
+              healthy_threshold_count=2,
+              unhealthy_threshold_count=3,
+              target_type=instance,
+              protocol=HTTP,
+              port=80,
+              deregistration_delay.timeout_seconds=300
+            
+            # Healthcare-specific routing rules
+            alb.ingress.kubernetes.io/rules: |
+              - path: /api/v1/*
+                backend:
+                  serviceName: medical-ai-backend-service
+                  servicePort: 80
+              - path: /api/v2/*
+                backend:
+                  serviceName: medical-ai-backend-service
+                  servicePort: 80
+              - path: /ws/*
+                backend:
+                  serviceName: medical-ai-backend-service
+                  servicePort: 80
+                annotations:
+                  websocket: "true"
+              - path: /*
+                backend:
+                  serviceName: medical-ai-frontend-service
+                  servicePort: 80
+              
+            # Cross-origin resource sharing for medical applications
+            alb.ingress.kubernetes.io/cors-policy: |
+              allowed_headers: ["*"]
+              allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+              allowed_origins: ["https://medical-ai.com", "https://portal.medical-ai.com"]
+              expose_headers: ["*"]
+              max_age_seconds: "3600"
+              
+            # Rate limiting for healthcare data protection
+            nginx.ingress.kubernetes.io/rate-limit: "1000"
+            nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+            
+            # Security headers for PHI protection
+            nginx.ingress.kubernetes.io/configuration-snippet: |
+              more_set_headers "X-Frame-Options: DENY";
+              more_set_headers "X-Content-Type-Options: nosniff";
+              more_set_headers "X-XSS-Protection: 1; mode=block";
+              more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains";
+              more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' wss: https:;";
+              more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+              more_set_headers "Permissions-Policy: geolocation=(), microphone=(), camera=()";
+        spec:
+          rules:
+          - host: medical-ai.com
+            http:
+              paths:
+              - path: /api/v1
+                pathType: Prefix
+                backend:
+                  service:
+                    name: medical-ai-backend-service
+                    port:
+                      number: 80
+              - path: /api/v2
+                pathType: Prefix
+                backend:
+                  service:
+                    name: medical-ai-backend-service
+                    port:
+                      number: 80
+              - path: /ws
+                pathType: Prefix
+                backend:
+                  service:
+                    name: medical-ai-backend-service
+                    port:
+                      number: 80
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: medical-ai-frontend-service
+                    port:
+                      number: 80
+          - host: api.medical-ai.com
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: medical-ai-backend-service
+                    port:
+                      number: 80
+          - host: portal.medical-ai.com
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: medical-ai-frontend-service
+                    port:
+                      number: 80
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gcp-load-balancer-config
+  namespace: medical-ai-production
+data:
+  gcp-gke-lb.yaml: |
+    # Google Cloud Load Balancing Configuration for Medical AI
+    apiVersion: networking.gke.io/v1
+    kind: ManagedCertificate
+    metadata:
+      name: medical-ai-ssl-cert
+      namespace: medical-ai-production
+    spec:
+      domains:
+        - medical-ai.com
+        - api.medical-ai.com
+        - portal.medical-ai.com
+      visibility: "PUBLIC"
+    
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: medical-ai-backend-glb
+      namespace: medical-ai-production
+      annotations:
+        cloud.google.com/backend-config: '{"default": "medical-ai-backend-backendconfig"}'
+        cloud.google.com/neg: '{"ingress": true}'
+        cloud.google.com/neg-status: '{"network_endpoint_groups":{"80":"k8s1-7b6ba38a-medical-ai-production-medical-ai-backend-service-80-bd8fce0d"}}'
+        cloud.google.com/app-protocols: '{"http":"HTTP","grpc":"GRPC"}'
+        cloud.google.com/backend-health-check: '{"health_check":"health-check"}'
+    spec:
+      type: LoadBalancer
+      loadBalancerIP: "YOUR_IP_ADDRESS"
+      ports:
+      - port: 80
+        targetPort: 8000
+        protocol: TCP
+        name: http
+      - port: 443
+        targetPort: 8000
+        protocol: TCP
+        name: https
+      - port: 9090
+        targetPort: 9090
+        protocol: TCP
+        name: grpc
+      selector:
+        app: medical-ai-backend
+      sessionAffinity: ClientIP
+      sessionAffinityConfig:
+        clientIP:
+          timeoutSeconds: 86400
+    
+    ---
+    apiVersion: cloud.google.com/v1
+    kind: BackendConfig
+    metadata:
+      name: medical-ai-backend-backendconfig
+      namespace: medical-ai-production
+    spec:
+      healthCheck:
+        checkIntervalSec: 30
+        timeoutSec: 5
+        healthyThreshold: 2
+        unhealthyThreshold: 3
+        type: HTTP
+        requestPath: /health
+        port: 80
+        # HIPAA-compliant health check configuration
+        loggingEnabled: true
+        logConfig:
+          enable: true
+          eventType: HEALTH_CHECK_EVENT
+        
+      sessionAffinity:
+        affinityType: "CLIENT_IP"
+        affinityCookieTtlSec: 86400
+        
+      connectionDraining:
+        drainingTimeoutSec: 300
+        
+      loadBalancingScheme: "EXTERNAL_MANAGED"
+      
+      securityPolicy:
+        name: "medical-ai-security-policy"
+        
+      logging:
+        enable: true
+        sampleRate: 1.0
+        
+      cdn:
+        enabled: true
+        cacheMode: "CACHE_ALL_STATIC"
+        negativeCaching: true
+        signedUrlCacheMaxAgeSec: 3600
+        
+    ---
+    apiVersion: cloud.google.com/v1
+    kind: SecurityPolicy
+    metadata:
+      name: medical-ai-security-policy
+      namespace: medical-ai-production
+    spec:
+      # HIPAA and healthcare compliance rules
+      rules:
+      - priority: "1000"
+        action: "deny-403"
+        description: "Deny all traffic"
+        match:
+          expr:
+            expression: "true"
+        preview: false
+        
+      - priority: "1"
+        action: "allow"
+        description: "Allow medical AI application traffic"
+        match:
+          expr:
+            expression: |
+              origin.region_code == "US" &&
+              inIpRange(origin.ip, ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]) == false &&
+              httpRequest.path.matches("/health|/api/v1/.*|/api/v2/.*")
+        preview: false
+        
+      adaptiveProtectionConfig:
+        layer7DdosDefenseConfig:
+          enable: true
+          ruleVisibility: "STANDARD"
+        autoDeployConfig:
+          loadThreshold: 0.1
+          confidenceThreshold: 0.5
+          impactedBaselineThreshold: 0.01
+          expiration: "604800"
+          
+      rateLimitOptions:
+        enforceOnKey: "IP"
+        rateLimitThreshold:
+          count: 1000
+          intervalSec: 60
+        exceedAction: "DENY_429"
+        conformAction: "allow"
+        onFailureAction: "deny-429"
+        
+      redirectOptions:
+        redirectType: "EXTERNAL_302"
+        redirectResponseCode: "MOVED_PERMANENTLY_DEFAULT"
+        
+      autoDeployConfig:
+        loadThreshold: 0.1
+        confidenceThreshold: 0.5
+        impactedBaselineThreshold: 0.01
+        expiration: "604800"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: azure-load-balancer-config
+  namespace: medical-ai-production
+data:
+  azure-aks-lb.yaml: |
+    # Azure Kubernetes Service Load Balancer Configuration
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: medical-ai-backend-alb
+      namespace: medical-ai-production
+      annotations:
+        service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+        service.beta.kubernetes.io/azure-pip-name: "medical-ai-pip"
+        service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: "/health"
+        service.beta.kubernetes.io/azure-load-balancer-ports: "80,443,9090"
+        service.beta.kubernetes.io/azure-dns-label-name: "medical-ai-prod"
+        service.beta.kubernetes.io/azure-shared-securitygroup: "false"
+        
+        # Azure Application Gateway Integration
+        appgw.ingress.kubernetes.io/backend-protocol: "Http"
+        appgw.ingress.kubernetes.io/ssl-redirect: "True"
+        appgw.ingress.kubernetes.io/connection-draining: "True"
+        appgw.ingress.kubernetes.io/connection-draining-timeout: "60"
+        
+        # Healthcare-specific configurations
+        service.beta.kubernetes.io/azure-load-balancer-enable-azure-secondary-ips: "true"
+        service.beta.kubernetes.io/azure-load-balancer-enable-health-probes: "true"
+        service.beta.kubernetes.io/azure-load-balancer-protocol: "Tcp"
+        
+        # Security and HIPAA compliance
+        service.beta.kubernetes.io/azure-pip-security-group: "medical-ai-nsg"
+        service.beta.kubernetes.io/azure-load-balancer-subnet: "frontend-subnet"
+        
+        # Session affinity for patient sessions
+        service.beta.kubernetes.io/azure-load-balancer-cookie-name: "ARRAffinity"
+        service.beta.kubernetes.io/azure-load-balancer-cookie-based-affinity: "enabled"
+        service.beta.kubernetes.io/azure-load-balancer-cookie-timeout: "86400"
+    spec:
+      type: LoadBalancer
+      loadBalancerIP: "YOUR_AZURE_PUBLIC_IP"
+      ports:
+      - port: 80
+        targetPort: 8000
+        protocol: TCP
+        name: http
+      - port: 443
+        targetPort: 8000
+        protocol: TCP
+        name: https
+      - port: 9090
+        targetPort: 9090
+        protocol: TCP
+        name: grpc
+      selector:
+        app: medical-ai-backend
+      sessionAffinity: ClientIP
+      sessionAffinityConfig:
+        clientIP:
+          timeoutSeconds: 86400
+    
+    ---
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: medical-ai-ingress-azure
+      namespace: medical-ai-production
+      annotations:
+        kubernetes.io/ingress.class: "azure/application-gateway"
+        
+        # SSL Configuration
+        appgw.ingress.kubernetes.io/ssl-certificate: "medical-ai-ssl-cert"
+        appgw.ingress.kubernetes.io/ssl-redirect: "true"
+        
+        # Healthcare-compliant backend settings
+        appgw.ingress.kubernetes.io/backend-protocol: "Http"
+        appgw.ingress.kubernetes.io/connection-draining: "true"
+        appgw.ingress.kubernetes.io/connection-draining-timeout: "60"
+        
+        # Health probe configuration
+        appgw.ingress.kubernetes.io/health-probe-request-path: "/health"
+        appgw.ingress.kubernetes.io/health-probe-interval: "30"
+        appgw.ingress.kubernetes.io/health-probe-timeout: "5"
+        appgw.ingress.kubernetes.io/health-probe-unhealthy-threshold: "3"
+        appgw.ingress.kubernetes.io/health-probe-healthy-threshold: "2"
+        
+        # WAF Configuration
+        appgw.ingress.kubernetes.io/waf-policy-path: "/etc/kubernetes/policies/medical-ai-waf.xml"
+        appgw.ingress.kubernetes.io/waf-mode: "prevention"
+        
+        # Rate limiting for PHI protection
+        appgw.ingress.kubernetes.io/rate-limit: "1000"
+        appgw.ingress.kubernetes.io/rate-limit-window: "1m"
+        
+        # Rewrite rules for healthcare API routing
+        appgw.ingress.kubernetes.io/rewrite-rule-set: "medical-ai-rewrite-rules"
+        
+        # Cookie affinity for patient sessions
+        appgw.ingress.kubernetes.io/cookie-based-affinity: "enabled"
+        appgw.ingress.kubernetes.io/cookie-timeout: "86400"
+    spec:
+      tls:
+      - hosts:
+        - medical-ai.com
+        - api.medical-ai.com
+        - portal.medical-ai.com
+        secretName: medical-ai-tls-secret
+      rules:
+      - host: medical-ai.com
+        http:
+          paths:
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: medical-ai-backend-service
+                port:
+                  number: 80
+          - path: /api/v2
+            pathType: Prefix
+            backend:
+              service:
+                name: medical-ai-backend-service
+                port:
+                  number: 80
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: medical-ai-backend-service
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: medical-ai-frontend-service
+                port:
+                  number: 80
+
+---
+# Auto-scaling Configuration for Load Balancers
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-ingress-autoscaler
+  namespace: medical-ai-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-ingress-controller
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: nginx_ingress_controller_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "10000"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 120
